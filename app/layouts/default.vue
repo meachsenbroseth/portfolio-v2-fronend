@@ -3,14 +3,14 @@
     <div class="grid-bg fixed inset-0 -z-10 pointer-events-none"></div>
 
     <Navbar />
-
-    <main class="relative z-10 max-w-6xl mx-auto px-6 py-12">
       <slot />
-    </main>
+
+    <FooterComponent/>
   </div>
 </template>
 
 <script setup lang="ts">
+import FooterComponent from '~/components/FooterComponent.vue';
 import Navbar from '~/components/Navbar.vue';
 </script>
 
