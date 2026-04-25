@@ -16,13 +16,6 @@
         style="background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.03) 3px, rgba(0,0,0,0.03) 4px);"
         aria-hidden="true"></div>
 
-      <!-- Status pill -->
-      <div
-        class="absolute top-5 left-5 flex items-center gap-2 px-3 py-1.5 bg-white/88 border border-[#d4d1d0] backdrop-blur-sm">
-        <span class="w-1.5 h-1.5 bg-[#131313] animate-pulse flex-shrink-0" aria-hidden="true"></span>
-        <span class="text-[9px] font-bold tracking-[0.18em] uppercase text-[#313030]">CLASSICAL_PHILOSOPHIES</span>
-      </div>
-
       <!-- Ghost number -->
       <div
         class="absolute bottom-4 left-5 text-[clamp(3rem,8vw,6rem)] font-bold tracking-[-0.04em] text-black/[0.06] leading-none select-none pointer-events-none"
@@ -40,22 +33,6 @@
         aria-hidden="true"></span>
       <span class="absolute bottom-2.5 right-2.5 w-3 h-3 border-b border-r border-[#aaa] pointer-events-none"
         aria-hidden="true"></span>
-
-      <!-- Top bar -->
-      <header class="flex items-center justify-between px-6 py-4 border-b border-[#e0dddc] flex-shrink-0">
-        <span class="text-[9px] tracking-[0.16em] uppercase text-[#9e9a98]">
-          MSB_MANIFESTO_V{{ String(current.id).padStart(2, '0') }}
-        </span>
-        <nav class="flex gap-6">
-          <NuxtLink v-for="link in [{ to: '/projects', label: 'Projects' }, { to: '/about', label: 'About' }]"
-            :key="link.to" :to="link.to"
-            class="relative text-[10px] font-bold tracking-[0.14em] uppercase text-[#5d5f5f] no-underline transition-colors duration-200 hover:text-[#131313] group">
-            {{ link.label }}
-            <span
-              class="absolute left-0 right-0 -bottom-0.5 h-px bg-[#131313] scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left"></span>
-          </NuxtLink>
-        </nav>
-      </header>
 
       <!-- Content -->
       <div class="flex-1 flex flex-col justify-center overflow-hidden px-6 py-4 md:px-12 lg:px-16">
@@ -95,7 +72,7 @@
 
       <!-- Footer / Controls -->
       <footer
-        class="flex items-end justify-between px-6 pb-5 pt-3 border-t border-[#e0dddc] flex-shrink-0 gap-4 md:px-12 lg:px-16">
+        class="flex flex-wrap items-center justify-between px-6 pb-5 pt-3 border-t border-[#e0dddc] flex-shrink-0 gap-3 md:px-12 lg:px-16">
         <div class="text-[10px] italic text-[#bbb] leading-[1.7] tracking-wide">
           <p>/**</p>
           <p>&nbsp;&nbsp;* @author {{ current.author.toLowerCase().replace(' ', '_') }}</p>
