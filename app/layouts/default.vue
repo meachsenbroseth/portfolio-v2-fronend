@@ -1,5 +1,5 @@
 <template>
-  <div class="relative min-h-screen isolate selection:bg-[#131313] selection:text-white overflow-x-hidden font-mono">
+  <div class="relative min-h-screen isolate selection:bg-[#131313] selection:text-white font-mono">
 
     <!-- Grid background -->
     <div
@@ -11,16 +11,17 @@
     <!-- Route loading bar -->
     <NuxtLoadingIndicator color="#131313" :height="1" :duration="3000" :throttle="200" />
 
-    <!-- Page transition -->
+    <!-- Navbar is OUTSIDE the transition so it never re-mounts -->
+    <Navbar />
+
+    <!-- Only the page content transitions -->
     <Transition name="page" mode="out-in" appear>
-      <div :key="route.path" class="flex flex-col min-h-screen">
-        <Navbar />
-        <main id="main-content" class="flex-1">
-          <slot />
-        </main>
-        <FooterComponent />
-      </div>
+      <main :key="route.path" id="main-content" class="flex-1">
+        <slot />
+      </main>
     </Transition>
+
+    <FooterComponent />
   </div>
 </template>
 
@@ -45,13 +46,11 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Skip to content — accessibility */
 #main-content:focus {
   outline: 2px solid #131313;
   outline-offset: 2px;
 }
 
-/* Page transition */
 .page-enter-active,
 .page-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;
@@ -64,4 +63,4 @@ html, body {
   opacity: 0;
   transform: translateY(-4px);
 }
-</style>
+</style>  

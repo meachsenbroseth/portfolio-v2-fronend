@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-50 bg-white border-b border-zinc-200 font-mono">
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/70 supports-[backdrop-filter]:bg-white/60">
     
     <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
       
