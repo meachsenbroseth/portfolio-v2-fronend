@@ -2,11 +2,9 @@
   <div class="relative min-h-screen isolate selection:bg-[#131313] selection:text-white font-mono">
 
     <!-- Grid background -->
-    <div
-      class="fixed inset-0 -z-10 pointer-events-none"
+    <div class="fixed inset-0 -z-10 pointer-events-none"
       style="background-size:24px 24px; background-image: linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px);"
-      aria-hidden="true"
-    ></div>
+      aria-hidden="true"></div>
 
     <!-- Route loading bar -->
     <NuxtLoadingIndicator color="#131313" :height="1" :duration="3000" :throttle="200" />
@@ -33,11 +31,14 @@ const route = useRoute()
 </script>
 
 <style>
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   border-radius: 0 !important;
 }
 
-html, body {
+html,
+body {
   background-color: #ffffff;
   margin: 0;
   padding: 0;
@@ -55,12 +56,14 @@ html, body {
 .page-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
+
 .page-enter-from {
   opacity: 0;
   transform: translateY(8px);
 }
+
 .page-leave-to {
   opacity: 0;
   transform: translateY(-4px);
 }
-</style>  
+</style>

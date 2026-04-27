@@ -1,8 +1,8 @@
 <template>
-admin dashbord
+    admin dashbord
 </template>
 <script setup>
 definePageMeta({
-    layout:'admin-layout'
+    layout: 'admin-layout'
 })
 </script>
