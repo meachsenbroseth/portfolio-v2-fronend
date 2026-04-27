@@ -1,20 +1,14 @@
 <template>
   <div class="relative min-h-screen isolate selection:bg-[#131313] selection:text-white font-mono">
-
-    <!-- Grid background -->
-    <div class="fixed inset-0 -z-10 pointer-events-none"
-      style="background-size:24px 24px; background-image: linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px);"
-      aria-hidden="true"></div>
-
     <!-- Route loading bar -->
-    <NuxtLoadingIndicator color="#131313" :height="1" :duration="3000" :throttle="200" />
+    <NuxtLoadingIndicator color="#131313" :height="2" :duration="3000" :throttle="200" />
 
-    <!-- Navbar is OUTSIDE the transition so it never re-mounts -->
+    <!-- Navbar - outside transition to prevent re-mounting -->
     <Navbar />
 
-    <!-- Only the page content transitions -->
+    <!-- Page content with transition -->
     <Transition name="page" mode="out-in" appear>
-      <main :key="route.path" id="main-content" class="flex-1">
+      <main :key="route.path" class="flex-1 focus:outline-none focus:ring-2 focus:ring-[#131313] focus:ring-offset-2">
         <slot />
       </main>
     </Transition>
@@ -31,30 +25,18 @@ const route = useRoute()
 </script>
 
 <style>
+/* Reset all border radius to 0 (sharp corners) */
 *,
 *::before,
 *::after {
   border-radius: 0 !important;
 }
 
-html,
-body {
-  background-color: #ffffff;
-  margin: 0;
-  padding: 0;
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-#main-content:focus {
-  outline: 2px solid #131313;
-  outline-offset: 2px;
-}
-
+/* Page transition animations */
 .page-enter-active,
 .page-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .page-enter-from {
@@ -65,5 +47,25 @@ body {
 .page-leave-to {
   opacity: 0;
   transform: translateY(-4px);
+}
+
+/* Ensure smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Base body styles */
+body {
+  background-color: #ffffff;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus styles for accessibility */
+:focus-visible {
+  outline: 2px solid #131313;
+  outline-offset: 2px;
 }
 </style>

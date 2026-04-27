@@ -1,16 +1,5 @@
 /* Typography */
-.grid-bg {
-  background-color: #ffffff;
-  /* Subtle 40px grid */
-  background-image: 
-    linear-gradient(#f4f4f5 1px, transparent 1px),
-    linear-gradient(90deg, #f4f4f5 1px, transparent 1px);
-  background-size: 40px 40px;
-  
-  /* This creates the "fade" effect so the grid isn't harsh at the edges */
-  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-}
+
 
 /* Ensure your Google Sans Code font is applied globally */
 body {
