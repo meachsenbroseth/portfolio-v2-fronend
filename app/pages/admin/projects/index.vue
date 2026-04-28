@@ -191,10 +191,68 @@
             <Textarea id="description" v-model="formData.description" rows="4" />
           </div>
 
-          <!-- Image URL -->
+          <!-- Main Image Upload -->
           <div class="space-y-2">
-            <Label for="image">Image URL</Label>
-            <Input id="image" v-model="formData.image" />
+            <Label>Main Image</Label>
+            <div class="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-gray-300 transition-colors">
+              <input
+                type="file"
+                ref="mainImageInput"
+                accept="image/*"
+                class="hidden"
+                @change="handleMainImageUpload"
+              />
+              <div v-if="formData.image" class="relative inline-block">
+                <img :src="formData.image" class="w-32 h-32 object-cover rounded-lg" />
+                <button
+                  type="button"
+                  @click="removeMainImage"
+                  class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                >
+                  <X class="h-3 w-3" />
+                </button>
+              </div>
+              <div v-else @click="$refs.mainImageInput.click()" class="cursor-pointer">
+                <Upload class="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                <p class="text-sm text-gray-500">Click to upload main image</p>
+                <p class="text-xs text-gray-400">PNG, JPG, GIF up to 5MB</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multiple Images Upload -->
+          <div class="space-y-2">
+            <Label>Gallery Images</Label>
+            <div class="border-2 border-dashed border-gray-200 rounded-lg p-4">
+              <input
+                type="file"
+                ref="galleryInput"
+                accept="image/*"
+                multiple
+                class="hidden"
+                @change="handleGalleryUpload"
+              />
+              
+              <!-- Image Preview Grid -->
+              <div v-if="formData.gallery && formData.gallery.length > 0" class="grid grid-cols-4 gap-3 mb-4">
+                <div v-for="(img, idx) in formData.gallery" :key="idx" class="relative group">
+                  <img :src="img" class="w-full h-20 object-cover rounded-lg border" />
+                  <button
+                    type="button"
+                    @click="removeGalleryImage(idx)"
+                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X class="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+              
+              <div @click="$refs.galleryInput.click()" class="cursor-pointer text-center">
+                <Images class="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                <p class="text-sm text-gray-500">Click to upload gallery images</p>
+                <p class="text-xs text-gray-400">Multiple images supported (max 10)</p>
+              </div>
+            </div>
           </div>
 
           <!-- Technologies -->
@@ -264,22 +322,24 @@ import { ref, computed } from 'vue'
 
 // Icons
 import {
-Plus,
-Folder,
-BadgeCheck,
-Activity,
-Code2,
-Search,
-X,
-Pencil,
-Trash2
+  Plus,
+  Folder,
+  BadgeCheck,
+  Activity,
+  Code2,
+  Search,
+  X,
+  Pencil,
+  Trash2,
+  Upload,
+  Images
 } from "lucide-vue-next"
 
 definePageMeta({
   layout: 'admin-layout'
 })
 
-// Dummy data
+// Dummy data with gallery support
 const projects = ref([
   {
     id: 1,
@@ -290,6 +350,10 @@ const projects = ref([
     status: 'in_progress',
     description: 'Comprehensive e-commerce and inventory management system with ABA PayWay and KHQR payment integrations.',
     image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=200&h=150&fit=crop',
+    gallery: [
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&h=150&fit=crop',
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop'
+    ],
     technologies: ['Laravel', 'Filament', 'Livewire', 'PostgreSQL'],
     live: null,
     github: 'https://github.com'
@@ -303,21 +367,12 @@ const projects = ref([
     status: 'completed',
     description: 'Custom CMS with headless architecture and a Nuxt 3 frontend.',
     image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=200&h=150&fit=crop',
+    gallery: [
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=150&fit=crop',
+      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=200&h=150&fit=crop'
+    ],
     technologies: ['Nuxt 3', 'Vue.js', 'TailwindCSS'],
     live: 'https://example.com',
-    github: 'https://github.com'
-  },
-  {
-    id: 3,
-    slug: 'khqr-dashboard',
-    title: 'KHQR Dashboard',
-    category: 'Fintech',
-    date: '2024',
-    status: 'completed',
-    description: 'Real-time payment monitoring for KHQR transactions.',
-    image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=200&h=150&fit=crop',
-    technologies: ['Nuxt 3', 'Laravel', 'WebSockets'],
-    live: null,
     github: 'https://github.com'
   }
 ])
@@ -331,6 +386,10 @@ const isEditing = ref(false)
 const projectToDelete = ref(null)
 const newTech = ref('')
 
+// File upload refs
+const mainImageInput = ref(null)
+const galleryInput = ref(null)
+
 // Form Data
 const formData = ref({
   id: null,
@@ -341,6 +400,7 @@ const formData = ref({
   status: 'completed',
   description: '',
   image: '',
+  gallery: [],
   technologies: [],
   live: '',
   github: ''
@@ -372,6 +432,52 @@ const filteredProjects = computed(() => {
   return filtered
 })
 
+// Image upload handlers
+const handleMainImageUpload = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      formData.value.image = e.target.result
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const handleGalleryUpload = (event) => {
+  const files = Array.from(event.target.files)
+  const maxImages = 10
+  
+  files.forEach(file => {
+    if (formData.value.gallery.length >= maxImages) {
+      alert(`Maximum ${maxImages} images allowed`)
+      return
+    }
+    
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      formData.value.gallery.push(e.target.result)
+    }
+    reader.readAsDataURL(file)
+  })
+  
+  // Clear input
+  if (galleryInput.value) {
+    galleryInput.value.value = ''
+  }
+}
+
+const removeMainImage = () => {
+  formData.value.image = ''
+  if (mainImageInput.value) {
+    mainImageInput.value.value = ''
+  }
+}
+
+const removeGalleryImage = (index) => {
+  formData.value.gallery.splice(index, 1)
+}
+
 // Methods
 const clearFilters = () => {
   searchQuery.value = ''
@@ -388,7 +494,8 @@ const openAddDialog = () => {
     date: new Date().getFullYear().toString(),
     status: 'completed',
     description: '',
-    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=200&h=150&fit=crop',
+    image: '',
+    gallery: [],
     technologies: [],
     live: '',
     github: ''
@@ -398,7 +505,10 @@ const openAddDialog = () => {
 
 const openEditDialog = (project) => {
   isEditing.value = true
-  formData.value = { ...project }
+  formData.value = { 
+    ...project,
+    gallery: project.gallery || []
+  }
   dialogOpen.value = true
 }
 
@@ -443,4 +553,3 @@ const deleteProject = () => {
   projectToDelete.value = null
 }
 </script>
-can u make separate page for add edit
