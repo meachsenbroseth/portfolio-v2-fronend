@@ -145,11 +145,11 @@
                                     <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                                         <span
                                             class="text-[9px] sm:text-[10px] font-bold text-[#131313] uppercase tracking-widest">{{
-                                            item.date }}</span>
+                                                item.date }}</span>
                                         <span class="text-[9px] sm:text-[10px] text-[#aaa]">—</span>
                                         <span
                                             class="text-[9px] sm:text-[10px] font-bold text-[#28c840] uppercase tracking-tighter">{{
-                                            item.company }}</span>
+                                                item.company }}</span>
                                     </div>
 
                                     <h3
@@ -158,7 +158,7 @@
                                     </h3>
 
                                     <p class="text-xs sm:text-sm text-[#5d5f5f] leading-relaxed max-w-md">{{ item.desc
-                                        }}</p>
+                                    }}</p>
 
                                     <div class="flex gap-1.5 sm:gap-2 mt-3 sm:mt-4 flex-wrap">
                                         <span v-for="tag in item.tags" :key="tag"
@@ -189,11 +189,11 @@
                                     <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                                         <span
                                             class="text-[9px] sm:text-[10px] font-bold text-[#131313] uppercase tracking-widest">{{
-                                            item.date }}</span>
+                                                item.date }}</span>
                                         <span class="text-[9px] sm:text-[10px] text-[#aaa]">—</span>
                                         <span
                                             class="text-[9px] sm:text-[10px] font-bold text-[#131313] uppercase tracking-tighter">{{
-                                            item.institution }}</span>
+                                                item.institution }}</span>
                                     </div>
 
                                     <h3
@@ -202,7 +202,7 @@
                                     </h3>
 
                                     <p class="text-xs sm:text-sm text-[#5d5f5f] leading-relaxed max-w-md">{{ item.desc
-                                        }}</p>
+                                    }}</p>
 
                                     <div class="flex gap-1.5 sm:gap-2 mt-3 sm:mt-4 flex-wrap">
                                         <span v-for="tag in item.focus" :key="tag"

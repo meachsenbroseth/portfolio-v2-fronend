@@ -1,171 +1,232 @@
 <template>
-  <div class="min-h-screen text-[#131313] font-mono overflow-x-hidden">
-                <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
-                style="background-size:32px 32px; background-image: linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px);">
-            </div>
-    <section class="px-4 sm:px-8 md:px-12 py-16 md:py-20">
-      <div class="max-w-6xl mx-auto">
+  <div class="min-h-screen py-24 px-6 font-mono selection:bg-[#131313] selection:text-white">
+    <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
+      style="background-size:32px 32px; background-image: linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px);">
+    </div>
 
-        <div class="reveal-up flex items-center gap-4 mb-10">
-          <span class="text-[9px] tracking-[0.22em] uppercase text-[#aaa]">[ 001 ]</span>
-          <div class="flex-1 h-px bg-[#e0dddc]"></div>
-          <span class="text-[9px] tracking-[0.22em] uppercase text-[#aaa]">ALL_PROJECTS</span>
-        </div>
+    <div class="max-w-5xl mx-auto">
 
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#e0dddc]">
-          <div
-            v-for="(project, i) in projects"
-            :key="project.id"
-            class="project-card group bg-white flex flex-col overflow-hidden cursor-default"
-            :style="`animation-delay:${i * 0.06}s`"
-          >
-            <!-- Image -->
-            <div class="relative overflow-hidden aspect-[16/10] flex-shrink-0 bg-[#f5f3f2]">
-              <img
-                :src="project.image"
-                :alt="project.title"
-                class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
-              />
-              <!-- Vignette -->
-              <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_50%,rgba(0,0,0,0.12)_100%)]"></div>
-              <!-- ID badge -->
-              <div class="absolute top-3 right-3 bg-white/90 border border-[#e0dddc] px-2 py-0.5 backdrop-blur-sm">
-                <span class="text-[8px] tracking-widest text-[#9e9a98]">{{ String(project.id).padStart(2, '0') }}</span>
-              </div>
-              <!-- Category badge -->
-              <div class="absolute bottom-3 left-3 bg-white/90 border border-[#e0dddc] px-2 py-0.5 backdrop-blur-sm">
-                <span class="text-[8px] tracking-[0.15em] uppercase text-[#5d5f5f]">{{ project.category }}</span>
-              </div>
+      <!-- Section header -->
+      <div class="reveal-up flex items-center gap-4 mb-12 sm:mb-16 md:mb-20">
+        <span class="text-[9px] tracking-[0.22em] uppercase text-[#aaa]">[ 001 ]</span>
+        <div class="flex-1 h-px bg-[#e0dddc]"></div>
+        <span class="text-[9px] tracking-[0.22em] uppercase text-[#aaa]">ALL_PROJECTS</span>
+      </div>
+
+      <!-- ── PROJECT LIST ── -->
+      <div v-if="projects && projects.length > 0" class="divide-y divide-[#e0dddc] border-t border-[#e0dddc]">
+        <NuxtLink
+          v-for="(item, i) in projects"
+          :key="item.id"
+          :to="`/projects/${item.slug}`"
+          class="group block relative hover:bg-[#fafafa] transition-all duration-500 overflow-hidden"
+          :style="`animation-delay:${i * 0.05}s`"
+        >
+          <div class="flex flex-col md:flex-row md:items-stretch">
+
+            <!-- Vertical ID sidebar -->
+            <div class="hidden md:flex flex-col justify-between p-6 border-r border-[#e0dddc] w-24 shrink-0 bg-[#fcfcfc] group-hover:bg-[#131313] group-hover:border-[#131313] transition-colors duration-500">
+              <span class="text-[10px] font-black text-[#131313] group-hover:text-white vertical-text tracking-widest">
+                ID_{{ String(item.id).padStart(3, '0') }}
+              </span>
+              <span class="text-[10px] font-bold text-[#aaa] group-hover:text-[#5d5f5f] vertical-text tracking-widest">
+                {{ item.date }}
+              </span>
             </div>
 
-            <!-- Info -->
-            <div class="flex flex-col flex-1 p-5 border-t border-[#e0dddc] group-hover:bg-[#131313] transition-colors duration-300">
-              <!-- Title row -->
-              <div class="flex items-start justify-between gap-3 mb-2">
-                <h3 class="text-sm font-black text-[#131313] group-hover:text-white leading-tight tracking-tight transition-colors duration-300">
-                  {{ project.title }}
-                </h3>
-                <span class="text-[#ccc] group-hover:text-white text-sm group-hover:translate-x-0.5 transition-all duration-200 flex-shrink-0 mt-0.5">→</span>
+            <div class="flex-1 p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center">
+
+              <!-- Image with offset frame -->
+              <div class="relative shrink-0 w-full md:w-56 aspect-[4/3] group-hover:-translate-y-1 transition-transform duration-500">
+                <div class="absolute inset-0 border border-[#e0dddc] translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-500"></div>
+                <div class="relative h-full w-full border border-[#131313] overflow-hidden">
+                  <img :src="item.image" :alt="item.title"
+                    class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
+                </div>
               </div>
 
-              <!-- Description -->
-              <p class="text-[11px] text-[#5d5f5f] group-hover:text-[#888] leading-relaxed mb-4 flex-1 transition-colors duration-300">
-                {{ project.description }}
-              </p>
+              <!-- Content -->
+              <div class="flex-1 space-y-4">
+                <div class="flex items-center gap-4">
+                  <span class="text-[8px] font-black uppercase tracking-[0.3em] px-2 py-1 border border-[#131313] text-[#131313]">
+                    {{ item.category }}
+                  </span>
+                  <div class="h-px w-8 bg-[#e0dddc]"></div>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-black text-[#131313] uppercase tracking-tighter leading-none group-hover:translate-x-2 transition-transform duration-300">
+                  {{ item.title }}
+                </h2>
+                <p class="text-sm text-[#5d5f5f] leading-relaxed max-w-xl line-clamp-2">
+                  {{ item.short_description || item.description }}
+                </p>
+                <div class="flex flex-wrap gap-2 pt-2">
+                  <span v-for="tech in item.technologies.slice(0, 4)" :key="tech"
+                    class="text-[9px] font-bold text-[#aaa] uppercase tracking-widest group-hover:text-[#131313] transition-colors">
+                    [{{ tech }}]
+                  </span>
+                </div>
+              </div>
 
-              <!-- Tags -->
-              <div class="flex flex-wrap gap-1.5">
-                <span
-                  v-for="tag in project.tags"
-                  :key="tag"
-                  class="text-[8px] border border-[#e0dddc] group-hover:border-[#333] px-2 py-0.5 text-[#aaa] group-hover:text-[#666] uppercase tracking-widest transition-colors duration-300"
-                >{{ tag }}</span>
+              <!-- Arrow -->
+              <div class="hidden lg:flex items-center justify-center p-4">
+                <div class="w-12 h-12 border border-[#e0dddc] flex items-center justify-center group-hover:bg-[#131313] group-hover:border-[#131313] transition-all duration-500">
+                  <span class="text-xl group-hover:text-white group-hover:translate-x-1 transition-all duration-300">→</span>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Green underline on hover -->
+          <div class="absolute bottom-0 left-0 h-[2px] bg-[#28c840] w-0 group-hover:w-full transition-all duration-700 ease-in-out"></div>
+        </NuxtLink>
+      </div>
+
+      <!-- ── EMPTY STATE ── -->
+      <div v-else class="border border-[#e0dddc] overflow-hidden">
+
+        <!-- Terminal header -->
+        <div class="flex items-center justify-between px-5 py-3 bg-[#f5f3f2] border-b border-[#e0dddc]">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 bg-[#ff5f57]"></span>
+            <span class="w-3 h-3 bg-[#febc2e]"></span>
+            <span class="w-3 h-3 bg-[#28c840]"></span>
+          </div>
+          <span class="text-[9px] tracking-[0.15em] uppercase text-[#aaa]">projects.exe — zsh</span>
+          <span class="text-[9px] text-[#ddd]">●</span>
         </div>
 
-      </div>
-    </section>
+        <!-- GIF + terminal body -->
+        <div class="grid md:grid-cols-2">
 
+          <!-- Left: GIF -->
+          <div class="relative aspect-square md:aspect-auto overflow-hidden border-b md:border-b-0 md:border-r border-[#e0dddc]">
+            <img
+              src="https://c.tenor.com/YQ-r_mFzlm0AAAAd/tenor.gif"
+              alt="Still cooking"
+              class="w-full h-full object-cover"
+              @error="e => e.target.src = 'https://media.tenor.com/DdpSGDqGTGwAAAAd/cat-typing.gif'"
+            />
+            <!-- Scanlines -->
+            <div class="absolute inset-0 pointer-events-none"
+              style="background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px);">
+            </div>
+            <!-- Overlay label -->
+            <div class="absolute bottom-0 left-0 right-0 bg-[#131313]/90 backdrop-blur-sm py-3 px-4 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-[#28c840] animate-pulse"></span>
+                <span class="text-[9px] font-black tracking-[0.22em] uppercase text-white">STILL COOKING</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Terminal output -->
+          <div class="p-8 flex flex-col justify-center gap-5">
+
+            <!-- Fake terminal lines -->
+            <div class="space-y-2 text-[11px]">
+              <div class="flex gap-2 opacity-30">
+                <span class="text-[#28c840] select-none">❯</span>
+                <span class="text-[#5d5f5f]">ls ~/projects</span>
+              </div>
+              <div class="flex gap-2 opacity-30">
+                <span class="text-[#28c840] select-none">❯</span>
+                <span class="text-red-400">Error: directory is empty</span>
+              </div>
+              <div class="border-t border-dashed border-[#e0dddc] my-3"></div>
+              <div class="flex gap-2">
+                <span class="text-[#28c840] select-none">❯</span>
+                <span class="text-[#8b43c4] font-bold">echo</span>
+                <span class="text-[#2e7d32]">"</span>
+                <span class="text-[#131313] font-bold">NULL_PTR — no projects found</span>
+                <span class="text-[#2e7d32]">"</span>
+              </div>
+              <div class="pl-5 text-[#5d5f5f] italic">
+                → system_status: cooking_in_progress
+              </div>
+            </div>
+
+            <!-- Status label -->
+            <div class="space-y-1.5 pt-2 border-t border-[#e0dddc]">
+              <p class="text-[9px] tracking-[0.28em] uppercase text-[#aaa]">System_Status: Empty_Archive</p>
+              <p class="text-[11px] text-[#5d5f5f] leading-relaxed max-w-xs">
+                No active project modules found. Check back soon — things are being built.
+              </p>
+            </div>
+
+            <!-- Animated progress bar -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[8px] tracking-widest uppercase text-[#aaa]">build progress</span>
+                <span class="text-[8px] tracking-widest uppercase text-[#28c840]">running...</span>
+              </div>
+              <div class="w-full border border-[#e0dddc] h-5 overflow-hidden">
+                <div
+                  class="h-full"
+                  style="background: repeating-linear-gradient(45deg, #131313 0px, #131313 10px, #facc15 10px, #facc15 20px); animation: progress 3s ease-in-out infinite;"
+                ></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Bottom status bar -->
+        <div class="flex items-center justify-between px-5 py-2 bg-[#131313] border-t border-[#131313]">
+          <div class="flex items-center gap-3 text-[8px] tracking-widest uppercase">
+            <span class="text-[#555]">zsh</span>
+            <span class="text-[#333]">|</span>
+            <span class="text-[#555]">utf-8</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-1 h-1 bg-[#facc15]"></span>
+            <span class="text-[8px] tracking-widest text-[#facc15] uppercase">building</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </template>
 
 <script setup>
 const projects = [
+  // uncomment to test with data
   {
-    id: 1,
-    slug: 'phanna-erp',
-    title: 'Phanna Computer ERP',
-    category: 'Enterprise System',  
-    description: 'Comprehensive e-commerce and inventory management system with ABA PayWay and KHQR payment integrations.',
-    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80',
-    tags: ['Laravel', 'Filament', 'Livewire', 'PostgreSQL'],
-  },
-  {
-    id: 2,
-    slug: 'portfolio-cms',
-    title: 'Portfolio CMS',
-    category: 'Web App',
-    description: 'Custom CMS with headless architecture and a Nuxt 3 frontend for managing portfolio content.',
-    image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80',
-    tags: ['Nuxt 3', 'Vue.js', 'Express.js', 'MongoDB'],
-  },
-  {
-    id: 3,
-    slug: 'landing-builder',
-    title: 'Landing Page Builder',
-    category: 'Tool',
-    description: 'Drag-and-drop builder focused on performance and SEO for small business landing pages.',
-    image: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&q=80',
-    tags: ['Vue.js', 'Tailwind', 'Node.js'],
-  },
-  {
-    id: 4,
-    slug: 'api-gateway',
-    title: 'REST API Gateway',
-    category: 'Backend',
-    description: 'High-performance API gateway with rate limiting, caching, and JWT authentication.',
-    image: 'https://images.unsplash.com/photo-1618761714954-0b8cd0026356?w=800&q=80',
-    tags: ['Laravel', 'PostgreSQL', 'Redis', 'Docker'],
-  },
-  {
-    id: 5,
-    slug: 'khqr-dashboard',
-    title: 'KHQR Dashboard',
-    category: 'Fintech',
-    description: 'Real-time payment monitoring for KHQR transactions with analytics and export features.',
-    image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80',
-    tags: ['Nuxt 3', 'Laravel', 'WebSockets'],
-  },
-  {
-    id: 6,
-    slug: 'school-mgmt',
-    title: 'School Management System',
-    category: 'Enterprise System',
-    description: 'Full school administration platform covering students, attendance, grades, and fees.',
-    image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&q=80',
-    tags: ['Laravel', 'Filament', 'Alpine.js', 'MySQL'],
+    id: 1, slug: 'phanna-erp', title: 'Phanna Computer ERP',
+    category: 'Enterprise System', date: '2025',
+    short_description: 'Enterprise e-commerce and inventory management system.',
+    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=300&fit=crop',
+    technologies: ['Laravel', 'Filament', 'Livewire', 'PostgreSQL']
   },
 ]
-
-const allTags = computed(() => [...new Set(projects.flatMap(p => p.tags))])
-
-onMounted(() => {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible')
-          observer.unobserve(entry.target)
-        }
-      })
-    },
-    { threshold: 0.08 }
-  )
-  document.querySelectorAll('.reveal-up, .project-card').forEach(el => observer.observe(el))
-})
 </script>
 
 <style scoped>
 *, *::before, *::after { border-radius: 0 !important; }
 
-.text-outline {
-  -webkit-text-stroke: 2px #131313;
-  color: transparent;
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
 }
 
 .reveal-up {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  transform: translateY(20px);
+  animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-.reveal-up.visible { opacity: 1; transform: translateY(0); }
+@keyframes reveal {
+  to { opacity: 1; transform: translateY(0); }
+}
 
-.project-card {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.5s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.16,1,0.3,1);
+@keyframes progress {
+  0%   { width: 0%; }
+  50%  { width: 75%; }
+  100% { width: 0%; }
 }
-.project-card.visible { opacity: 1; transform: translateY(0); }
+
+.group:hover .line-clamp-2 {
+  -webkit-line-clamp: initial;
+  color: #131313;
+}
 </style>
