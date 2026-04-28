@@ -37,7 +37,7 @@
             <div class="flex-1 p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center">
 
               <!-- Image with offset frame -->
-              <div class="relative shrink-0 w-full md:w-56 aspect-[4/3] group-hover:-translate-y-1 transition-transform duration-500">
+              <div class="relative shrink-0 w-full md:w-56 aspect-4/3 group-hover:-translate-y-1 transition-transform duration-500">
                 <div class="absolute inset-0 border border-[#e0dddc] translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-500"></div>
                 <div class="relative h-full w-full border border-[#131313] overflow-hidden">
                   <img :src="item.image" :alt="item.title"
@@ -77,7 +77,7 @@
           </div>
 
           <!-- Green underline on hover -->
-          <div class="absolute bottom-0 left-0 h-[2px] bg-[#28c840] w-0 group-hover:w-full transition-all duration-700 ease-in-out"></div>
+          <div class="absolute bottom-0 left-0 h-0.5 bg-[#28c840] w-0 group-hover:w-full transition-all duration-700 ease-in-out"></div>
         </NuxtLink>
       </div>
 
@@ -226,7 +226,7 @@ const projects = [
 }
 
 .group:hover .line-clamp-2 {
-  -webkit-line-clamp: initial;
+  line-clamp: initial;
   color: #131313;
 }
 </style>

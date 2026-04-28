@@ -182,7 +182,7 @@
                             <div v-for="(item, i) in education" :key="item.id"
                                 class="relative pl-6 sm:pl-8 pb-10 sm:pb-12 group last:pb-0">
                                 <div
-                                    class="absolute left-[-5px] top-0 w-[9px] h-[9px] bg-white border border-[#131313] group-hover:bg-[#131313] transition-colors duration-300">
+                                    class="absolute left-[-5px] top-0 w-[9px] h-9px bg-white border border-[#131313] group-hover:bg-[#131313] transition-colors duration-300">
                                 </div>
 
                                 <div class="reveal-up" :style="`animation-delay:${0.2 + i * 0.1}s`">
