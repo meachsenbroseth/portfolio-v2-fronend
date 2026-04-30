@@ -12,46 +12,6 @@
       </Button>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Total Projects</CardTitle>
-          <Folder class="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div class="text-2xl font-bold">{{ projects.length }}</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Published</CardTitle>
-          <BadgeCheck class="h-4 w-4 text-green-600" />
-        </CardHeader>
-        <CardContent>
-          <div class="text-2xl font-bold text-green-600">{{ publishedCount }}</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">In Progress</CardTitle>
-          <Activity class="h-4 w-4 text-yellow-600" />
-        </CardHeader>
-        <CardContent>
-          <div class="text-2xl font-bold text-yellow-600">{{ inProgressCount }}</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Technologies</CardTitle>
-          <Code2 class="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div class="text-2xl font-bold">{{ uniqueTechCount }}</div>
-        </CardContent>
-      </Card>
-    </div>
-
     <!-- Search & Filter -->
     <div class="flex flex-col sm:flex-row gap-4">
       <div class="relative flex-1">
@@ -323,10 +283,6 @@ import { ref, computed } from 'vue'
 // Icons
 import {
   Plus,
-  Folder,
-  BadgeCheck,
-  Activity,
-  Code2,
   Search,
   X,
   Pencil,
@@ -336,7 +292,8 @@ import {
 } from "lucide-vue-next"
 
 definePageMeta({
-  layout: 'admin-layout'
+  layout: 'admin-layout',
+  middleware: 'auth'
 })
 
 // Dummy data with gallery support
@@ -406,14 +363,6 @@ const formData = ref({
   github: ''
 })
 
-// Computed
-const publishedCount = computed(() => projects.value.filter(p => p.status === 'completed').length)
-const inProgressCount = computed(() => projects.value.filter(p => p.status === 'in_progress').length)
-const uniqueTechCount = computed(() => {
-  const techs = new Set()
-  projects.value.forEach(p => p.technologies.forEach(t => techs.add(t)))
-  return techs.size
-})
 
 const filteredProjects = computed(() => {
   let filtered = [...projects.value]

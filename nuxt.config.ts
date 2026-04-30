@@ -6,7 +6,8 @@ export default defineNuxtConfig({
     '@nuxt/fonts',
     '@nuxtjs/tailwindcss',
     '@nuxt/icon',
-    'shadcn-nuxt'
+    'shadcn-nuxt',
+    '@pinia/nuxt'
   ],
   css: ['~/assets/css/main.css'],
   tailwindcss: {
@@ -34,5 +35,10 @@ export default defineNuxtConfig({
         weights: [400, 500, 700]
       }
     ]
-  }
+  },
+    runtimeConfig: {
+    public: {
+      apiBase: process.env.NUXT_PUBLIC_API_BASE,
+    }
+  },
 })

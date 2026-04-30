@@ -36,45 +36,39 @@
             <DropdownMenuTrigger as-child>
               <SidebarMenuButton size="lg"
                 class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-                <!-- Avatar -->
-                <div
-                  class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold shrink-0">
-                  ST
+                <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  {{ getUserInitials() }}
                 </div>
-                <!-- Name + email — hidden when icon-collapsed -->
                 <div class="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
-                  <span class="text-sm font-semibold truncate">Seth</span>
-                  <span class="text-xs text-muted-foreground truncate">seth@email.com</span>
+                  <span class="text-sm font-semibold truncate">{{ authStore.userName }}</span>
+                  <span class="text-xs text-muted-foreground truncate">{{ authStore.userEmail }}</span>
                 </div>
-                <!-- Chevron -->
                 <Icon name="lucide:chevrons-up-down"
                   class="ml-auto w-4 h-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent side="top" class="w-56" align="start">
-              <!-- Profile info header -->
               <div class="flex items-center gap-2 px-2 py-1.5 mb-1">
-                <div
-                  class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold shrink-0">
-                  ST
+                <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold shrink-0">
+                  {{ getUserInitials() }}
                 </div>
                 <div class="flex flex-col leading-tight">
-                  <span class="text-sm font-semibold">Seth</span>
-                  <span class="text-xs text-muted-foreground">seth@email.com</span>
+                  <span class="text-sm font-semibold">{{ authStore.user?.name || 'Admin User' }}</span>
+                  <span class="text-xs text-muted-foreground">{{ authStore.user?.email || 'admin@example.com' }}</span>
                 </div>
               </div>
 
               <DropdownMenuSeparator />
 
               <DropdownMenuItem class="cursor-pointer">
-                <nuxt-link to="/admin/profile">
+                <nuxt-link to="/admin/profile" class="flex items-center w-full">
                   <Icon name="lucide:user" class="w-4 h-4 mr-2" />
                   Profile
                 </nuxt-link>
               </DropdownMenuItem>
               <DropdownMenuItem class="cursor-pointer">
-                <nuxt-link to="/admin/settings">
+                <nuxt-link to="/admin/settings" class="flex items-center w-full">
                   <Icon name="lucide:settings" class="w-4 h-4 mr-2" />
                   Settings
                 </nuxt-link>
@@ -92,8 +86,10 @@
               <DropdownMenuSeparator />
 
               <DropdownMenuItem class="cursor-pointer text-red-500 focus:text-red-500">
-                <Icon name="lucide:log-out" class="w-4 h-4 mr-2" />
-                Sign Out
+                <div @click="handleLogout" class="flex items-center w-full">
+                  <Icon name="lucide:log-out" class="w-4 h-4 mr-2" />
+                  Sign Out
+                </div>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -128,6 +124,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
 
 const navItems = [
   { path: '/admin', label: 'Dashboard', icon: 'lucide:layout-dashboard' },
@@ -135,8 +133,29 @@ const navItems = [
   { path: '/admin/status', label: 'Status', icon: 'lucide:activity' },
 ]
 
+const getUserInitials = () => {
+  const name = authStore.user?.name || 'Admin User'
+  return name
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
+const handleLogout = async () => {
+  await authStore.logout()
+  router.push('/admin/login')
+}
+
 const isActive = (path) => {
   if (path === '/admin') return route.path === '/admin'
   return route.path.startsWith(path)
 }
+
+// Initialize auth on component mount
+onMounted(async () => {
+  // Use initAuth() instead of loadToken()
+  await authStore.initAuth()
+})
 </script>

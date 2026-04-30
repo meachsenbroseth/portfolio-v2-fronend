@@ -159,7 +159,8 @@ import {
 } from "lucide-vue-next"
 
 definePageMeta({
-  layout: 'admin-layout'
+  layout: 'admin-layout',
+  middleware:'auth'
 })
 
 // Profile Data (read-only view)

@@ -18,46 +18,6 @@
       </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Total Experience</CardTitle>
-          <Briefcase class="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div class="text-2xl font-bold">{{ experience.length }}</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Total Education</CardTitle>
-          <GraduationCap class="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div class="text-2xl font-bold text-green-600">{{ education.length }}</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Current Role</CardTitle>
-          <User class="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div class="text-sm font-medium truncate">{{ currentRole }}</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium">Latest Education</CardTitle>
-          <Calendar class="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div class="text-sm font-medium truncate">{{ latestEducation }}</div>
-        </CardContent>
-      </Card>
-    </div>
-
     <!-- Experience Section -->
     <Card>
       <CardHeader>
@@ -307,7 +267,8 @@ import {
 } from "lucide-vue-next"
 
 definePageMeta({
-  layout: 'admin-layout'
+  layout: 'admin-layout',
+  middleware:'auth'
 })
 
 // Data
@@ -374,17 +335,6 @@ const eduForm = ref({
   date: '',
   desc: '',
   focus: []
-})
-
-// Computed
-const currentRole = computed(() => {
-  const current = experience.value.find(exp => exp.date.includes('PRESENT'))
-  return current ? current.title : 'Not specified'
-})
-
-const latestEducation = computed(() => {
-  if (education.value.length === 0) return 'Not specified'
-  return education.value[0].title
 })
 
 // Experience Methods
