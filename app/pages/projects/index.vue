@@ -13,8 +13,13 @@
         <span class="text-[9px] tracking-[0.22em] uppercase text-[#aaa]">ALL_PROJECTS</span>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="loading" class="flex justify-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#131313]"></div>
+      </div>
+
       <!-- ── PROJECT LIST ── -->
-      <div v-if="projects && projects.length > 0" class="divide-y divide-[#e0dddc] border-t border-[#e0dddc]">
+      <div v-else-if="projects && projects.length > 0" class="divide-y divide-[#e0dddc] border-t border-[#e0dddc]">
         <NuxtLink
           v-for="(item, i) in projects"
           :key="item.id"
@@ -40,8 +45,9 @@
               <div class="relative shrink-0 w-full md:w-56 aspect-4/3 group-hover:-translate-y-1 transition-transform duration-500">
                 <div class="absolute inset-0 border border-[#e0dddc] translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-500"></div>
                 <div class="relative h-full w-full border border-[#131313] overflow-hidden">
-                  <img :src="item.image" :alt="item.title"
-                    class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
+                  <img :src="getImageUrl(item.image)" :alt="item.title"
+                    class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
+                    @error="handleImageError" />
                 </div>
               </div>
 
@@ -49,7 +55,7 @@
               <div class="flex-1 space-y-4">
                 <div class="flex items-center gap-4">
                   <span class="text-[8px] font-black uppercase tracking-[0.3em] px-2 py-1 border border-[#131313] text-[#131313]">
-                    {{ item.category }}
+                    {{ item.category || 'Project' }}
                   </span>
                   <div class="h-px w-8 bg-[#e0dddc]"></div>
                 </div>
@@ -57,10 +63,10 @@
                   {{ item.title }}
                 </h2>
                 <p class="text-sm text-[#5d5f5f] leading-relaxed max-w-xl line-clamp-2">
-                  {{ item.short_description || item.description }}
+                  {{ item.description || item.desc }}
                 </p>
                 <div class="flex flex-wrap gap-2 pt-2">
-                  <span v-for="tech in item.technologies.slice(0, 4)" :key="tech"
+                  <span v-for="tech in (item.technologies || []).slice(0, 4)" :key="tech"
                     class="text-[9px] font-bold text-[#aaa] uppercase tracking-widest group-hover:text-[#131313] transition-colors">
                     [{{ tech }}]
                   </span>
@@ -189,16 +195,55 @@
 </template>
 
 <script setup>
-const projects = [
-  // uncomment to test with data
-  {
-    id: 1, slug: 'phanna-erp', title: 'Phanna Computer ERP',
-    category: 'Enterprise System', date: '2025',
-    short_description: 'Enterprise e-commerce and inventory management system.',
-    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=300&fit=crop',
-    technologies: ['Laravel', 'Filament', 'Livewire', 'PostgreSQL']
-  },
-]
+import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+
+definePageMeta({
+  layout: 'default'
+})
+
+// Use project store
+const projectStore = useProjectStore()
+const { projects, loading } = storeToRefs(projectStore)
+
+// Helper to get full image URL
+const getImageUrl = (path) => {
+  if (!path) return 'https://via.placeholder.com/400x300?text=No+Image'
+  
+  // If it's already a full URL
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path
+  }
+  
+  // If it's a data URL (base64)
+  if (path.startsWith('data:')) {
+    return path
+  }
+  
+  // Otherwise, construct the full URL from API
+  const config = useRuntimeConfig()
+  const baseUrl = config.public.apiBase || 'http://127.0.0.1:8000/api'
+  const apiBase = baseUrl.replace('/api', '')
+  
+  // Remove leading slash if present
+  const cleanPath = path.startsWith('/') ? path.substring(1) : path
+  
+  return `${apiBase}/storage/${cleanPath}`
+}
+
+// Handle image loading errors
+const handleImageError = (event) => {
+  event.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'
+}
+
+// Fetch projects on mount
+onMounted(async () => {
+  try {
+    await projectStore.fetchProjects()
+  } catch (error) {
+    console.error('Failed to fetch projects:', error)
+  }
+})
 </script>
 
 <style scoped>
@@ -228,5 +273,12 @@ const projects = [
 .group:hover .line-clamp-2 {
   line-clamp: initial;
   color: #131313;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>

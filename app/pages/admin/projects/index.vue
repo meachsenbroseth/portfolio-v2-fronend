@@ -1,7 +1,6 @@
 <template>
   <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 class="text-2xl font-bold tracking-tight">Projects</h1>
         <p class="text-sm text-muted-foreground">Manage your portfolio projects</p>
@@ -12,93 +11,92 @@
       </Button>
     </div>
 
-    <!-- Search & Filter -->
-    <div class="flex flex-col sm:flex-row gap-4">
-      <div class="relative flex-1">
-        <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          v-model="searchQuery"
-          placeholder="Search projects..."
-          class="pl-9"
-        />
-      </div>
-      <Select v-model="statusFilter">
-        <SelectTrigger class="w-45">
-          <SelectValue placeholder="Filter by status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Status</SelectItem>
-          <SelectItem value="completed">Completed</SelectItem>
-          <SelectItem value="in_progress">In Progress</SelectItem>
-        </SelectContent>
-      </Select>
-      <Button variant="outline" @click="clearFilters">
-        <X class="mr-2 h-4 w-4" />
-        Clear
-      </Button>
+    <div v-if="loading" class="flex justify-center py-12">
+      <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
     </div>
 
-    <!-- Projects Table -->
-    <Card>
-      <CardContent class="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead class="w-20">ID</TableHead>
-              <TableHead>Project</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead class="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow v-for="project in filteredProjects" :key="project.id">
-              <TableCell class="font-mono text-xs">{{ project.id }}</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded overflow-hidden bg-gray-100">
-                    <img :src="project.image" class="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <p class="font-medium">{{ project.title }}</p>
-                    <p class="text-xs text-muted-foreground">{{ project.slug }}</p>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <Badge variant="secondary">{{ project.category }}</Badge>
-              </TableCell>
-              <TableCell>
-                <Badge :variant="project.status === 'completed' ? 'default' : 'outline'">
-                  {{ project.status === 'completed' ? 'Completed' : 'In Progress' }}
-                </Badge>
-              </TableCell>
-              <TableCell>{{ project.date }}</TableCell>
-              <TableCell class="text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <Button variant="ghost" size="icon" @click="openEditDialog(project)">
-                    <Pencil class="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" @click="confirmDelete(project)">
-                    <Trash2 class="h-4 w-4 text-red-500" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow v-if="filteredProjects.length === 0">
-              <TableCell colspan="6" class="text-center py-8 text-muted-foreground">
-                No projects found
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <div v-else>
+      <div class="mb-6 flex flex-col gap-4 sm:flex-row">
+        <div class="relative flex-1">
+          <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input v-model="searchQuery" placeholder="Search projects..." class="pl-9" />
+        </div>
+        <Select v-model="statusFilter">
+          <SelectTrigger class="w-45">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button variant="outline" @click="clearFilters">
+          <X class="mr-2 h-4 w-4" />
+          Clear
+        </Button>
+      </div>
 
-    <!-- Add/Edit Dialog -->
+      <Card>
+        <CardContent class="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead class="w-20">ID</TableHead>
+                <TableHead>Project</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead class="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="project in filteredProjects" :key="project.id">
+                <TableCell class="font-mono text-xs">{{ project.id }}</TableCell>
+                <TableCell>
+                  <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 overflow-hidden rounded bg-gray-100">
+                      <img
+                        :src="project.image || placeholderImage"
+                        class="h-full w-full object-cover"
+                        @error="handleImageError"
+                      />
+                    </div>
+                    <div>
+                      <p class="font-medium">{{ project.title }}</p>
+                      <p class="text-xs text-muted-foreground">{{ project.slug }}</p>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge :variant="project.status === 'completed' ? 'default' : 'outline'">
+                    {{ project.status === 'completed' ? 'Completed' : 'In Progress' }}
+                  </Badge>
+                </TableCell>
+                <TableCell>{{ project.date }}</TableCell>
+                <TableCell class="text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="icon" @click="openEditDialog(project)">
+                      <Pencil class="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" @click="confirmDelete(project)">
+                      <Trash2 class="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+              <TableRow v-if="filteredProjects.length === 0">
+                <TableCell colspan="5" class="py-8 text-center text-muted-foreground">
+                  No projects found
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+
     <Dialog v-model:open="dialogOpen">
-      <DialogContent class="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent class="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{{ isEditing ? 'Edit Project' : 'Add New Project' }}</DialogTitle>
           <DialogDescription>
@@ -106,35 +104,28 @@
           </DialogDescription>
         </DialogHeader>
 
-        <form @submit.prevent="saveProject" class="space-y-4">
-          <!-- Title -->
+        <form class="space-y-4" enctype="multipart/form-data" @submit.prevent="saveProject">
           <div class="space-y-2">
             <Label for="title">Title *</Label>
-            <Input id="title" v-model="formData.title" required />
+            <Input id="title" v-model="form.title" required placeholder="My Awesome Project" />
+            <p class="text-xs text-muted-foreground">
+              Slug is generated automatically by the API.
+            </p>
           </div>
 
-          <!-- Slug -->
           <div class="space-y-2">
-            <Label for="slug">Slug *</Label>
-            <Input id="slug" v-model="formData.slug" required />
+            <Label for="category">Category</Label>
+            <Input id="category" v-model="form.category" placeholder="Web App, Enterprise, etc." />
           </div>
 
-          <!-- Category & Date -->
-          <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <Label for="category">Category *</Label>
-              <Input id="category" v-model="formData.category" required />
-            </div>
-            <div class="space-y-2">
-              <Label for="date">Date *</Label>
-              <Input id="date" v-model="formData.date" placeholder="2024" required />
-            </div>
+          <div class="space-y-2">
+            <Label for="date">Date *</Label>
+            <Input id="date" v-model="form.date" required placeholder="2026-05-01" />
           </div>
 
-          <!-- Status -->
           <div class="space-y-2">
             <Label for="status">Status</Label>
-            <Select v-model="formData.status">
+            <Select v-model="form.status">
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -145,82 +136,77 @@
             </Select>
           </div>
 
-          <!-- Description -->
           <div class="space-y-2">
             <Label for="description">Description</Label>
-            <Textarea id="description" v-model="formData.description" rows="4" />
+            <Textarea id="description" v-model="form.desc" rows="4" />
           </div>
 
-          <!-- Main Image Upload -->
           <div class="space-y-2">
             <Label>Main Image</Label>
-            <div class="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-gray-300 transition-colors">
+            <div class="rounded-lg border-2 border-dashed border-gray-200 p-4 text-center transition-colors hover:border-gray-300">
               <input
-                type="file"
                 ref="mainImageInput"
+                type="file"
                 accept="image/*"
                 class="hidden"
                 @change="handleMainImageUpload"
               />
-              <div v-if="formData.image" class="relative inline-block">
-                <img :src="formData.image" class="w-32 h-32 object-cover rounded-lg" />
+              <div v-if="form.imagePreview" class="relative inline-block">
+                <img :src="form.imagePreview" class="h-32 w-32 rounded-lg object-cover" />
                 <button
                   type="button"
+                  class="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
                   @click="removeMainImage"
-                  class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                 >
                   <X class="h-3 w-3" />
                 </button>
               </div>
-              <div v-else @click="$refs.mainImageInput.click()" class="cursor-pointer">
-                <Upload class="h-8 w-8 mx-auto text-gray-400 mb-2" />
+              <div v-else class="cursor-pointer" @click="mainImageInput?.click()">
+                <Upload class="mx-auto mb-2 h-8 w-8 text-gray-400" />
                 <p class="text-sm text-gray-500">Click to upload main image</p>
-                <p class="text-xs text-gray-400">PNG, JPG, GIF up to 5MB</p>
+                <p class="text-xs text-gray-400">PNG, JPG, WEBP up to 2MB</p>
               </div>
             </div>
           </div>
 
-          <!-- Multiple Images Upload -->
           <div class="space-y-2">
             <Label>Gallery Images</Label>
-            <div class="border-2 border-dashed border-gray-200 rounded-lg p-4">
+            <div class="rounded-lg border-2 border-dashed border-gray-200 p-4">
               <input
-                type="file"
                 ref="galleryInput"
+                type="file"
                 accept="image/*"
                 multiple
                 class="hidden"
                 @change="handleGalleryUpload"
               />
-              
-              <!-- Image Preview Grid -->
-              <div v-if="formData.gallery && formData.gallery.length > 0" class="grid grid-cols-4 gap-3 mb-4">
-                <div v-for="(img, idx) in formData.gallery" :key="idx" class="relative group">
-                  <img :src="img" class="w-full h-20 object-cover rounded-lg border" />
+
+              <div v-if="form.galleryItems.length" class="mb-4 grid grid-cols-4 gap-3">
+                <div v-for="(item, index) in form.galleryItems" :key="item.key" class="group relative">
+                  <img :src="item.preview" class="h-20 w-full rounded-lg border object-cover" />
                   <button
                     type="button"
-                    @click="removeGalleryImage(idx)"
-                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    class="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    @click="removeGalleryImage(index)"
                   >
                     <X class="h-3 w-3" />
                   </button>
                 </div>
               </div>
-              
-              <div @click="$refs.galleryInput.click()" class="cursor-pointer text-center">
-                <Images class="h-8 w-8 mx-auto text-gray-400 mb-2" />
+
+              <div class="cursor-pointer text-center" @click="galleryInput?.click()">
+                <Images class="mx-auto mb-2 h-8 w-8 text-gray-400" />
                 <p class="text-sm text-gray-500">Click to upload gallery images</p>
-                <p class="text-xs text-gray-400">Multiple images supported (max 10)</p>
+                <p class="text-xs text-gray-400">Multiple images supported (max 10, up to 2MB each)</p>
               </div>
             </div>
           </div>
 
-          <!-- Technologies -->
           <div class="space-y-2">
             <Label>Technologies</Label>
-            <div class="flex flex-wrap gap-2 mb-2">
+            <div class="mb-2 flex flex-wrap gap-2">
               <Badge
-                v-for="tech in formData.technologies"
+                v-for="tech in form.technologies"
                 :key="tech"
                 variant="secondary"
                 class="cursor-pointer hover:bg-red-100"
@@ -231,32 +217,31 @@
               </Badge>
             </div>
             <div class="flex gap-2">
-              <Input v-model="newTech" placeholder="Add technology" @keyup.enter="addTech" />
+              <Input v-model="newTech" placeholder="Add technology" @keyup.enter.prevent="addTech" />
               <Button type="button" variant="outline" @click="addTech">Add</Button>
             </div>
           </div>
 
-          <!-- Live URL -->
           <div class="space-y-2">
-            <Label for="live">Live Demo URL</Label>
-            <Input id="live" v-model="formData.live" placeholder="https://..." />
+            <Label for="live_url">Live Demo URL</Label>
+            <Input id="live_url" v-model="form.live_url" placeholder="https://..." />
           </div>
 
-          <!-- GitHub URL -->
           <div class="space-y-2">
-            <Label for="github">GitHub URL</Label>
-            <Input id="github" v-model="formData.github" placeholder="https://github.com/..." />
+            <Label for="github_url">GitHub URL</Label>
+            <Input id="github_url" v-model="form.github_url" placeholder="https://github.com/..." />
           </div>
 
           <DialogFooter>
             <Button variant="outline" type="button" @click="dialogOpen = false">Cancel</Button>
-            <Button type="submit">{{ isEditing ? 'Update' : 'Create' }}</Button>
+            <Button type="submit" :disabled="loading">
+              {{ loading ? 'Saving...' : isEditing ? 'Update' : 'Create' }}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
 
-    <!-- Delete Confirmation Dialog -->
     <AlertDialog v-model:open="deleteDialogOpen">
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -268,7 +253,7 @@
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction @click="deleteProject" class="bg-red-600 hover:bg-red-700">
+          <AlertDialogAction class="bg-red-600 hover:bg-red-700" @click="deleteProject">
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -278,63 +263,22 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-
-// Icons
-import {
-  Plus,
-  Search,
-  X,
-  Pencil,
-  Trash2,
-  Upload,
-  Images
-} from "lucide-vue-next"
+import { computed, onMounted, ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { Images, Pencil, Plus, Search, Trash2, Upload, X } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'admin-layout',
-  middleware: 'auth'
+  middleware: 'auth',
 })
 
-// Dummy data with gallery support
-const projects = ref([
-  {
-    id: 1,
-    slug: 'phanna-erp',
-    title: 'Phanna Computer ERP',
-    category: 'Enterprise System',
-    date: '2025',
-    status: 'in_progress',
-    description: 'Comprehensive e-commerce and inventory management system with ABA PayWay and KHQR payment integrations.',
-    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=200&h=150&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&h=150&fit=crop',
-      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop'
-    ],
-    technologies: ['Laravel', 'Filament', 'Livewire', 'PostgreSQL'],
-    live: null,
-    github: 'https://github.com'
-  },
-  {
-    id: 2,
-    slug: 'portfolio-cms',
-    title: 'Portfolio CMS',
-    category: 'Web App',
-    date: '2024',
-    status: 'completed',
-    description: 'Custom CMS with headless architecture and a Nuxt 3 frontend.',
-    image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=200&h=150&fit=crop',
-    gallery: [
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=150&fit=crop',
-      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=200&h=150&fit=crop'
-    ],
-    technologies: ['Nuxt 3', 'Vue.js', 'TailwindCSS'],
-    live: 'https://example.com',
-    github: 'https://github.com'
-  }
-])
+const authStore = useAuthStore()
+const projectStore = useProjectStore()
+const { projects, loading } = storeToRefs(projectStore)
 
-// UI State
+const placeholderImage = 'https://blocks.astratic.com/img/general-img-portrait.png'
+const maxGalleryImages = 10
+
 const searchQuery = ref('')
 const statusFilter = ref('all')
 const dialogOpen = ref(false)
@@ -342,150 +286,234 @@ const deleteDialogOpen = ref(false)
 const isEditing = ref(false)
 const projectToDelete = ref(null)
 const newTech = ref('')
-
-// File upload refs
 const mainImageInput = ref(null)
 const galleryInput = ref(null)
 
-// Form Data
-const formData = ref({
+const createEmptyForm = () => ({
   id: null,
-  slug: '',
   title: '',
   category: '',
-  date: '',
+  date: new Date().toISOString().slice(0, 10),
   status: 'completed',
-  description: '',
-  image: '',
-  gallery: [],
+  desc: '',
+  imageFile: null,
+  imagePreview: '',
+  removeImage: false,
+  galleryItems: [],
   technologies: [],
-  live: '',
-  github: ''
+  live_url: '',
+  github_url: '',
 })
 
+const form = ref(createEmptyForm())
 
 const filteredProjects = computed(() => {
   let filtered = [...projects.value]
-  
-  if (searchQuery.value) {
-    filtered = filtered.filter(p => 
-      p.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      p.description.toLowerCase().includes(searchQuery.value.toLowerCase())
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (query) {
+    filtered = filtered.filter((project) =>
+      [project.title, project.desc, project.category]
+        .filter(Boolean)
+        .some((value) => value.toLowerCase().includes(query))
     )
   }
-  
+
   if (statusFilter.value !== 'all') {
-    filtered = filtered.filter(p => p.status === statusFilter.value)
+    filtered = filtered.filter((project) => project.status === statusFilter.value)
   }
-  
+
   return filtered
 })
 
-// Image upload handlers
-const handleMainImageUpload = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      formData.value.image = e.target.result
-    }
-    reader.readAsDataURL(file)
+const clearFileInput = (inputRef) => {
+  if (inputRef.value) {
+    inputRef.value.value = ''
   }
+}
+
+const fileToGalleryItem = (file) => ({
+  key: `new-${crypto.randomUUID()}`,
+  type: 'new',
+  file,
+  preview: URL.createObjectURL(file),
+})
+
+const handleMainImageUpload = (event) => {
+  const [file] = event.target.files || []
+
+  if (!file) return
+
+  form.value.imageFile = file
+  form.value.imagePreview = URL.createObjectURL(file)
+  form.value.removeImage = false
 }
 
 const handleGalleryUpload = (event) => {
-  const files = Array.from(event.target.files)
-  const maxImages = 10
-  
-  files.forEach(file => {
-    if (formData.value.gallery.length >= maxImages) {
-      alert(`Maximum ${maxImages} images allowed`)
-      return
-    }
-    
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      formData.value.gallery.push(e.target.result)
-    }
-    reader.readAsDataURL(file)
-  })
-  
-  // Clear input
-  if (galleryInput.value) {
-    galleryInput.value.value = ''
+  const files = Array.from(event.target.files || [])
+  const availableSlots = maxGalleryImages - form.value.galleryItems.length
+
+  if (availableSlots <= 0) {
+    alert(`Maximum ${maxGalleryImages} images allowed`)
+    clearFileInput(galleryInput)
+    return
   }
+
+  files.slice(0, availableSlots).forEach((file) => {
+    form.value.galleryItems.push(fileToGalleryItem(file))
+  })
+
+  if (files.length > availableSlots) {
+    alert(`Only ${availableSlots} more gallery image(s) can be added`)
+  }
+
+  clearFileInput(galleryInput)
 }
 
 const removeMainImage = () => {
-  formData.value.image = ''
-  if (mainImageInput.value) {
-    mainImageInput.value.value = ''
-  }
+  form.value.imageFile = null
+  form.value.imagePreview = ''
+  form.value.removeImage = isEditing.value
+  clearFileInput(mainImageInput)
 }
 
 const removeGalleryImage = (index) => {
-  formData.value.gallery.splice(index, 1)
+  const [removed] = form.value.galleryItems.splice(index, 1)
+
+  if (removed?.type === 'new') {
+    URL.revokeObjectURL(removed.preview)
+  }
 }
 
-// Methods
 const clearFilters = () => {
   searchQuery.value = ''
   statusFilter.value = 'all'
 }
 
+const resetForm = () => {
+  form.value.galleryItems
+    .filter((item) => item.type === 'new')
+    .forEach((item) => URL.revokeObjectURL(item.preview))
+
+  form.value = createEmptyForm()
+  newTech.value = ''
+  clearFileInput(mainImageInput)
+  clearFileInput(galleryInput)
+}
+
 const openAddDialog = () => {
+  resetForm()
   isEditing.value = false
-  formData.value = {
-    id: null,
-    slug: '',
-    title: '',
-    category: '',
-    date: new Date().getFullYear().toString(),
-    status: 'completed',
-    description: '',
-    image: '',
-    gallery: [],
-    technologies: [],
-    live: '',
-    github: ''
-  }
   dialogOpen.value = true
 }
 
 const openEditDialog = (project) => {
+  resetForm()
   isEditing.value = true
-  formData.value = { 
-    ...project,
-    gallery: project.gallery || []
+
+  form.value = {
+    id: project.id,
+    title: project.title || '',
+    category: project.category || '',
+    date: project.date || '',
+    status: project.status || 'completed',
+    desc: project.desc || '',
+    imageFile: null,
+    imagePreview: project.image || '',
+    removeImage: false,
+    galleryItems: (project.raw_gallery || []).map((path, index) => ({
+      key: `existing-${path}-${index}`,
+      type: 'existing',
+      path,
+      preview: project.gallery?.[index] || projectStore.getFullImageUrl(path),
+    })),
+    technologies: [...(project.technologies || [])],
+    live_url: project.live_url || '',
+    github_url: project.github_url || '',
   }
+
   dialogOpen.value = true
 }
 
 const addTech = () => {
-  if (newTech.value.trim() && !formData.value.technologies.includes(newTech.value.trim())) {
-    formData.value.technologies.push(newTech.value.trim())
-    newTech.value = ''
+  const tech = newTech.value.trim()
+
+  if (tech && !form.value.technologies.includes(tech)) {
+    form.value.technologies.push(tech)
   }
+
+  newTech.value = ''
 }
 
 const removeTech = (tech) => {
-  formData.value.technologies = formData.value.technologies.filter(t => t !== tech)
+  form.value.technologies = form.value.technologies.filter((item) => item !== tech)
 }
 
-const saveProject = () => {
-  if (isEditing.value) {
-    const index = projects.value.findIndex(p => p.id === formData.value.id)
-    if (index !== -1) {
-      projects.value[index] = { ...formData.value }
-    }
-  } else {
-    const newId = Math.max(...projects.value.map(p => p.id), 0) + 1
-    projects.value.push({
-      ...formData.value,
-      id: newId
+const buildProjectFormData = () => {
+  const submitData = new FormData()
+
+  submitData.append('title', form.value.title)
+  submitData.append('category', form.value.category)
+  submitData.append('date', form.value.date)
+  submitData.append('status', form.value.status)
+  submitData.append('description', form.value.desc)
+  submitData.append('live_url', form.value.live_url)
+  submitData.append('github_url', form.value.github_url)
+
+  if (form.value.technologies.length) {
+    form.value.technologies.forEach((technology) => {
+      submitData.append('technologies[]', technology)
     })
+  } else {
+    submitData.append('technologies', '[]')
   }
-  dialogOpen.value = false
+
+  if (form.value.imageFile) {
+    submitData.append('image', form.value.imageFile)
+  }
+
+  if (isEditing.value && form.value.removeImage) {
+    submitData.append('remove_image', '1')
+  }
+
+  if (isEditing.value) {
+    const existingGallery = form.value.galleryItems.filter((item) => item.type === 'existing')
+
+    if (existingGallery.length) {
+      existingGallery.forEach((item) => {
+        submitData.append('existing_gallery[]', item.path)
+      })
+    } else {
+      submitData.append('existing_gallery', '[]')
+    }
+  }
+
+  form.value.galleryItems
+    .filter((item) => item.type === 'new')
+    .forEach((item) => {
+      submitData.append('gallery[]', item.file)
+    })
+
+  return submitData
+}
+
+const saveProject = async () => {
+  try {
+    const submitData = buildProjectFormData()
+
+    if (isEditing.value) {
+      submitData.append('_method', 'PUT')
+      await projectStore.updateProject(form.value.id, submitData)
+    } else {
+      await projectStore.createProject(submitData)
+    }
+
+    dialogOpen.value = false
+    resetForm()
+    await projectStore.fetchProjects()
+  } catch (error) {
+    console.error('Failed to save project:', error)
+  }
 }
 
 const confirmDelete = (project) => {
@@ -493,12 +521,27 @@ const confirmDelete = (project) => {
   deleteDialogOpen.value = true
 }
 
-const deleteProject = () => {
-  const index = projects.value.findIndex(p => p.id === projectToDelete.value.id)
-  if (index !== -1) {
-    projects.value.splice(index, 1)
+const deleteProject = async () => {
+  if (!projectToDelete.value) return
+
+  try {
+    await projectStore.deleteProject(projectToDelete.value.id)
+    deleteDialogOpen.value = false
+    projectToDelete.value = null
+  } catch (error) {
+    console.error('Failed to delete project:', error)
   }
-  deleteDialogOpen.value = false
-  projectToDelete.value = null
 }
+
+const handleImageError = (event) => {
+  event.target.src = placeholderImage
+}
+
+onMounted(async () => {
+  if (!authStore.initialized) {
+    await authStore.initAuth()
+  }
+
+  await projectStore.fetchProjects()
+})
 </script>

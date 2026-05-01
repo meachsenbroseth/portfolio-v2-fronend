@@ -259,10 +259,9 @@ const typeLoop = () => {
 
 // Bio Typing Animation
 const bioPhrases = [
-  "Building digital experiences with ❤️",
   "Full-stack developer ready for challenges",
   "Available for freelance work →",
-  "Open to exciting collaborations 🚀"
+  "Open to exciting collaborations "
 ]
 
 const typedBio = ref('')
