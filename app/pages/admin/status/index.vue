@@ -18,109 +18,114 @@
       </div>
     </div>
 
-    <!-- Experience Section -->
-    <Card>
-      <CardHeader>
-        <CardTitle class="flex items-center gap-2">
-          <Briefcase class="h-5 w-5" />
-          Experience
-        </CardTitle>
-        <CardDescription>Your professional work history</CardDescription>
-      </CardHeader>
-      <CardContent class="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead class="w-20">ID</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead class="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow v-for="item in experience" :key="item.id">
-              <TableCell class="font-mono text-xs">{{ item.id }}</TableCell>
-              <TableCell>
-                <div>
-                  <p class="font-medium">{{ item.title }}</p>
-                  <p class="text-xs text-muted-foreground line-clamp-1">{{ item.desc }}</p>
-                </div>
-              </TableCell>
-              <TableCell>{{ item.company }}</TableCell>
-              <TableCell>{{ item.date }}</TableCell>
-              <TableCell class="text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <Button variant="ghost" size="icon" @click="openEditDialog('experience', item)">
-                    <Pencil class="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" @click="confirmDelete('experience', item)">
-                    <Trash2 class="h-4 w-4 text-red-500" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow v-if="experience.length === 0">
-              <TableCell colspan="6" class="text-center py-8 text-muted-foreground">
-                No experience entries found. Click "Add Experience" to create one.
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <!-- Loading State -->
+    <div v-if="experienceStore.loading || educationStore.loading" class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+    </div>
 
-    <!-- Education Section -->
-    <Card>
-      <CardHeader>
-        <CardTitle class="flex items-center gap-2">
-          <GraduationCap class="h-5 w-5" />
-          Education
-        </CardTitle>
-        <CardDescription>Your academic background and certifications</CardDescription>
-      </CardHeader>
-      <CardContent class="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead class="w-20">ID</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Institution</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead class="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow v-for="item in education" :key="item.id">
-              <TableCell class="font-mono text-xs">{{ item.id }}</TableCell>
-              <TableCell>
-                <div>
-                  <p class="font-medium">{{ item.title }}</p>
-                  <p class="text-xs text-muted-foreground line-clamp-1">{{ item.desc }}</p>
-                </div>
-              </TableCell>
-              <TableCell>{{ item.institution }}</TableCell>
-              <TableCell>{{ item.date }}</TableCell>
-              <TableCell class="text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <Button variant="ghost" size="icon" @click="openEditDialog('education', item)">
-                    <Pencil class="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" @click="confirmDelete('education', item)">
-                    <Trash2 class="h-4 w-4 text-red-500" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow v-if="education.length === 0">
-              <TableCell colspan="6" class="text-center py-8 text-muted-foreground">
-                No education entries found. Click "Add Education" to create one.
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <div v-else>
+      <!-- Experience Section -->
+      <Card class="mb-6">
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2">
+            <Briefcase class="h-5 w-5" />
+            Experience
+          </CardTitle>
+          <CardDescription>Your professional work history ({{ experienceStore.experiences?.length || 0 }} entries)</CardDescription>
+        </CardHeader>
+        <CardContent class="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead class="w-20">ID</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead class="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="item in experienceStore.experiences" :key="item.id">
+                <TableCell class="font-mono text-xs">{{ item.id }}</TableCell>
+                <TableCell>
+                  <div>
+                    <p class="font-medium">{{ item.title }}</p>
+                    <p class="text-xs text-muted-foreground line-clamp-1">{{ item.desc }}</p>
+                  </div>
+                </TableCell>
+                <TableCell>{{ item.date }}</TableCell>
+                <TableCell class="text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="icon" @click="openEditDialog('experience', item)">
+                      <Pencil class="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" @click="confirmDelete('experience', item)">
+                      <Trash2 class="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+              <TableRow v-if="!experienceStore.experiences?.length">
+                <TableCell colspan="4" class="text-center py-8 text-muted-foreground">
+                  No experience entries found. Click "Add Experience" to create one.
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <!-- Education Section -->
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2">
+            <GraduationCap class="h-5 w-5" />
+            Education
+          </CardTitle>
+          <CardDescription>Your academic background and certifications ({{ educationStore.educations?.length || 0 }} entries)</CardDescription>
+        </CardHeader>
+        <CardContent class="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead class="w-20">ID</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Institution</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead class="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow v-for="item in educationStore.educations" :key="item.id">
+                <TableCell class="font-mono text-xs">{{ item.id }}</TableCell>
+                <TableCell>
+                  <div>
+                    <p class="font-medium">{{ item.title }}</p>
+                    <p class="text-xs text-muted-foreground line-clamp-1">{{ item.desc }}</p>
+                  </div>
+                </TableCell>
+                <TableCell>{{ item.institution }}</TableCell>
+                <TableCell>{{ item.date }}</TableCell>
+                <TableCell class="text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="icon" @click="openEditDialog('education', item)">
+                      <Pencil class="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" @click="confirmDelete('education', item)">
+                      <Trash2 class="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+              <TableRow v-if="!educationStore.educations?.length">
+                <TableCell colspan="5" class="text-center py-8 text-muted-foreground">
+                  No education entries found. Click "Add Education" to create one.
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
 
     <!-- Add/Edit Dialog -->
     <Dialog v-model:open="dialogOpen">
@@ -142,11 +147,6 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="exp-company">Company *</Label>
-            <Input id="exp-company" v-model="expForm.company" required />
-          </div>
-
-          <div class="space-y-2">
             <Label for="exp-date">Date *</Label>
             <Input id="exp-date" v-model="expForm.date" placeholder="2023 — 2024" required />
           </div>
@@ -156,29 +156,11 @@
             <Textarea id="exp-desc" v-model="expForm.desc" rows="4" required />
           </div>
 
-          <div class="space-y-2">
-            <Label>Technologies</Label>
-            <div class="flex flex-wrap gap-2 mb-2">
-              <Badge
-                v-for="tag in expForm.tags"
-                :key="tag"
-                variant="secondary"
-                class="cursor-pointer hover:bg-red-100"
-                @click="removeExpTag(tag)"
-              >
-                {{ tag }}
-                <X class="ml-1 h-3 w-3" />
-              </Badge>
-            </div>
-            <div class="flex gap-2">
-              <Input v-model="newTag" placeholder="Add technology" @keyup.enter="addExpTag" />
-              <Button type="button" variant="outline" @click="addExpTag">Add</Button>
-            </div>
-          </div>
-
           <DialogFooter>
             <Button variant="outline" type="button" @click="dialogOpen = false">Cancel</Button>
-            <Button type="submit">{{ isEditing ? 'Update' : 'Create' }}</Button>
+            <Button type="submit" :disabled="experienceStore.loading">
+              {{ experienceStore.loading ? 'Saving...' : (isEditing ? 'Update' : 'Create') }}
+            </Button>
           </DialogFooter>
         </form>
 
@@ -204,29 +186,11 @@
             <Textarea id="edu-desc" v-model="eduForm.desc" rows="4" required />
           </div>
 
-          <div class="space-y-2">
-            <Label>Focus Areas</Label>
-            <div class="flex flex-wrap gap-2 mb-2">
-              <Badge
-                v-for="focus in eduForm.focus"
-                :key="focus"
-                variant="secondary"
-                class="cursor-pointer hover:bg-red-100"
-                @click="removeEduFocus(focus)"
-              >
-                {{ focus }}
-                <X class="ml-1 h-3 w-3" />
-              </Badge>
-            </div>
-            <div class="flex gap-2">
-              <Input v-model="newFocus" placeholder="Add focus area" @keyup.enter="addEduFocus" />
-              <Button type="button" variant="outline" @click="addEduFocus">Add</Button>
-            </div>
-          </div>
-
           <DialogFooter>
             <Button variant="outline" type="button" @click="dialogOpen = false">Cancel</Button>
-            <Button type="submit">{{ isEditing ? 'Update' : 'Create' }}</Button>
+            <Button type="submit" :disabled="educationStore.loading">
+              {{ educationStore.loading ? 'Saving...' : (isEditing ? 'Update' : 'Create') }}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -254,148 +218,110 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  X,
-  Briefcase,
-  GraduationCap,
-  User,
-  Calendar
-} from "lucide-vue-next"
+import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 
 definePageMeta({
   layout: 'admin-layout',
-  middleware:'auth'
+  middleware: 'auth'
 })
 
-// Data
-const experience = ref([
-  {
-    id: 1,
-    title: 'Full-Stack Developer',
-    company: 'Phanna Computer',
-    date: '2025 — PRESENT',
-    desc: 'Architecting a comprehensive e-commerce and inventory management system using the TALL stack. Implementing ABA PayWay and KHQR payment integrations.',
-  },
-  {
-    id: 2,
-    title: 'Web Developer (Freelance)',
-    company: 'Self-Employed',
-    date: '2023 — 2024',
-    desc: 'Developed custom Portfolio CMS solutions and business landing pages with Nuxt 3 and Tailwind CSS. Focused on SEO and performance optimization.',
-  }
-])
+const authStore = useAuthStore()
+const experienceStore = useExperienceStore()
+const educationStore = useEducationStore()
 
-const education = ref([
-  {
-    id: 1,
-    title: 'Computer Science & Engineering',
-    date: '2020 — 2024',
-    desc: 'Deep focus on MVC architecture, database normalization, and secure API design. Final projects specialized in management system automation.',
-    institution: 'University',
-
-  },
-  {
-    id: 2,
-    title: 'Full-Stack Certification',
-    date: '2022',
-    desc: 'Advanced training in modern JavaScript frameworks and backend PHP ecosystems (Laravel/Filament).',
-    institution: 'Institute',
-  }
-])
+const { experiences, loading: expLoading } = storeToRefs(experienceStore)
+const { educations, loading: eduLoading } = storeToRefs(educationStore)
 
 // UI State
 const dialogOpen = ref(false)
 const deleteDialogOpen = ref(false)
 const isEditing = ref(false)
-const dialogType = ref('experience') // 'experience' or 'education'
+const dialogType = ref('experience')
 const deleteType = ref('experience')
 const deleteItem = ref(null)
-const newTag = ref('')
-const newFocus = ref('')
 
-// Experience Form
+// Forms
 const expForm = ref({
   id: null,
   title: '',
-  company: '',
   date: '',
-  desc: '',
-  tags: []
+  desc: ''
 })
 
-// Education Form
 const eduForm = ref({
   id: null,
   title: '',
   institution: '',
   date: '',
-  desc: '',
-  focus: []
+  desc: ''
 })
 
-// Experience Methods
-const addExpTag = () => {
-  if (newTag.value.trim() && !expForm.value.tags.includes(newTag.value.trim())) {
-    expForm.value.tags.push(newTag.value.trim())
-    newTag.value = ''
-  }
-}
-
-const removeExpTag = (tag) => {
-  expForm.value.tags = expForm.value.tags.filter(t => t !== tag)
-}
-
-const saveExperience = () => {
-  if (isEditing.value) {
-    const index = experience.value.findIndex(e => e.id === expForm.value.id)
-    if (index !== -1) {
-      experience.value[index] = { ...expForm.value }
+// Load data
+const loadData = async () => {
+  try {
+    // Ensure auth is initialized first
+    if (!authStore.initialized) {
+      await authStore.initAuth()
     }
-  } else {
-    const newId = Math.max(...experience.value.map(e => e.id), 0) + 1
-    experience.value.push({
-      ...expForm.value,
-      id: newId
-    })
-  }
-  dialogOpen.value = false
-  resetForms()
-}
-
-// Education Methods
-const addEduFocus = () => {
-  if (newFocus.value.trim() && !eduForm.value.focus.includes(newFocus.value.trim())) {
-    eduForm.value.focus.push(newFocus.value.trim())
-    newFocus.value = ''
-  }
-}
-
-const removeEduFocus = (focus) => {
-  eduForm.value.focus = eduForm.value.focus.filter(f => f !== focus)
-}
-
-const saveEducation = () => {
-  if (isEditing.value) {
-    const index = education.value.findIndex(e => e.id === eduForm.value.id)
-    if (index !== -1) {
-      education.value[index] = { ...eduForm.value }
+    
+    // Only fetch if authenticated
+    if (authStore.isAuthenticated) {
+      await Promise.all([
+        experienceStore.fetchExperiences(),
+        educationStore.fetchEducations()
+      ])
     }
-  } else {
-    const newId = Math.max(...education.value.map(e => e.id), 0) + 1
-    education.value.push({
-      ...eduForm.value,
-      id: newId
-    })
+  } catch (error) {
+    console.error('Failed to load data:', error)
   }
-  dialogOpen.value = false
-  resetForms()
 }
 
-// Common Methods
+// Save functions
+const saveExperience = async () => {
+  try {
+    if (isEditing.value) {
+      await experienceStore.updateExperience(expForm.value.id, expForm.value)
+    } else {
+      await experienceStore.createExperience(expForm.value)
+    }
+    dialogOpen.value = false
+    resetForms()
+    await experienceStore.fetchExperiences()
+  } catch (error) {
+    console.error('Failed to save experience:', error)
+  }
+}
+
+const saveEducation = async () => {
+  try {
+    if (isEditing.value) {
+      await educationStore.updateEducation(eduForm.value.id, eduForm.value)
+    } else {
+      await educationStore.createEducation(eduForm.value)
+    }
+    dialogOpen.value = false
+    resetForms()
+    await educationStore.fetchEducations()
+  } catch (error) {
+    console.error('Failed to save education:', error)
+  }
+}
+
+const deleteEntry = async () => {
+  try {
+    if (deleteType.value === 'experience') {
+      await experienceStore.deleteExperience(deleteItem.value.id)
+    } else {
+      await educationStore.deleteEducation(deleteItem.value.id)
+    }
+    deleteDialogOpen.value = false
+    deleteItem.value = null
+  } catch (error) {
+    console.error('Failed to delete:', error)
+  }
+}
+
 const openAddDialog = (type) => {
   dialogType.value = type
   isEditing.value = false
@@ -422,47 +348,31 @@ const confirmDelete = (type, item) => {
   deleteDialogOpen.value = true
 }
 
-const deleteEntry = () => {
-  if (deleteType.value === 'experience') {
-    const index = experience.value.findIndex(e => e.id === deleteItem.value.id)
-    if (index !== -1) {
-      experience.value.splice(index, 1)
-    }
-  } else {
-    const index = education.value.findIndex(e => e.id === deleteItem.value.id)
-    if (index !== -1) {
-      education.value.splice(index, 1)
-    }
-  }
-  deleteDialogOpen.value = false
-  deleteItem.value = null
-}
-
 const resetForms = () => {
   expForm.value = {
     id: null,
     title: '',
-    company: '',
     date: '',
-    desc: '',
-    tags: []
+    desc: ''
   }
   eduForm.value = {
     id: null,
     title: '',
     institution: '',
     date: '',
-    desc: '',
-    focus: []
+    desc: ''
   }
-  newTag.value = ''
-  newFocus.value = ''
 }
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>
 .line-clamp-1 {
   display: -webkit-box;
+  -webkit-line-clamp: 1;
   line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
