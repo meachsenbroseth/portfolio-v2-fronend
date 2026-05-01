@@ -15,38 +15,31 @@ export const useExperienceStore = defineStore('experience', {
   }),
 
   actions: {
-    async fetchExperiences(page = 1) {
+    // PUBLIC method - no auth required for fetching
+    async fetchExperiences(page = 1, requireAuth = false) {
       this.loading = true
       this.error = null
       
       try {
         const config = useRuntimeConfig()
-        const authStore = useAuthStore()
-        
-        // Ensure auth is initialized
-        if (!authStore.initialized) {
-          await authStore.initAuth()
+        const headers = {
+          'Accept': 'application/json'
         }
         
-        // Get token - try multiple sources
-        let token = authStore.token
-        
-        if (!token) {
-          token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
-          if (token) {
-            authStore.token = token
+        // Only add auth if explicitly required
+        if (requireAuth) {
+          const authStore = useAuthStore()
+          let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+          
+          if (!token) {
+            throw new Error('No authentication token found')
           }
-        }
-        
-        if (!token) {
-          throw new Error('No authentication token found')
+          
+          headers['Authorization'] = `Bearer ${token}`
         }
         
         const response = await $fetch(`${config.public.apiBase}/experience?page=${page}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
+          headers
         })
         
         if (response && response.data) {
@@ -67,20 +60,14 @@ export const useExperienceStore = defineStore('experience', {
       } catch (error) {
         this.error = error.message || 'Failed to fetch experiences'
         console.error('Fetch experiences error:', error)
-        
-        // If unauthorized, redirect to login
-        if (error.status === 401) {
-          const authStore = useAuthStore()
-          authStore.clearAuth()
-          navigateTo('/admin/login')
-        }
-        
+        this.experiences = []
         throw error
       } finally {
         this.loading = false
       }
     },
 
+    // PRIVATE methods - require auth
     async createExperience(data) {
       this.loading = true
       
@@ -89,6 +76,10 @@ export const useExperienceStore = defineStore('experience', {
         const authStore = useAuthStore()
         
         let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+        
+        if (!token) {
+          throw new Error('Authentication required')
+        }
         
         const response = await $fetch(`${config.public.apiBase}/experience`, {
           method: 'POST',
@@ -117,6 +108,10 @@ export const useExperienceStore = defineStore('experience', {
         
         let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
         
+        if (!token) {
+          throw new Error('Authentication required')
+        }
+        
         const response = await $fetch(`${config.public.apiBase}/experience/${id}`, {
           method: 'PUT',
           headers: {
@@ -143,6 +138,10 @@ export const useExperienceStore = defineStore('experience', {
         const authStore = useAuthStore()
         
         let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+        
+        if (!token) {
+          throw new Error('Authentication required')
+        }
         
         await $fetch(`${config.public.apiBase}/experience/${id}`, {
           method: 'DELETE',

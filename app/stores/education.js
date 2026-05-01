@@ -14,91 +14,71 @@ export const useEducationStore = defineStore('education', {
     }
   }),
 
-  getters: {
-    orderedEducations: (state) => {
-      return [...state.educations].sort((a, b) => b.id - a.id)
-    }
-  },
-
   actions: {
-    // Helper to get token from auth store or storage
-    getToken() {
-      const authStore = useAuthStore()
-      
-      // Try to get from auth store first
-      if (authStore.token) {
-        return authStore.token
-      }
-      
-      // Fallback to storage with correct key
-      const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
-      
-      // Sync back to auth store if found
-      if (token && !authStore.token) {
-        authStore.token = token
-      }
-      
-      return token
-    },
-
-    async fetchEducations(page = 1) {
+    // PUBLIC method - no auth required
+    async fetchEducations(page = 1, requireAuth = false) {
       this.loading = true
       this.error = null
       
       try {
         const config = useRuntimeConfig()
-        const token = this.getToken()
+        const headers = {
+          'Accept': 'application/json'
+        }
         
-        if (!token) {
-          throw new Error('No authentication token found')
+        // Only add auth if explicitly required
+        if (requireAuth) {
+          const authStore = useAuthStore()
+          let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
+          
+          if (!token) {
+            throw new Error('No authentication token found')
+          }
+          
+          headers['Authorization'] = `Bearer ${token}`
         }
         
         const response = await $fetch(`${config.public.apiBase}/education?page=${page}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
+          headers
         })
         
-        if (response.data) {
-          this.educations = response.data
+        if (response && response.data) {
+          this.educations = Array.isArray(response.data) ? response.data : []
           this.pagination = {
-            current_page: response.current_page,
-            last_page: response.last_page,
-            per_page: response.per_page,
-            total: response.total
+            current_page: response.current_page || page,
+            last_page: response.last_page || 1,
+            per_page: response.per_page || 10,
+            total: response.total || 0
           }
-        } else {
+        } else if (Array.isArray(response)) {
           this.educations = response
+        } else {
+          this.educations = []
         }
         
         return this.educations
       } catch (error) {
-        this.error = error.message || 'Failed to fetch education'
-        console.error('Fetch education error:', error)
-        
-        // If unauthorized, clear auth and redirect
-        if (error.status === 401) {
-          const authStore = useAuthStore()
-          authStore.clearAuth()
-          navigateTo('/admin/login')
-        }
-        
+        this.error = error.message || 'Failed to fetch educations'
+        console.error('Fetch educations error:', error)
+        this.educations = []
         throw error
       } finally {
         this.loading = false
       }
     },
 
+    // PRIVATE methods - require auth
     async createEducation(data) {
       this.loading = true
       
       try {
         const config = useRuntimeConfig()
-        const token = this.getToken()
+        const authStore = useAuthStore()
+        
+        let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
         
         if (!token) {
-          throw new Error('No authentication token found')
+          throw new Error('Authentication required')
         }
         
         const response = await $fetch(`${config.public.apiBase}/education`, {
@@ -124,10 +104,12 @@ export const useEducationStore = defineStore('education', {
       
       try {
         const config = useRuntimeConfig()
-        const token = this.getToken()
+        const authStore = useAuthStore()
+        
+        let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
         
         if (!token) {
-          throw new Error('No authentication token found')
+          throw new Error('Authentication required')
         }
         
         const response = await $fetch(`${config.public.apiBase}/education/${id}`, {
@@ -153,10 +135,12 @@ export const useEducationStore = defineStore('education', {
       
       try {
         const config = useRuntimeConfig()
-        const token = this.getToken()
+        const authStore = useAuthStore()
+        
+        let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
         
         if (!token) {
-          throw new Error('No authentication token found')
+          throw new Error('Authentication required')
         }
         
         await $fetch(`${config.public.apiBase}/education/${id}`, {
