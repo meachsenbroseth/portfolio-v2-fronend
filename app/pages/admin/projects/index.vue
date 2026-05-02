@@ -223,8 +223,8 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="live_url">Live Demo URL</Label>
-            <Input id="live_url" v-model="form.live_url" placeholder="https://..." />
+            <Label for="live_demo">Live Demo URL</Label>
+            <Input id="live_demo" v-model="form.live_demo" placeholder="https://..." />
           </div>
 
           <div class="space-y-2">
@@ -301,7 +301,7 @@ const createEmptyForm = () => ({
   removeImage: false,
   galleryItems: [],
   technologies: [],
-  live_url: '',
+  live_demo: '',
   github_url: '',
 })
 
@@ -428,7 +428,7 @@ const openEditDialog = (project) => {
       preview: project.gallery?.[index] || projectStore.getFullImageUrl(path),
     })),
     technologies: [...(project.technologies || [])],
-    live_url: project.live_url || '',
+    live_demo: project.live_demo || project.live_url || '',
     github_url: project.github_url || '',
   }
 
@@ -457,15 +457,13 @@ const buildProjectFormData = () => {
   submitData.append('date', form.value.date)
   submitData.append('status', form.value.status)
   submitData.append('description', form.value.desc)
-  submitData.append('live_url', form.value.live_url)
+  submitData.append('live_demo', form.value.live_demo)
   submitData.append('github_url', form.value.github_url)
 
   if (form.value.technologies.length) {
-    form.value.technologies.forEach((technology) => {
-      submitData.append('technologies[]', technology)
+    form.value.technologies.forEach((technology, index) => {
+      submitData.append(`technologies[${index}]`, technology)
     })
-  } else {
-    submitData.append('technologies', '[]')
   }
 
   if (form.value.imageFile) {
@@ -480,11 +478,9 @@ const buildProjectFormData = () => {
     const existingGallery = form.value.galleryItems.filter((item) => item.type === 'existing')
 
     if (existingGallery.length) {
-      existingGallery.forEach((item) => {
-        submitData.append('existing_gallery[]', item.path)
+      existingGallery.forEach((item, index) => {
+        submitData.append(`existing_gallery[${index}]`, item.path)
       })
-    } else {
-      submitData.append('existing_gallery', '[]')
     }
   }
 
@@ -502,7 +498,6 @@ const saveProject = async () => {
     const submitData = buildProjectFormData()
 
     if (isEditing.value) {
-      submitData.append('_method', 'PUT')
       await projectStore.updateProject(form.value.id, submitData)
     } else {
       await projectStore.createProject(submitData)

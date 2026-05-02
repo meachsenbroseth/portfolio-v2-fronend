@@ -1,15 +1,14 @@
-<!-- /admin/settings/index.vue -->
 <template>
   <div class="space-y-6">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold tracking-tight">Settings</h1>
-        <p class="text-sm text-muted-foreground">Manage your account settings and preferences</p>
+        <p class="text-sm text-muted-foreground">Manage your account settings</p>
       </div>
-      <Button @click="saveSettings" :disabled="!isDirty">
+      <Button @click="saveProfile" :disabled="!isDirty || saving">
         <Save class="mr-2 h-4 w-4" />
-        Save Changes
+        {{ saving ? 'Saving...' : 'Save Changes' }}
       </Button>
     </div>
 
@@ -24,12 +23,12 @@
           <CardDescription>Update your personal information</CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
-          <!-- Avatar Upload -->
+          <!-- Avatar -->
           <div class="flex items-center gap-4">
             <div class="relative">
               <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-200">
                 <img 
-                  :src="profile.avatar || 'https://i.pinimg.com/736x/ad/83/26/ad83266f29567835516024bb1fdff3a7.jpg'" 
+                  :src="avatarPreview || authStore.userAvatar" 
                   class="w-full h-full object-cover"
                 />
               </div>
@@ -55,13 +54,8 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="username">Username</Label>
-            <Input id="username" v-model="profile.username" placeholder="username" />
-          </div>
-
-          <div class="space-y-2">
-            <Label for="fullName">Full Name</Label>
-            <Input id="fullName" v-model="profile.fullName" placeholder="Full name" />
+            <Label for="name">Name</Label>
+            <Input id="name" v-model="profile.name" placeholder="Your name" />
           </div>
 
           <div class="space-y-2">
@@ -70,130 +64,87 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="location">Location</Label>
-            <Input id="location" v-model="profile.location" placeholder="City, Country" />
-          </div>
-
-          <div class="space-y-2">
-            <Label for="bio">Bio</Label>
-            <Textarea id="bio" v-model="profile.bio" rows="4" placeholder="Tell us about yourself..." />
+            <div class="flex items-center justify-between">
+              <Label>Email Verification</Label>
+              <span v-if="authStore.user?.email_verified_at" class="text-xs text-green-600">✓ Verified</span>
+              <Button v-else variant="link" size="sm" class="text-xs" @click="sendVerificationEmail">
+                Verify Email
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <!-- Social Links & Preferences -->
-      <div class="space-y-6">
-        <!-- Social Links -->
-        <Card>
-          <CardHeader>
-            <CardTitle class="flex items-center gap-2">
-              <Share2 class="h-5 w-5" />
-              Social Links
-            </CardTitle>
-            <CardDescription>Connect your social media profiles</CardDescription>
-          </CardHeader>
-          <CardContent class="space-y-4">
-            <div class="space-y-2">
-              <Label for="github">GitHub</Label>
-              <div class="relative">
-                <Github class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  id="github" 
-                  v-model="profile.social.github" 
-                  class="pl-9"
-                  placeholder="https://github.com/username"
-                />
-              </div>
-            </div>
-            <div class="space-y-2">
-              <Label for="linkedin">LinkedIn</Label>
-              <div class="relative">
-                <Linkedin class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  id="linkedin" 
-                  v-model="profile.social.linkedin" 
-                  class="pl-9"
-                  placeholder="https://linkedin.com/in/username"
-                />
-              </div>
-            </div>
-            <div class="space-y-2">
-              <Label for="twitter">Twitter/X</Label>
-              <div class="relative">
-                <Twitter class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  id="twitter" 
-                  v-model="profile.social.twitter" 
-                  class="pl-9"
-                  placeholder="https://twitter.com/username"
-                />
-              </div>
-            </div>
-            <div class="space-y-2">
-              <Label for="instagram">Instagram</Label>
-              <div class="relative">
-                <Instagram class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  id="instagram" 
-                  v-model="profile.social.instagram" 
-                  class="pl-9"
-                  placeholder="https://instagram.com/username"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <!-- Preferences -->
-        <Card>
-          <CardHeader>
-            <CardTitle class="flex items-center gap-2">
-              <Settings class="h-5 w-5" />
-              Preferences
-            </CardTitle>
-            <CardDescription>Customize your experience</CardDescription>
-          </CardHeader>
-          <CardContent class="space-y-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <Label>Email Notifications</Label>
-                <p class="text-xs text-muted-foreground">Receive email updates</p>
-              </div>
-              <Switch v-model="preferences.emailNotifications" />
-            </div>
-            <div class="flex items-center justify-between">
-              <div>
-                <Label>Dark Mode</Label>
-                <p class="text-xs text-muted-foreground">Switch between light and dark theme</p>
-              </div>
-              <Switch v-model="preferences.darkMode" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <!-- Danger Zone -->
-        <Card class="border-red-200">
-          <CardHeader class="text-red-600">
-            <CardTitle class="flex items-center gap-2">
-              <AlertTriangle class="h-5 w-5" />
-              Danger Zone
-            </CardTitle>
-            <CardDescription class="text-red-400">Irreversible actions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div class="flex items-center justify-between">
-              <div>
-                <Label>Delete Account</Label>
-                <p class="text-xs text-muted-foreground">Permanently delete your account</p>
-              </div>
-              <Button variant="destructive" size="sm" @click="confirmDeleteAccount">
-                Delete Account
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <!-- Change Password -->
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2">
+            <Lock class="h-5 w-5" />
+            Change Password
+          </CardTitle>
+          <CardDescription>Update your password to keep your account secure</CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="space-y-2">
+            <Label for="current_password">Current Password</Label>
+            <Input 
+              id="current_password" 
+              v-model="passwordForm.current_password" 
+              type="password"
+              placeholder="Enter current password"
+            />
+          </div>
+          <div class="space-y-2">
+            <Label for="new_password">New Password</Label>
+            <Input 
+              id="new_password" 
+              v-model="passwordForm.password" 
+              type="password"
+              placeholder="Enter new password"
+            />
+          </div>
+          <div class="space-y-2">
+            <Label for="password_confirmation">Confirm New Password</Label>
+            <Input 
+              id="password_confirmation" 
+              v-model="passwordForm.password_confirmation" 
+              type="password"
+              placeholder="Confirm new password"
+            />
+          </div>
+          <Button 
+            @click="changePassword" 
+            :disabled="!isPasswordValid || changingPassword"
+            class="w-full"
+          >
+            {{ changingPassword ? 'Updating...' : 'Update Password' }}
+          </Button>
+          <p v-if="passwordError" class="text-xs text-red-500">{{ passwordError }}</p>
+        </CardContent>
+      </Card>
     </div>
+
+    <!-- Danger Zone -->
+    <Card class="border-red-200">
+      <CardHeader class="text-red-600">
+        <CardTitle class="flex items-center gap-2">
+          <AlertTriangle class="h-5 w-5" />
+          Danger Zone
+        </CardTitle>
+        <CardDescription class="text-red-400">Irreversible actions</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div class="flex items-center justify-between">
+          <div>
+            <Label>Delete Account</Label>
+            <p class="text-xs text-muted-foreground">Permanently delete your account</p>
+          </div>
+          <Button variant="destructive" size="sm" @click="confirmDeleteAccount">
+            Delete Account
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
 
     <!-- Success Toast -->
     <div v-if="showToast" class="fixed bottom-4 right-4 z-50 animate-in slide-in-from-right-5">
@@ -231,59 +182,51 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import {
-  Save,
-  User,
-  Camera,
-  Share2,
-  Settings,
-  AlertTriangle,
-  CheckCircle,
-  Github,
-  Linkedin,
-  Twitter,
-  Instagram
-} from "lucide-vue-next"
+import { Save, User, Camera, Lock, AlertTriangle, CheckCircle } from "lucide-vue-next"
 
 definePageMeta({
   layout: 'admin-layout',
-  middleware:'auth'
+  middleware: 'auth'
 })
 
-// Profile Data (editable)
+const authStore = useAuthStore()
+
+// Profile Form
 const profile = ref({
-  username: 'seth_dev',
-  fullName: 'Meach Senbroseth',
-  email: 'seth.dev@example.com',
-  location: 'Phnom Penh, Cambodia',
-  bio: 'Full-stack developer passionate about building amazing web experiences. Specialized in TALL Stack and Nuxt ecosystem.',
-  avatar: '',
-  social: {
-    github: 'https://github.com/seth-dev',
-    linkedin: 'https://linkedin.com/in/seth-dev',
-    twitter: 'https://twitter.com/seth_dev',
-    instagram: ''
-  }
+  name: '',
+  email: ''
 })
 
-// Original profile for tracking changes
-const originalProfile = ref(JSON.parse(JSON.stringify(profile.value)))
-
-// Preferences
-const preferences = ref({
-  emailNotifications: true,
-  darkMode: false
-})
-
-// UI State
+const originalProfile = ref({})
+const avatarPreview = ref('')
+const avatarFile = ref(null)
+const saving = ref(false)
+const changingPassword = ref(false)
+const passwordError = ref('')
 const showToast = ref(false)
 const toastMessage = ref('')
 const deleteDialogOpen = ref(false)
 const avatarInput = ref(null)
 
+// Password Form
+const passwordForm = ref({
+  current_password: '',
+  password: '',
+  password_confirmation: ''
+})
+
 // Computed
 const isDirty = computed(() => {
-  return JSON.stringify(profile.value) !== JSON.stringify(originalProfile.value)
+  return profile.value.name !== originalProfile.value.name || 
+         profile.value.email !== originalProfile.value.email ||
+         avatarFile.value !== null
+})
+
+const isPasswordValid = computed(() => {
+  return passwordForm.value.current_password && 
+         passwordForm.value.password && 
+         passwordForm.value.password === passwordForm.value.password_confirmation &&
+         passwordForm.value.password.length >= 6
 })
 
 // Methods
@@ -294,29 +237,104 @@ const triggerAvatarUpload = () => {
 const handleAvatarUpload = (event) => {
   const file = event.target.files[0]
   if (file) {
+    avatarFile.value = file
     const reader = new FileReader()
     reader.onload = (e) => {
-      profile.value.avatar = e.target.result
+      avatarPreview.value = e.target.result
     }
     reader.readAsDataURL(file)
   }
 }
 
-const saveSettings = () => {
-  originalProfile.value = JSON.parse(JSON.stringify(profile.value))
-  showToastMessage('Settings saved successfully!')
+const saveProfile = async () => {
+  saving.value = true
+  try {
+    // Update profile
+    if (profile.value.name !== originalProfile.value.name || profile.value.email !== originalProfile.value.email) {
+      await authStore.updateProfile({
+        name: profile.value.name,
+        email: profile.value.email
+      })
+    }
+    
+    // Upload avatar if changed
+    if (avatarFile.value) {
+      await authStore.uploadAvatar(avatarFile.value)
+      avatarFile.value = null
+    }
+    
+    originalProfile.value = { ...profile.value }
+    showToastMessage('Profile updated successfully!')
+  } catch (error) {
+    showToastMessage(error.message || 'Failed to update profile')
+  } finally {
+    saving.value = false
+  }
+}
+
+const changePassword = async () => {
+  changingPassword.value = true
+  passwordError.value = ''
+  
+  try {
+    await authStore.changePassword(
+      passwordForm.value.current_password,
+      passwordForm.value.password
+    )
+    
+    passwordForm.value = {
+      current_password: '',
+      password: '',
+      password_confirmation: ''
+    }
+    
+    showToastMessage('Password changed successfully!')
+  } catch (error) {
+    passwordError.value = error.message || 'Failed to change password'
+  } finally {
+    changingPassword.value = false
+  }
+}
+
+const sendVerificationEmail = async () => {
+  try {
+    const config = useRuntimeConfig()
+    const token = authStore.token
+    
+    await $fetch(`${config.public.apiBase}/email/verification-notification`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    
+    showToastMessage('Verification email sent!')
+  } catch (error) {
+    showToastMessage('Failed to send verification email')
+  }
 }
 
 const confirmDeleteAccount = () => {
   deleteDialogOpen.value = true
 }
 
-const deleteAccount = () => {
-  deleteDialogOpen.value = false
-  showToastMessage('Account deleted. Redirecting...')
-  setTimeout(() => {
-    navigateTo('/')
-  }, 2000)
+const deleteAccount = async () => {
+  try {
+    const config = useRuntimeConfig()
+    const token = authStore.token
+    
+    await $fetch(`${config.public.apiBase}/user`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    
+    await authStore.logout()
+    showToastMessage('Account deleted. Redirecting...')
+    setTimeout(() => {
+      navigateTo('/')
+    }, 2000)
+  } catch (error) {
+    showToastMessage('Failed to delete account')
+    deleteDialogOpen.value = false
+  }
 }
 
 const showToastMessage = (message) => {
@@ -327,12 +345,14 @@ const showToastMessage = (message) => {
   }, 3000)
 }
 
-// Watch for dark mode changes
-watch(() => preferences.value.darkMode, (isDark) => {
-  if (isDark) {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
+// Initialize form with user data
+watch(() => authStore.user, (user) => {
+  if (user) {
+    profile.value = {
+      name: user.name || '',
+      email: user.email || ''
+    }
+    originalProfile.value = { ...profile.value }
   }
 }, { immediate: true })
 </script>

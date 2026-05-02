@@ -1,3 +1,4 @@
+// stores/project.js
 import { defineStore } from 'pinia'
 
 export const useProjectStore = defineStore('project', {
@@ -5,6 +6,7 @@ export const useProjectStore = defineStore('project', {
         projects: [],
         loading: false,
         error: null,
+        validationErrors: null,
         pagination: {
             current_page: 1,
             last_page: 1,
@@ -20,7 +22,6 @@ export const useProjectStore = defineStore('project', {
     actions: {
         getToken() {
             const authStore = useAuthStore()
-
             return (
                 authStore.token ||
                 localStorage.getItem('auth_token') ||
@@ -54,6 +55,7 @@ export const useProjectStore = defineStore('project', {
         getFullImageUrl(path) {
             if (!path) return null
             if (path.startsWith('http://') || path.startsWith('https://')) return path
+            if (path.startsWith('data:')) return path
 
             const config = useRuntimeConfig()
             const apiBase = config.public.apiBase
@@ -67,22 +69,39 @@ export const useProjectStore = defineStore('project', {
         },
 
         processProject(project) {
-            const rawImage = project.raw_image ?? project.image_path ?? null
-            const rawGallery = project.raw_gallery ?? project.gallery_paths ?? []
             const gallery = Array.isArray(project.gallery) ? project.gallery : []
             const technologies = Array.isArray(project.technologies) ? project.technologies : []
+            const liveDemo = project.live_demo ?? project.live_url ?? ''
 
             return {
                 ...project,
                 desc: project.desc ?? project.description ?? '',
-                live_url: project.live_url ?? project.live_demo ?? '',
-                github_url: project.github_url ?? project.github_link ?? '',
-                raw_image: rawImage,
-                raw_gallery: rawGallery,
-                image: this.getFullImageUrl(project.image ?? rawImage),
+                live_demo: liveDemo,
+                live_url: liveDemo,
+                github_url: project.github_url ?? '',
+                image: this.getFullImageUrl(project.image),
+                raw_gallery: gallery,
                 gallery: gallery.map((image) => this.getFullImageUrl(image)),
                 technologies,
             }
+        },
+
+        normalizeProjectFormData(formData) {
+            if (!(formData instanceof FormData)) return formData
+
+            const liveUrl = formData.get('live_url')
+            if (liveUrl !== null && !formData.has('live_demo')) {
+                formData.set('live_demo', liveUrl)
+            }
+            formData.delete('live_url')
+
+            for (const key of ['technologies', 'existing_gallery']) {
+                if (formData.get(key) === '[]') {
+                    formData.delete(key)
+                }
+            }
+
+            return formData
         },
 
         extractProjectsResponse(response) {
@@ -108,7 +127,7 @@ export const useProjectStore = defineStore('project', {
             try {
                 const config = useRuntimeConfig()
                 const response = await $fetch(`${config.public.apiBase}/projects?page=${page}`, {
-                    headers: this.getHeaders(),
+                    headers: this.getHeaders(false),
                 })
 
                 this.projects = this.extractProjectsResponse(response).map((project) =>
@@ -128,13 +147,22 @@ export const useProjectStore = defineStore('project', {
         async createProject(formData) {
             this.loading = true
             this.error = null
+            this.validationErrors = null
 
             try {
                 const config = useRuntimeConfig()
+                const payload = this.normalizeProjectFormData(formData)
+                
+                // Log what we're sending for debugging
+                console.log('Creating project with FormData:')
+                for (let pair of payload.entries()) {
+                    console.log(pair[0], pair[1])
+                }
+                
                 const response = await $fetch(`${config.public.apiBase}/projects`, {
                     method: 'POST',
                     headers: this.getHeaders(true),
-                    body: formData,
+                    body: payload,
                 })
 
                 if (response?.data) {
@@ -143,7 +171,16 @@ export const useProjectStore = defineStore('project', {
 
                 return response
             } catch (err) {
-                this.error = err?.data?.message || err.message || 'Failed to create project'
+                console.error('Create project error:', err)
+                
+                // Capture validation errors
+                if (err?.status === 422 && err?.data?.errors) {
+                    this.validationErrors = err.data.errors
+                    this.error = 'Validation failed. Please check your input.'
+                } else {
+                    this.error = err?.data?.message || err.message || 'Failed to create project'
+                }
+                
                 if (err?.status === 401) this.handle401()
                 throw err
             } finally {
@@ -154,13 +191,25 @@ export const useProjectStore = defineStore('project', {
         async updateProject(id, formData) {
             this.loading = true
             this.error = null
+            this.validationErrors = null
 
             try {
                 const config = useRuntimeConfig()
+                const payload = this.normalizeProjectFormData(formData)
+                
+                // Add _method field for Laravel to interpret as PUT
+                payload.set('_method', 'PUT')
+                
+                // Log what we're sending for debugging
+                console.log(`Updating project ${id} with FormData:`)
+                for (let pair of payload.entries()) {
+                    console.log(pair[0], pair[1])
+                }
+                
                 const response = await $fetch(`${config.public.apiBase}/projects/${id}`, {
-                    method: 'POST',
+                    method: 'POST', // Use POST with _method=PUT
                     headers: this.getHeaders(true),
-                    body: formData,
+                    body: payload,
                 })
 
                 if (response?.data) {
@@ -174,7 +223,16 @@ export const useProjectStore = defineStore('project', {
 
                 return response
             } catch (err) {
-                this.error = err?.data?.message || err.message || 'Failed to update project'
+                console.error('Update project error:', err)
+                
+                // Capture validation errors
+                if (err?.status === 422 && err?.data?.errors) {
+                    this.validationErrors = err.data.errors
+                    this.error = 'Validation failed. Please check your input.'
+                } else {
+                    this.error = err?.data?.message || err.message || 'Failed to update project'
+                }
+                
                 if (err?.status === 401) this.handle401()
                 throw err
             } finally {
@@ -190,7 +248,7 @@ export const useProjectStore = defineStore('project', {
                 const config = useRuntimeConfig()
                 const response = await $fetch(`${config.public.apiBase}/projects/${id}`, {
                     method: 'DELETE',
-                    headers: this.getHeaders(),
+                    headers: this.getHeaders(false),
                 })
 
                 this.projects = this.projects.filter((project) => project.id !== id)
@@ -203,6 +261,6 @@ export const useProjectStore = defineStore('project', {
             } finally {
                 this.loading = false
             }
-        },
+        }
     },
 })

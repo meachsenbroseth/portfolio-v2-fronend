@@ -46,7 +46,7 @@
                 <div class="absolute inset-0 border border-[#e0dddc] translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-500"></div>
                 <div class="relative h-full w-full border border-[#131313] overflow-hidden">
                   <img :src="getImageUrl(item.image)" :alt="item.title"
-                    class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-all duration-700"
                     @error="handleImageError" />
                 </div>
               </div>

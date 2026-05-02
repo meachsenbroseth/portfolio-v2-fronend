@@ -33,7 +33,7 @@
               Hey, I'm <span class="text-[#131313] font-bold">Seth</span>.
               I'm a professional nerd obsessed with the <span class="text-[#131313] font-bold">TALL
                 Stack</span>
-              and <span class="text-[#131313] font-bold">Nuxt</span>. I build enterprise systems,
+              and. I build enterprise systems,
               high-performance APIs, and occasionally break things just to learn how to fix them.
             </p>
 
