@@ -1,5 +1,7 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const authStore = useAuthStore()
+
+  if (import.meta.server) return
   
   // Initialize auth if not done yet
   if (!authStore.initialized) {
@@ -13,8 +15,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   
   // Check if user is admin
   if (!authStore.isAdmin) {
-    // Not an admin, redirect to dashboard or show error
-    return navigateTo('/admin/dashboard')
+    return navigateTo('/')
   }
   
   // User is admin, allow access
