@@ -22,19 +22,14 @@
           <h1
             class="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-black leading-[1.1] tracking-tight whitespace-pre-line min-h-[2.2em]">
             <span>{{ typedText }}</span>
-            <span
-              class="inline-block w-[3px] h-[0.8em] bg-[#131313] align-middle ml-1 transition-opacity duration-75"
+            <span class="inline-block w-[3px] h-[0.8em] bg-[#131313] align-middle ml-1 transition-opacity duration-75"
               :class="cursorVisible ? 'opacity-100' : 'opacity-0'"></span>
           </h1>
 
           <div class="max-w-md space-y-6">
-            <p
-              class="text-[#5d5f5f] leading-relaxed text-sm sm:text-base border-l-2 border-[#131313] pl-5 py-1">
-              Hey, I'm <span class="text-[#131313] font-bold">Seth</span>.
-              I'm a professional nerd obsessed with the <span class="text-[#131313] font-bold">TALL
-                Stack</span>
-              and. I build enterprise systems,
-              high-performance APIs, and occasionally break things just to learn how to fix them.
+            <p class="text-[#5d5f5f] leading-relaxed text-sm sm:text-base border-l-2 border-[#131313] pl-5 py-1">
+              A passionate web developer based in Cambodia.
+              I craft clean, performant digital experiences — from backend logic to pixel-perfect UIs.
             </p>
 
             <!-- Stunning Typing Animation Below Bio -->
@@ -56,8 +51,7 @@
                         <span class="text-[#aaa] ml-2">echo</span>
                         <span class="ml-2 text-[#131313]">
                           {{ typedBio }}
-                          <span
-                            class="inline-block w-[2px] h-[1.1em] bg-[#28c840] align-middle ml-1"
+                          <span class="inline-block w-[2px] h-[1.1em] bg-[#28c840] align-middle ml-1"
                             :class="bioCursorVisible ? 'opacity-100' : 'opacity-0'"></span>
                         </span>
                       </div>
@@ -112,8 +106,7 @@
     </section>
 
     <!-- Loading State -->
-    <div v-if="experienceStore.loading || educationStore.loading" 
-      class="flex justify-center py-20">
+    <div v-if="experienceStore.loading || educationStore.loading" class="flex justify-center py-20">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#131313]"></div>
     </div>
 
@@ -153,9 +146,8 @@
 
                 <div class="reveal-up" :style="`animation-delay:${i * 0.1}s`">
                   <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                    <span
-                      class="text-[9px] sm:text-[10px] font-bold text-[#131313] uppercase tracking-widest">{{
-                        item.date }}</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-[#131313] uppercase tracking-widest">{{
+                      item.date }}</span>
                     <span class="text-[9px] sm:text-[10px] text-[#aaa]">—</span>
                   </div>
 
@@ -190,13 +182,11 @@
 
                 <div class="reveal-up" :style="`animation-delay:${0.2 + i * 0.1}s`">
                   <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                    <span
-                      class="text-[9px] sm:text-[10px] font-bold text-[#131313] uppercase tracking-widest">{{
-                        item.date }}</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-[#131313] uppercase tracking-widest">{{
+                      item.date }}</span>
                     <span class="text-[9px] sm:text-[10px] text-[#aaa]">—</span>
-                    <span
-                      class="text-[9px] sm:text-[10px] font-bold text-[#131313] uppercase tracking-tighter">{{
-                        item.institution }}</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-[#131313] uppercase tracking-tighter">{{
+                      item.institution }}</span>
                   </div>
 
                   <h3
