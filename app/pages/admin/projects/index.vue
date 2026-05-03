@@ -55,11 +55,8 @@
                 <TableCell>
                   <div class="flex items-center gap-3">
                     <div class="h-10 w-10 overflow-hidden rounded bg-gray-100">
-                      <img
-                        :src="project.image || placeholderImage"
-                        class="h-full w-full object-cover"
-                        @error="handleImageError"
-                      />
+                      <img :src="project.image || placeholderImage" class="h-full w-full object-cover"
+                        @error="handleImageError" />
                     </div>
                     <div>
                       <p class="font-medium">{{ project.title }}</p>
@@ -104,6 +101,13 @@
           </DialogDescription>
         </DialogHeader>
 
+        <div v-if="error || validationErrorMessages.length" class="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <p v-if="error" class="font-medium">{{ error }}</p>
+          <ul v-if="validationErrorMessages.length" class="mt-1 list-inside list-disc space-y-1">
+            <li v-for="message in validationErrorMessages" :key="message">{{ message }}</li>
+          </ul>
+        </div>
+
         <form class="space-y-4" enctype="multipart/form-data" @submit.prevent="saveProject">
           <div class="space-y-2">
             <Label for="title">Title *</Label>
@@ -114,13 +118,8 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="category">Category</Label>
-            <Input id="category" v-model="form.category" placeholder="Web App, Enterprise, etc." />
-          </div>
-
-          <div class="space-y-2">
             <Label for="date">Date *</Label>
-            <Input id="date" v-model="form.date" required placeholder="2026-05-01" />
+            <Input id="date" v-model="form.date" required placeholder="2024-01-15" type="date" />
           </div>
 
           <div class="space-y-2">
@@ -137,27 +136,20 @@
           </div>
 
           <div class="space-y-2">
-            <Label for="description">Description</Label>
-            <Textarea id="description" v-model="form.desc" rows="4" />
+            <Label for="desc">Desc</Label>
+            <Textarea id="desc" v-model="form.desc" rows="4" placeholder="Project desc..." />
           </div>
 
           <div class="space-y-2">
             <Label>Main Image</Label>
-            <div class="rounded-lg border-2 border-dashed border-gray-200 p-4 text-center transition-colors hover:border-gray-300">
-              <input
-                ref="mainImageInput"
-                type="file"
-                accept="image/*"
-                class="hidden"
-                @change="handleMainImageUpload"
-              />
+            <div
+              class="rounded-lg border-2 border-dashed border-gray-200 p-4 text-center transition-colors hover:border-gray-300">
+              <input ref="mainImageInput" type="file" accept="image/*" class="hidden" @change="handleMainImageUpload" />
               <div v-if="form.imagePreview" class="relative inline-block">
                 <img :src="form.imagePreview" class="h-32 w-32 rounded-lg object-cover" />
-                <button
-                  type="button"
+                <button type="button"
                   class="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
-                  @click="removeMainImage"
-                >
+                  @click="removeMainImage">
                   <X class="h-3 w-3" />
                 </button>
               </div>
@@ -172,23 +164,15 @@
           <div class="space-y-2">
             <Label>Gallery Images</Label>
             <div class="rounded-lg border-2 border-dashed border-gray-200 p-4">
-              <input
-                ref="galleryInput"
-                type="file"
-                accept="image/*"
-                multiple
-                class="hidden"
-                @change="handleGalleryUpload"
-              />
+              <input ref="galleryInput" type="file" accept="image/*" multiple class="hidden"
+                @change="handleGalleryUpload" />
 
               <div v-if="form.galleryItems.length" class="mb-4 grid grid-cols-4 gap-3">
                 <div v-for="(item, index) in form.galleryItems" :key="item.key" class="group relative">
                   <img :src="item.preview" class="h-20 w-full rounded-lg border object-cover" />
-                  <button
-                    type="button"
+                  <button type="button"
                     class="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
-                    @click="removeGalleryImage(index)"
-                  >
+                    @click="removeGalleryImage(index)">
                     <X class="h-3 w-3" />
                   </button>
                 </div>
@@ -205,13 +189,8 @@
           <div class="space-y-2">
             <Label>Technologies</Label>
             <div class="mb-2 flex flex-wrap gap-2">
-              <Badge
-                v-for="tech in form.technologies"
-                :key="tech"
-                variant="secondary"
-                class="cursor-pointer hover:bg-red-100"
-                @click="removeTech(tech)"
-              >
+              <Badge v-for="tech in form.technologies" :key="tech" variant="secondary"
+                class="cursor-pointer hover:bg-red-100" @click="removeTech(tech)">
                 {{ tech }}
                 <X class="ml-1 h-3 w-3" />
               </Badge>
@@ -224,12 +203,12 @@
 
           <div class="space-y-2">
             <Label for="live_demo">Live Demo URL</Label>
-            <Input id="live_demo" v-model="form.live_demo" placeholder="https://..." />
+            <Input id="live_demo" v-model="form.live_demo" placeholder="https://example.com" />
           </div>
 
           <div class="space-y-2">
-            <Label for="github_url">GitHub URL</Label>
-            <Input id="github_url" v-model="form.github_url" placeholder="https://github.com/..." />
+            <Label for="github_link">GitHub URL</Label>
+            <Input id="github_link" v-model="form.github_link" placeholder="https://github.com/username/repo" />
           </div>
 
           <DialogFooter>
@@ -274,7 +253,7 @@ definePageMeta({
 
 const authStore = useAuthStore()
 const projectStore = useProjectStore()
-const { projects, loading } = storeToRefs(projectStore)
+const { projects, loading, error, validationErrors } = storeToRefs(projectStore)
 
 const placeholderImage = 'https://blocks.astratic.com/img/general-img-portrait.png'
 const maxGalleryImages = 10
@@ -292,17 +271,15 @@ const galleryInput = ref(null)
 const createEmptyForm = () => ({
   id: null,
   title: '',
-  category: '',
   date: new Date().toISOString().slice(0, 10),
-  status: 'completed',
+  status: 'in_progress',
   desc: '',
-  imageFile: null,
+  image: null,
   imagePreview: '',
-  removeImage: false,
   galleryItems: [],
   technologies: [],
   live_demo: '',
-  github_url: '',
+  github_link: '',
 })
 
 const form = ref(createEmptyForm())
@@ -313,7 +290,7 @@ const filteredProjects = computed(() => {
 
   if (query) {
     filtered = filtered.filter((project) =>
-      [project.title, project.desc, project.category]
+      [project.title, project.desc]
         .filter(Boolean)
         .some((value) => value.toLowerCase().includes(query))
     )
@@ -326,6 +303,10 @@ const filteredProjects = computed(() => {
   return filtered
 })
 
+const validationErrorMessages = computed(() =>
+  Object.values(validationErrors.value || {}).flat()
+)
+
 const clearFileInput = (inputRef) => {
   if (inputRef.value) {
     inputRef.value.value = ''
@@ -333,7 +314,7 @@ const clearFileInput = (inputRef) => {
 }
 
 const fileToGalleryItem = (file) => ({
-  key: `new-${crypto.randomUUID()}`,
+  key: `new-${globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`}`,
   type: 'new',
   file,
   preview: URL.createObjectURL(file),
@@ -344,9 +325,12 @@ const handleMainImageUpload = (event) => {
 
   if (!file) return
 
-  form.value.imageFile = file
+  if (form.value.imagePreview?.startsWith('blob:')) {
+    URL.revokeObjectURL(form.value.imagePreview)
+  }
+
+  form.value.image = file
   form.value.imagePreview = URL.createObjectURL(file)
-  form.value.removeImage = false
 }
 
 const handleGalleryUpload = (event) => {
@@ -371,9 +355,12 @@ const handleGalleryUpload = (event) => {
 }
 
 const removeMainImage = () => {
-  form.value.imageFile = null
+  if (form.value.imagePreview?.startsWith('blob:')) {
+    URL.revokeObjectURL(form.value.imagePreview)
+  }
+
+  form.value.image = null
   form.value.imagePreview = ''
-  form.value.removeImage = isEditing.value
   clearFileInput(mainImageInput)
 }
 
@@ -391,12 +378,18 @@ const clearFilters = () => {
 }
 
 const resetForm = () => {
+  if (form.value.imagePreview?.startsWith('blob:')) {
+    URL.revokeObjectURL(form.value.imagePreview)
+  }
+
   form.value.galleryItems
     .filter((item) => item.type === 'new')
     .forEach((item) => URL.revokeObjectURL(item.preview))
 
   form.value = createEmptyForm()
   newTech.value = ''
+  projectStore.error = null
+  projectStore.validationErrors = null
   clearFileInput(mainImageInput)
   clearFileInput(galleryInput)
 }
@@ -414,13 +407,11 @@ const openEditDialog = (project) => {
   form.value = {
     id: project.id,
     title: project.title || '',
-    category: project.category || '',
     date: project.date || '',
-    status: project.status || 'completed',
+    status: project.status || 'in_progress',
     desc: project.desc || '',
-    imageFile: null,
+    image: null,
     imagePreview: project.image || '',
-    removeImage: false,
     galleryItems: (project.raw_gallery || []).map((path, index) => ({
       key: `existing-${path}-${index}`,
       type: 'existing',
@@ -428,8 +419,8 @@ const openEditDialog = (project) => {
       preview: project.gallery?.[index] || projectStore.getFullImageUrl(path),
     })),
     technologies: [...(project.technologies || [])],
-    live_demo: project.live_demo || project.live_url || '',
-    github_url: project.github_url || '',
+    live_demo: project.live_demo || '',
+    github_link: project.github_link || '',
   }
 
   dialogOpen.value = true
@@ -449,63 +440,33 @@ const removeTech = (tech) => {
   form.value.technologies = form.value.technologies.filter((item) => item !== tech)
 }
 
-const buildProjectFormData = () => {
-  const submitData = new FormData()
-
-  submitData.append('title', form.value.title)
-  submitData.append('category', form.value.category)
-  submitData.append('date', form.value.date)
-  submitData.append('status', form.value.status)
-  submitData.append('description', form.value.desc)
-  submitData.append('live_demo', form.value.live_demo)
-  submitData.append('github_url', form.value.github_url)
-
-  if (form.value.technologies.length) {
-    form.value.technologies.forEach((technology, index) => {
-      submitData.append(`technologies[${index}]`, technology)
-    })
-  }
-
-  if (form.value.imageFile) {
-    submitData.append('image', form.value.imageFile)
-  }
-
-  if (isEditing.value && form.value.removeImage) {
-    submitData.append('remove_image', '1')
-  }
-
-  if (isEditing.value) {
-    const existingGallery = form.value.galleryItems.filter((item) => item.type === 'existing')
-
-    if (existingGallery.length) {
-      existingGallery.forEach((item, index) => {
-        submitData.append(`existing_gallery[${index}]`, item.path)
-      })
-    }
-  }
-
-  form.value.galleryItems
+const buildProjectPayload = () => ({
+  title: form.value.title,
+  date: form.value.date,
+  status: form.value.status,
+  desc: form.value.desc,
+  image: form.value.image,
+  gallery: form.value.galleryItems
     .filter((item) => item.type === 'new')
-    .forEach((item) => {
-      submitData.append('gallery[]', item.file)
-    })
-
-  return submitData
-}
+    .map((item) => item.file),
+  technologies: form.value.technologies,
+  live_demo: form.value.live_demo,
+  github_link: form.value.github_link,
+})
 
 const saveProject = async () => {
   try {
-    const submitData = buildProjectFormData()
+    const projectPayload = buildProjectPayload()
 
     if (isEditing.value) {
-      await projectStore.updateProject(form.value.id, submitData)
+      await projectStore.updateProject(form.value.id, projectPayload)
     } else {
-      await projectStore.createProject(submitData)
+      await projectStore.createProject(projectPayload)
     }
 
+    await projectStore.fetchProjects()
     dialogOpen.value = false
     resetForm()
-    await projectStore.fetchProjects()
   } catch (error) {
     console.error('Failed to save project:', error)
   }
@@ -521,6 +482,7 @@ const deleteProject = async () => {
 
   try {
     await projectStore.deleteProject(projectToDelete.value.id)
+    await projectStore.fetchProjects()
     deleteDialogOpen.value = false
     projectToDelete.value = null
   } catch (error) {

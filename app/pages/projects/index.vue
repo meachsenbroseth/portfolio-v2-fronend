@@ -1,8 +1,5 @@
 <template>
   <div class="min-h-screen py-24 px-6 font-mono selection:bg-[#131313] selection:text-white">
-    <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
-      style="background-size:32px 32px; background-image: linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px);">
-    </div>
 
     <div class="max-w-5xl mx-auto">
 
@@ -20,10 +17,9 @@
 
       <!-- ── PROJECT LIST ── -->
       <div v-else-if="projects && projects.length > 0" class="divide-y divide-[#e0dddc] border-t border-[#e0dddc]">
-        <NuxtLink
+        <div
           v-for="(item, i) in projects"
           :key="item.id"
-          :to="`/projects/${item.slug}`"
           class="group block relative hover:bg-[#fafafa] transition-all duration-500 overflow-hidden"
           :style="`animation-delay:${i * 0.05}s`"
         >
@@ -42,14 +38,17 @@
             <div class="flex-1 p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center">
 
               <!-- Image with offset frame -->
-              <div class="relative shrink-0 w-full md:w-56 aspect-4/3 group-hover:-translate-y-1 transition-transform duration-500">
+              <NuxtLink
+                :to="`/projects/${item.slug}`"
+                class="relative shrink-0 w-full md:w-56 aspect-4/3 group-hover:-translate-y-1 transition-transform duration-500"
+              >
                 <div class="absolute inset-0 border border-[#e0dddc] translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-500"></div>
                 <div class="relative h-full w-full border border-[#131313] overflow-hidden">
                   <img :src="getImageUrl(item.image)" :alt="item.title"
                     class="w-full h-full object-cover group-hover:scale-110 transition-all duration-700"
                     @error="handleImageError" />
                 </div>
-              </div>
+              </NuxtLink>
 
               <!-- Content -->
               <div class="flex-1 space-y-4">
@@ -59,9 +58,11 @@
                   </span>
                   <div class="h-px w-8 bg-[#e0dddc]"></div>
                 </div>
-                <h2 class="text-2xl md:text-3xl font-black text-[#131313] uppercase tracking-tighter leading-none group-hover:translate-x-2 transition-transform duration-300">
-                  {{ item.title }}
-                </h2>
+                <NuxtLink :to="`/projects/${item.slug}`" class="block">
+                  <h2 class="text-2xl md:text-3xl font-black text-[#131313] uppercase tracking-tighter leading-none group-hover:translate-x-2 transition-transform duration-300">
+                    {{ item.title }}
+                  </h2>
+                </NuxtLink>
                 <p class="text-sm text-[#5d5f5f] leading-relaxed max-w-xl line-clamp-2">
                   {{ item.description || item.desc }}
                 </p>
@@ -71,20 +72,42 @@
                     [{{ tech }}]
                   </span>
                 </div>
+                <div v-if="item.live_demo || item.github_link" class="flex flex-wrap gap-3 pt-1">
+                  <a
+                    v-if="item.live_demo"
+                    :href="item.live_demo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 border border-[#131313] px-3 py-2 text-[9px] font-black uppercase tracking-[0.22em] text-[#131313] transition-colors hover:bg-[#131313] hover:text-white"
+                  >
+                    <ExternalLink class="h-3.5 w-3.5" />
+                    Live Demo
+                  </a>
+                  <a
+                    v-if="item.github_link"
+                    :href="item.github_link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-2 border border-[#e0dddc] px-3 py-2 text-[9px] font-black uppercase tracking-[0.22em] text-[#5d5f5f] transition-colors hover:border-[#131313] hover:text-[#131313]"
+                  >
+                    <Github class="h-3.5 w-3.5" />
+                    GitHub
+                  </a>
+                </div>
               </div>
 
               <!-- Arrow -->
               <div class="hidden lg:flex items-center justify-center p-4">
-                <div class="w-12 h-12 border border-[#e0dddc] flex items-center justify-center group-hover:bg-[#131313] group-hover:border-[#131313] transition-all duration-500">
+                <NuxtLink :to="`/projects/${item.slug}`" class="w-12 h-12 border border-[#e0dddc] flex items-center justify-center group-hover:bg-[#131313] group-hover:border-[#131313] transition-all duration-500">
                   <span class="text-xl group-hover:text-white group-hover:translate-x-1 transition-all duration-300">→</span>
-                </div>
+                </NuxtLink>
               </div>
             </div>
           </div>
 
           <!-- Green underline on hover -->
           <div class="absolute bottom-0 left-0 h-0.5 bg-[#28c840] w-0 group-hover:w-full transition-all duration-700 ease-in-out"></div>
-        </NuxtLink>
+        </div>
       </div>
 
       <!-- ── EMPTY STATE ── -->
@@ -197,6 +220,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import { ExternalLink, Github } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'default'
