@@ -7,7 +7,8 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@nuxt/icon',
     'shadcn-nuxt',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    '@nuxtjs/sitemap'
   ],
   css: ['~/assets/css/main.css'],
   tailwindcss: {
@@ -159,7 +160,6 @@ export default defineNuxtConfig({
       '/',
       '/projects',
       '/about',
-      '/contact'
     ],
     exclude: ['/admin/**'],
     defaults: {
