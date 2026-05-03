@@ -18,7 +18,6 @@
           <div class="text-[10px] leading-relaxed text-zinc-400 uppercase tracking-widest">
             <p>/**</p>
             <p class="pl-4">* @status: available_for_hire</p>
-            <p class="pl-4">* @engine: nuxt_3_tailwind</p>
             <p class="pl-4">* @copyright: © 2026_portfolio</p>
             <p>*/</p>
           </div>
@@ -59,9 +58,11 @@
 </template>
 
 <script setup>
+const config = useRuntimeConfig();
+
 const socials = [
-  { label: 'GitHub', icon: 'mdi:github', url: 'https://github.com/meachsenbroseth' },
-  { label: 'YouTube', icon: 'mdi:youtube', url: 'https://youtube.com/@msbseth' },
-  { label: 'LinkedIn', icon: 'mdi:linkedin', url: 'https://www.linkedin.com/in/meach-senbroseth-69130326b' }
+  { label: 'GitHub', icon: 'mdi:github', url: config.public.githubUrl },
+  { label: 'YouTube', icon: 'mdi:youtube', url: config.public.youtubeUrl },
+  { label: 'LinkedIn', icon: 'mdi:linkedin', url: config.public.linkedinUrl }
 ]
 </script>

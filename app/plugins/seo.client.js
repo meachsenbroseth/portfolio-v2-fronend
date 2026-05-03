@@ -3,14 +3,14 @@ export default defineNuxtPlugin(() => {
 
     // Update meta tags on route change
     router.afterEach((to) => {
-        const defaultTitle = 'MSB Seth - Full-Stack Developer Portfolio'
+        const defaultTitle = 'MSB Seth - Portfolio'
         const defaultDescription = 'Professional full-stack developer specializing in TALL Stack, Nuxt.js, and Laravel. Building enterprise systems and high-performance web applications.'
 
         // Dynamic titles based on route
         const titles = {
-            '/': 'MSB Seth - Full-Stack Developer Portfolio',
+            '/': 'MSB Seth - Portfolio',
             '/projects': 'Projects - MSB Seth Portfolio',
-            '/about': 'About Me - Full-Stack Developer',
+            '/about': 'About Me - MSB Seth Portfolio',
             '/contact': 'Contact - MSB Seth',
             '/admin': 'Admin Dashboard - MSB Seth'
         }

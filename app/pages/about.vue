@@ -122,99 +122,6 @@
       </div>
     </section>
 
-    <!-- Tech Stack Swiper - IMPROVED VERSION -->
-    <div class="py-20 border-y-2 border-[#131313] bg-white overflow-hidden">
-      <div class="mb-10 px-6 md:px-12">
-        <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#aaa]">
-          // TECH_STACK_INVENTORY
-        </h3>
-      </div>
-
-      <div class="relative">
-        <!-- Gradient Overlays for smooth fading effect -->
-        <div class="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-        <div class="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
-
-        <Swiper 
-          :modules="[SwiperAutoplay, SwiperFreeMode]" 
-          :slides-per-view="'auto'" 
-          :space-between="24" 
-          :loop="true"
-          :loop-add-blank-slides="true"
-          :looped-slides="skills.length" 
-          :allow-touch-move="true" 
-          :grab-cursor="true" 
-          :speed="8000" 
-          :free-mode="{
-            enabled: true,
-            momentum: true,
-            momentumBounce: true,
-            momentumBounceRatio: 0.5,
-            momentumRatio: 0.5,
-            minimumVelocity: 0.1
-          }" 
-          :autoplay="{
-            delay: 0,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-            stopOnLastSlide: false
-          }" 
-          :breakpoints="{
-            640: { spaceBetween: 28 },
-            768: { spaceBetween: 34 },
-            1024: { spaceBetween: 40 }
-          }" 
-          :observer="true" 
-          :observe-parents="true"
-          :resize-observer="true"
-          @mouseenter="handleSwiperMouseEnter"
-          @mouseleave="handleSwiperMouseLeave"
-          class="skills-swiper"
-        >
-          <SwiperSlide v-for="skill in skills" :key="skill.name" class="!w-auto select-none">
-            <div class="flex items-center gap-6 group">
-              <!-- Icon Container -->
-              <div
-                class="relative w-16 h-16 md:w-20 md:h-20 border-2 border-[#131313] bg-white flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500 shadow-[6px_6px_0px_#131313] group-hover:shadow-none group-hover:translate-x-1 group-hover:translate-y-1">
-                <Icon :name="skill.icon"
-                  class="text-3xl md:text-4xl transition-transform duration-500 group-hover:scale-110"
-                  :style="{ color: skill.color }" />
-              </div>
-
-              <div class="flex flex-col">
-                <span class="text-2xl md:text-3xl font-black uppercase tracking-tighter">
-                  {{ skill.name }}
-                </span>
-                <span class="text-[8px] font-bold text-[#28c840] uppercase tracking-widest">
-                  Module_Active
-                </span>
-              </div>
-            </div>
-          </SwiperSlide>
-          
-          <!-- Duplicate slides for seamless loop (optional, for smoother infinite scroll) -->
-          <SwiperSlide v-for="skill in skills" :key="`duplicate-${skill.name}`" class="!w-auto select-none">
-            <div class="flex items-center gap-6 group">
-              <div
-                class="relative w-16 h-16 md:w-20 md:h-20 border-2 border-[#131313] bg-white flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500 shadow-[6px_6px_0px_#131313] group-hover:shadow-none group-hover:translate-x-1 group-hover:translate-y-1">
-                <Icon :name="skill.icon"
-                  class="text-3xl md:text-4xl transition-transform duration-500 group-hover:scale-110"
-                  :style="{ color: skill.color }" />
-              </div>
-              <div class="flex flex-col">
-                <span class="text-2xl md:text-3xl font-black uppercase tracking-tighter">
-                  {{ skill.name }}
-                </span>
-                <span class="text-[8px] font-bold text-[#28c840] uppercase tracking-widest">
-                  Module_Active
-                </span>
-              </div>
-            </div>
-          </SwiperSlide>
-        </Swiper>
-      </div>
-    </div>
-
     <!-- Loading State: Minimal Terminal Style -->
     <div v-if="experienceStore.loading || educationStore.loading"
       class="flex flex-col items-center justify-center py-32 gap-4">
@@ -334,7 +241,6 @@
 
 <script setup>
 import { storeToRefs } from 'pinia'
-import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Autoplay, FreeMode } from 'swiper/modules';
 import 'swiper/css';
 
@@ -359,12 +265,18 @@ const SwiperAutoplay = Autoplay;
 const SwiperFreeMode = FreeMode;
 
 const skills = [
-  { name: 'Laravel', icon: 'logos:laravel', color: '#FF2D20' },
-  { name: 'Nuxt.js', icon: 'logos:nuxt-icon', color: '#00DC82' },
-  { name: 'Tailwind', icon: 'logos:tailwindcss-icon', color: '#06B6D4' },
-  { name: 'HTML5', icon: 'logos:html-5', color: '#E34F26' },
-  { name: 'CSS3', icon: 'logos:css-3', color: '#1572B6' },
-  { name: 'JavaScript', icon: 'logos:javascript', color: '#F7DF1E' },
+  { name: 'Vue.js',     icon: 'simple-icons:vuedotjs' },
+  { name: 'Nuxt.js',    icon: 'simple-icons:nuxtdotjs' },
+  { name: 'Laravel',    icon: 'simple-icons:laravel' },
+  { name: 'Tailwind',   icon: 'simple-icons:tailwindcss' },
+  { name: 'TypeScript', icon: 'simple-icons:typescript' },
+  { name: 'PostgreSQL', icon: 'simple-icons:postgresql' },
+  { name: 'PHP',        icon: 'simple-icons:php' },
+  { name: 'Docker',     icon: 'simple-icons:docker' },
+  { name: 'Git',        icon: 'simple-icons:git' },
+  { name: 'Figma',      icon: 'simple-icons:figma' },
+  { name: 'Node.js',    icon: 'simple-icons:nodedotjs' },
+  { name: 'MongoDB',    icon: 'simple-icons:mongodb' },
 ];
 
 const typeLoop = () => {
