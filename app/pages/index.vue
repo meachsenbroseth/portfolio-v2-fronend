@@ -200,11 +200,11 @@
           <!-- Header -->
           <div class="space-y-4">
             <p class="text-[9px] tracking-[0.4em] uppercase text-[#aaa] font-black italic">
-              // uplink.protocol_initialized
+              // uplink.handshake_request
             </p>
             <h2 class="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight leading-[0.85] uppercase">
-              Start_<br />
-              <span class="text-white bg-[#131313] px-2">Deployment</span>
+              Get_In<br />
+              <span class="text-white bg-[#131313] px-2">Touch</span>
             </h2>
           </div>
 
