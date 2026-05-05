@@ -2,14 +2,14 @@
   <div class="min-h-screen bg-[#fcfcfc] text-[#131313] font-mono selection:bg-[#28c840] selection:text-black">
 
     <!-- ── TOP NAVIGATION ── -->
-    <nav class="sticky top-0 z-50 bg-white border-b-4 border-[#131313] px-6 py-4 flex justify-between items-center">
+    <nav class="hidden sm:flex sticky top-0 z-50 bg-white border-b-4 border-[#131313] px-4 sm:px-6 py-3 sm:py-4 justify-between items-center">
       <!-- Left Side: Navigation & Breadcrumb -->
-      <div class="flex items-center gap-6">
+      <div class="flex items-center gap-3 sm:gap-6">
         <NuxtLink to="/projects"
-          class="group flex items-center   px-3 py-1.5 hover:bg-[#131313] hover:text-white transition-all duration-200">
+          class="group flex items-center px-2 sm:px-3 py-1.5 hover:bg-[#131313] hover:text-white transition-all duration-200">
           <span
-            class="text-[#131313] group-hover:text-white text-base group-hover:-translate-x-1 transition-transform">←</span>
-          <span class="text-[10px] font-black uppercase tracking-[0.2em]">Exit_Archive</span>
+            class="text-[#131313] group-hover:text-white text-sm sm:text-base group-hover:-translate-x-1 transition-transform">←</span>
+          <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] ml-1 sm:ml-0">Exit_Archive</span>
         </NuxtLink>
 
         <div class="hidden md:flex items-center gap-2 text-[#aaa]">
@@ -25,11 +25,11 @@
     <div v-if="loading" class="max-w-[1600px] mx-auto flex flex-col lg:flex-row min-h-[calc(100vh-52px)]">
 
       <!-- Rail skeleton -->
-      <aside class="lg:w-80 border-r-2 border-[#e0dddc] p-8 bg-[#fafafa] flex flex-col gap-10">
+      <aside class="lg:w-80 border-r-2 border-[#e0dddc] p-6 sm:p-8 bg-[#fafafa] flex flex-col gap-8 sm:gap-10">
         <!-- ID -->
         <div class="flex flex-col gap-3">
           <div class="h-2.5 w-16 bg-[#e0dddc] animate-pulse" />
-          <div class="h-10 w-24 bg-[#e0dddc] animate-pulse" />
+          <div class="h-8 sm:h-10 w-20 sm:w-24 bg-[#e0dddc] animate-pulse" />
         </div>
         <!-- Status -->
         <div class="flex flex-col gap-3">
@@ -55,16 +55,16 @@
       </aside>
 
       <!-- Main skeleton -->
-      <main class="flex-1 p-8 sm:p-12 md:p-20 bg-white flex flex-col gap-14">
+      <main class="flex-1 p-6 sm:p-8 md:p-12 lg:p-20 bg-white flex flex-col gap-10 sm:gap-14">
         <!-- Title block -->
-        <div class="flex flex-col gap-4">
-          <div class="h-3 w-44 bg-[#e0dddc] animate-pulse" />
-          <div class="h-14 w-4/5 bg-[#e0dddc] animate-pulse" />
-          <div class="h-14 w-2/5 bg-[#eeeceb] animate-pulse" />
-          <div class="h-1 w-20 bg-[#28c840] opacity-30" />
-          <div class="h-3 w-96 bg-[#eeeceb] animate-pulse" style="animation-delay:0.1s" />
-          <div class="h-3 w-80 bg-[#f0eeec] animate-pulse" style="animation-delay:0.15s" />
-          <div class="h-3 w-64 bg-[#f5f3f2] animate-pulse" style="animation-delay:0.2s" />
+        <div class="flex flex-col gap-3 sm:gap-4">
+          <div class="h-3 w-36 sm:w-44 bg-[#e0dddc] animate-pulse" />
+          <div class="h-10 sm:h-14 w-4/5 bg-[#e0dddc] animate-pulse" />
+          <div class="h-10 sm:h-14 w-2/5 bg-[#eeeceb] animate-pulse" />
+          <div class="h-1 w-16 sm:w-20 bg-[#28c840] opacity-30" />
+          <div class="h-3 w-80 sm:w-96 bg-[#eeeceb] animate-pulse" style="animation-delay:0.1s" />
+          <div class="h-3 w-64 sm:w-80 bg-[#f0eeec] animate-pulse" style="animation-delay:0.15s" />
+          <div class="h-3 w-48 sm:w-64 bg-[#f5f3f2] animate-pulse" style="animation-delay:0.2s" />
         </div>
 
         <!-- Image skeleton with shimmer -->
@@ -76,15 +76,15 @@
         </div>
 
         <!-- Two-col skeleton -->
-        <div class="grid md:grid-cols-2 gap-10 border-t-2 border-[#e0dddc] pt-12">
+        <div class="grid md:grid-cols-2 gap-8 sm:gap-10 border-t-2 border-[#e0dddc] pt-10 sm:pt-12">
           <div class="flex flex-col gap-4">
-            <div class="h-2.5 w-24 bg-[#e0dddc] animate-pulse" />
-            <div class="border-l-4 border-[#e0dddc] bg-[#f9f9f9] p-5 flex flex-col gap-3">
+            <div class="h-2.5 w-20 sm:w-24 bg-[#e0dddc] animate-pulse" />
+            <div class="border-l-4 border-[#e0dddc] bg-[#f9f9f9] p-4 sm:p-5 flex flex-col gap-3">
               <div v-for="i in 5" :key="i" class="h-2.5 bg-[#eeeceb] animate-pulse" :style="`width:${70 + i * 5}%`" />
             </div>
           </div>
           <div class="flex flex-col gap-4">
-            <div class="h-2.5 w-20 bg-[#e0dddc] animate-pulse" />
+            <div class="h-2.5 w-16 sm:w-20 bg-[#e0dddc] animate-pulse" />
             <div class="grid grid-cols-3 gap-2">
               <div v-for="i in 3" :key="i" class="aspect-square bg-[#eeeceb] animate-pulse border border-[#e0dddc]" />
             </div>
@@ -94,10 +94,10 @@
         <!-- EOF skeleton -->
         <div class="pt-8 flex flex-col gap-4 border-t border-[#e8e6e4]">
           <div class="flex justify-between">
-            <div class="h-2.5 w-20 bg-[#e0dddc] animate-pulse" />
-            <div class="h-2.5 w-24 bg-[#e0dddc] animate-pulse" />
+            <div class="h-2.5 w-16 sm:w-20 bg-[#e0dddc] animate-pulse" />
+            <div class="h-2.5 w-20 sm:w-24 bg-[#e0dddc] animate-pulse" />
           </div>
-          <div class="h-8 w-64 bg-[#e0dddc] animate-pulse" />
+          <div class="h-8 w-48 sm:w-64 bg-[#e0dddc] animate-pulse" />
         </div>
       </main>
     </div>
@@ -107,13 +107,13 @@
 
       <!-- ── LEFT RAIL ── -->
       <aside
-        class="lg:w-80 border-r-2 border-[#131313] p-8 lg:sticky lg:top-[52px] lg:h-[calc(100vh-52px)] overflow-y-auto bg-[#fafafa]">
-        <div class="space-y-10">
+        class="hidden lg:block lg:w-80 border-r-2 border-[#131313] p-6 sm:p-8 lg:sticky lg:top-[52px] lg:h-[calc(100vh-52px)] overflow-y-auto bg-[#fafafa]">
+        <div class="space-y-8 sm:space-y-10">
 
           <!-- Project ID -->
           <div class="space-y-2">
             <p class="text-[9px] font-black text-[#aaa] uppercase tracking-[0.3em]">// REF_ID</p>
-            <div class="text-5xl font-black italic tracking-tighter">#{{ String(project.id).padStart(3, '0') }}</div>
+            <div class="text-4xl sm:text-5xl font-black italic tracking-tighter">#{{ String(project.id).padStart(3, '0') }}</div>
           </div>
 
           <!-- Status -->
@@ -160,11 +160,11 @@
           <!-- Actions -->
           <div class="space-y-2 pt-4">
             <a v-if="project.live_url" :href="project.live_url" target="_blank"
-              class="block w-full bg-[#131313] text-white text-center py-3.5 text-[9px] font-black uppercase tracking-widest hover:bg-[#28c840] hover:text-black transition-all">
+              class="block w-full bg-[#131313] text-white text-center py-3 text-[9px] font-black uppercase tracking-widest hover:bg-[#28c840] hover:text-black transition-all">
               ↗ Execute_Live_Preview
             </a>
             <a v-if="project.github_url" :href="project.github_url" target="_blank"
-              class="block w-full border-2 border-[#131313] text-center py-3.5 text-[9px] font-black uppercase tracking-widest hover:bg-[#f0f0f0] transition-all">
+              class="block w-full border-2 border-[#131313] text-center py-3 text-[9px] font-black uppercase tracking-widest hover:bg-[#f0f0f0] transition-all">
               { } View_Source_Tree
             </a>
           </div>
@@ -173,26 +173,26 @@
       </aside>
 
       <!-- ── MAIN CONTENT ── -->
-      <main class="flex-1 p-8 sm:p-12 md:p-16 lg:p-20 bg-white relative">
+      <main class="flex-1 p-6 sm:p-8 md:p-12 lg:p-16 xl:p-20 bg-white relative">
 
-        <!-- Crosshairs -->
-        <span class="absolute top-6 left-6 text-[#e0dddc] text-xs select-none">+</span>
-        <span class="absolute top-6 right-6 text-[#e0dddc] text-xs select-none">+</span>
-        <span class="absolute bottom-6 left-6 text-[#e0dddc] text-xs select-none">+</span>
-        <span class="absolute bottom-6 right-6 text-[#e0dddc] text-xs select-none">+</span>
+        <!-- Crosshairs - hidden on mobile, visible on larger screens -->
+        <span class="hidden sm:block absolute top-6 left-6 text-[#e0dddc] text-xs select-none">+</span>
+        <span class="hidden sm:block absolute top-6 right-6 text-[#e0dddc] text-xs select-none">+</span>
+        <span class="hidden sm:block absolute bottom-6 left-6 text-[#e0dddc] text-xs select-none">+</span>
+        <span class="hidden sm:block absolute bottom-6 right-6 text-[#e0dddc] text-xs select-none">+</span>
 
-        <div class="max-w-4xl space-y-16">
+        <div class="max-w-4xl space-y-12 sm:space-y-16">
 
           <!-- ── Header ── -->
-          <section class="space-y-6 reveal-up">
+          <section class="space-y-4 sm:space-y-6 reveal-up">
             <p class="text-[9px] font-black text-[#aaa] uppercase tracking-[0.3em]">
               // PROJECT_MODULE → {{ String(project.id).padStart(3, '0') }}
             </p>
-            <h1 class="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.82]">
+            <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter uppercase leading-[0.9] sm:leading-[0.82]">
               {{ project.title }}
             </h1>
-            <div class="h-1 w-20 bg-[#28c840]" style="animation-delay:0.1s" />
-            <p class="text-base md:text-lg font-bold text-[#5d5f5f] leading-relaxed max-w-2xl"
+            <div class="h-1 w-16 sm:w-20 bg-[#28c840]" style="animation-delay:0.1s" />
+            <p class="text-sm sm:text-base md:text-lg font-bold text-[#5d5f5f] leading-relaxed max-w-2xl"
               style="animation-delay:0.2s">
               {{ project.description || project.desc }}
             </p>
@@ -202,7 +202,7 @@
           <section class="reveal-up" style="animation-delay:0.25s">
             <div class="relative border-2 border-[#131313] bg-[#f0f0f0] group">
               <div
-                class="absolute -top-px left-6 bg-white px-3 py-1 border border-[#131313] text-[8px] font-black uppercase tracking-widest z-10 -translate-y-1/2">
+                class="absolute -top-px left-4 sm:left-6 bg-white px-2 sm:px-3 py-1 border border-[#131313] text-[7px] sm:text-[8px] font-black uppercase tracking-widest z-10 -translate-y-1/2 whitespace-nowrap">
                 Primary_Interface_Capture
               </div>
               <div class="overflow-hidden p-2">
@@ -219,16 +219,16 @@
           </section>
 
           <!-- ── Overview + Gallery ── -->
-          <section class="grid md:grid-cols-2 gap-12 border-t-2 border-[#131313] pt-14 reveal-up"
+          <section class="grid md:grid-cols-2 gap-8 sm:gap-12 border-t-2 border-[#131313] pt-10 sm:pt-14 reveal-up"
             style="animation-delay:0.3s">
 
             <!-- JSDoc overview -->
-            <div class="space-y-5">
+            <div class="space-y-4 sm:space-y-5">
               <h3 class="text-[9px] font-black uppercase tracking-[0.4em] flex items-center gap-3">
-                <span class="w-8 h-px bg-[#131313]"></span> 01_OVERVIEW
+                <span class="w-6 sm:w-8 h-px bg-[#131313]"></span> 01_OVERVIEW
               </h3>
               <div
-                class="font-mono text-[11px] leading-[1.9] text-[#5d5f5f] bg-[#f9f9f9] p-5 border-l-4 border-[#28c840]">
+                class="font-mono text-[10px] sm:text-[11px] leading-[1.7] sm:leading-[1.9] text-[#5d5f5f] bg-[#f9f9f9] p-4 sm:p-5 border-l-4 border-[#28c840]">
                 <p>/**</p>
                 <p>&nbsp;* @project {{ project.title }}</p>
                 <p>&nbsp;* @built_with {{ project.technologies?.join(', ') }}</p>
@@ -239,9 +239,9 @@
             </div>
 
             <!-- Gallery grid -->
-            <div class="space-y-5">
+            <div class="space-y-4 sm:space-y-5">
               <h3 class="text-[9px] font-black uppercase tracking-[0.4em] flex items-center gap-3">
-                <span class="w-8 h-px bg-[#131313]"></span> 02_GALLERY
+                <span class="w-6 sm:w-8 h-px bg-[#131313]"></span> 02_GALLERY
               </h3>
               <div v-if="project.gallery?.length" class="grid grid-cols-3 gap-2">
                 <div v-for="(img, idx) in project.gallery.slice(0, 6)" :key="idx"
@@ -262,12 +262,12 @@
     </div>
 
     <!-- ── NOT FOUND ── -->
-    <div v-else class="flex items-center justify-center min-h-[calc(100vh-52px)]">
+    <div v-else class="flex items-center justify-center min-h-[calc(100vh-52px)] px-4">
       <div class="text-center space-y-4">
         <p class="text-[9px] font-black text-[#aaa] uppercase tracking-[0.3em]">// ERROR_404</p>
-        <div class="text-6xl font-black uppercase tracking-tighter">Not_Found</div>
+        <div class="text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter">Not_Found</div>
         <NuxtLink to="/projects"
-          class="inline-block mt-6 bg-[#131313] text-white px-8 py-3 text-[9px] font-black uppercase tracking-widest hover:bg-[#28c840] hover:text-black transition-all">
+          class="inline-block mt-6 bg-[#131313] text-white px-6 sm:px-8 py-2.5 sm:py-3 text-[9px] font-black uppercase tracking-widest hover:bg-[#28c840] hover:text-black transition-all">
           ← Back_to_Archive
         </NuxtLink>
       </div>
@@ -279,21 +279,21 @@
         @click.self="closeLightbox">
         <div class="relative max-w-5xl w-full">
           <button @click="closeLightbox"
-            class="absolute -top-10 right-0 text-white text-[10px] font-black uppercase tracking-widest hover:text-[#28c840] transition-colors">
+            class="absolute -top-8 sm:-top-10 right-0 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:text-[#28c840] transition-colors">
             ✕ Close_Viewer
           </button>
           <img :src="getImageUrl(project.gallery?.[lightboxIndex] ?? project.image)"
             class="w-full border-2 border-white" @error="handleImageError" />
           <div class="flex items-center justify-between mt-4">
             <button @click="prevImage"
-              class="text-white text-[10px] font-black uppercase tracking-widest hover:text-[#28c840] transition-colors">
+              class="text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:text-[#28c840] transition-colors">
               ← Prev
             </button>
             <span class="text-[9px] text-[#aaa] font-black uppercase tracking-widest">
               {{ lightboxIndex + 1 }} / {{ project.gallery?.length ?? 1 }}
             </span>
             <button @click="nextImage"
-              class="text-white text-[10px] font-black uppercase tracking-widest hover:text-[#28c840] transition-colors">
+              class="text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:text-[#28c840] transition-colors">
               Next →
             </button>
           </div>
