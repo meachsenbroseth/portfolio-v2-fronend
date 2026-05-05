@@ -236,7 +236,6 @@
               <Input
                 v-model="expForm.title"
                 required
-                placeholder="e.g. Full-Stack Developer"
                 class="border-[#e0dddc] text-[12px] font-mono focus:border-[#131313] focus:ring-0 h-9"
               />
             </div>
@@ -245,7 +244,6 @@
               <Input
                 v-model="expForm.date"
                 required
-                placeholder="2023 — 2024"
                 class="border-[#e0dddc] text-[12px] font-mono focus:border-[#131313] focus:ring-0 h-9"
               />
             </div>
@@ -255,7 +253,6 @@
                 v-model="expForm.desc"
                 required
                 rows="4"
-                placeholder="Describe your role and responsibilities..."
                 class="border-[#e0dddc] text-[12px] font-mono focus:border-[#131313] focus:ring-0 resize-none"
               />
             </div>
@@ -284,7 +281,6 @@
               <Input
                 v-model="eduForm.title"
                 required
-                placeholder="e.g. Computer Science & Engineering"
                 class="border-[#e0dddc] text-[12px] font-mono focus:border-[#131313] focus:ring-0 h-9"
               />
             </div>
@@ -293,7 +289,6 @@
               <Input
                 v-model="eduForm.institution"
                 required
-                placeholder="e.g. Royal University of Phnom Penh"
                 class="border-[#e0dddc] text-[12px] font-mono focus:border-[#131313] focus:ring-0 h-9"
               />
             </div>
@@ -302,7 +297,6 @@
               <Input
                 v-model="eduForm.date"
                 required
-                placeholder="2020 — 2024"
                 class="border-[#e0dddc] text-[12px] font-mono focus:border-[#131313] focus:ring-0 h-9"
               />
             </div>
@@ -312,7 +306,6 @@
                 v-model="eduForm.desc"
                 required
                 rows="4"
-                placeholder="Describe your studies and achievements..."
                 class="border-[#e0dddc] text-[12px] font-mono focus:border-[#131313] focus:ring-0 resize-none"
               />
             </div>

@@ -6,7 +6,7 @@
       class="fixed inset-0 pointer-events-none opacity-[0.03] z-50 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
     </div>
 
-    <!-- Hero Section -->
+    <!-- ── HERO SECTION — no data dependency, renders immediately ── -->
     <section class="relative px-4 sm:px-8 md:px-12 pt-16 pb-20 md:py-32 overflow-hidden border-b border-[#e0dddc]">
       <!-- Decorative Corner Accents with technical coordinates -->
       <div class="absolute inset-4 pointer-events-none">
@@ -121,163 +121,30 @@
         </div>
       </div>
     </section>
+    <ClientOnly>
+      <Suspense>
+        <BackgroundLogsSection />
+        <template #fallback>
+          <Backgroundlogsskeleton />
+        </template>
+      </Suspense>
+    </ClientOnly>
 
-    <!-- Loading State: Minimal Terminal Style -->
-    <div v-if="experienceStore.loading || educationStore.loading"
-      class="flex flex-col items-center justify-center py-32 gap-4">
-      <div class="h-1 w-24 bg-[#e0dddc] relative overflow-hidden">
-        <div class="absolute inset-0 bg-[#131313] animate-[loading_1.5s_infinite]"></div>
-      </div>
-      <span class="text-[9px] font-black uppercase tracking-widest animate-pulse">Syncing_Data_Nodes...</span>
-    </div>
-
-    <!-- Background Logs Section -->
-    <section v-else class="relative px-4 sm:px-6 md:px-10 py-24 sm:py-32">
-      <div class="max-w-6xl mx-auto">
-        <div class="reveal-up flex items-center gap-6 mb-20">
-          <div class="bg-[#131313] text-white p-2 text-xs font-black">002</div>
-          <h2 class="text-xs font-black tracking-[0.5em] uppercase text-[#131313]">Archive_Module</h2>
-          <div class="flex-1 h-px bg-[#131313]"></div>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-16 lg:gap-24">
-          <!-- Experience Column -->
-          <div class="space-y-12">
-            <div class="flex items-center justify-between border-b-2 border-[#131313] pb-4">
-              <div class="flex items-center gap-3">
-                <Icon name="ph:terminal-window-bold" size="24" class="text-[#131313]" />
-                <h2 class="text-sm font-black uppercase tracking-[0.2em]">Exp_Log</h2>
-              </div>
-              <span class="text-[9px] text-[#aaa] font-bold">TOTAL: {{ experienceStore.experiences?.length }}</span>
-            </div>
-
-            <div v-if="experienceStore.experiences?.length === 0"
-              class="border border-dashed border-[#e0dddc] py-20 text-center text-[10px] uppercase tracking-widest text-[#aaa]">
-              Directory_Empty
-            </div>
-
-            <div v-else class="space-y-0 relative">
-              <div
-                class="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-[#131313] via-[#e0dddc] to-transparent">
-              </div>
-
-              <div v-for="(item, i) in experienceStore.experiences" :key="item.id"
-                class="relative pl-8 pb-16 group last:pb-0">
-                <div
-                  class="absolute left-[-4.5px] top-0 w-2.5 h-2.5 bg-white border-2 border-[#131313] group-hover:bg-[#131313] transition-all duration-300">
-                </div>
-
-                <div class="reveal-up" :style="`animation-delay:${i * 0.1}s`">
-                  <div class="inline-block bg-[#f5f3f2] px-2 py-1 mb-4">
-                    <span class="text-[10px] font-black text-[#131313] tracking-widest">{{ item.date }}</span>
-                  </div>
-
-                  <h3
-                    class="text-xl sm:text-2xl font-black text-[#131313] tracking-tighter mb-3 uppercase group-hover:pl-2 transition-all duration-300">
-                    {{ item.title }}
-                  </h3>
-
-                  <p
-                    class="text-xs sm:text-sm text-[#5d5f5f] leading-relaxed max-w-md italic border-l-2 border-[#e0dddc] pl-4">
-                    {{ item.desc }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Education Column -->
-          <div class="space-y-12">
-            <div class="flex items-center justify-between border-b-2 border-[#131313] pb-4">
-              <div class="flex items-center gap-3">
-                <Icon name="ph:graduation-cap-bold" size="24" class="text-[#131313]" />
-                <h2 class="text-sm font-black uppercase tracking-[0.2em]">Edu_Archive</h2>
-              </div>
-              <span class="text-[9px] text-[#aaa] font-bold">TOTAL: {{ educationStore.educations?.length }}</span>
-            </div>
-
-            <div v-if="educationStore.educations?.length === 0"
-              class="border border-dashed border-[#e0dddc] py-20 text-center text-[10px] uppercase tracking-widest text-[#aaa]">
-              Directory_Empty
-            </div>
-
-            <div v-else class="space-y-0 relative">
-              <div
-                class="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-[#131313] via-[#e0dddc] to-transparent">
-              </div>
-
-              <div v-for="(item, i) in educationStore.educations" :key="item.id"
-                class="relative pl-8 pb-16 group last:pb-0">
-                <div
-                  class="absolute left-[-4.5px] top-0 w-2.5 h-2.5 bg-white border-2 border-[#131313] group-hover:bg-[#131313] transition-all duration-300">
-                </div>
-
-                <div class="reveal-up" :style="`animation-delay:${0.2 + i * 0.1}s`">
-                  <div class="flex flex-wrap items-center gap-3 mb-4">
-                    <span class="text-[10px] font-black bg-[#131313] text-white px-2 py-0.5 tracking-widest">{{
-                      item.date }}</span>
-                    <span class="text-[10px] font-bold text-[#aaa] uppercase tracking-tighter">@{{ item.institution
-                    }}</span>
-                  </div>
-
-                  <h3
-                    class="text-xl sm:text-2xl font-black text-[#131313] tracking-tighter mb-3 uppercase group-hover:pl-2 transition-all duration-300">
-                    {{ item.title }}
-                  </h3>
-
-                  <p
-                    class="text-xs sm:text-sm text-[#5d5f5f] leading-relaxed max-w-md italic border-l-2 border-[#e0dddc] pl-4">
-                    {{ item.desc }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 </template>
 
 <script setup>
 import { storeToRefs } from 'pinia'
-import { Autoplay, FreeMode } from 'swiper/modules';
-import 'swiper/css';
+import BackgroundLogsSection from '~/components/BackgroundLogsSection.vue'
+import Backgroundlogsskeleton from '~/components/Backgroundlogsskeleton.vue'
 
-// Use stores
-const experienceStore = useExperienceStore()
-const educationStore = useEducationStore()
-
-const { experiences } = storeToRefs(experienceStore)
-const { educations } = storeToRefs(educationStore)
-
-// Swiper ref for controlling autoplay
-const swiperRef = ref(null)
-
-// Header Typing Animation
+// ── Typing animation — hero only, no store dependency ────────
 const words = ['HELLO WORLD!', "I'M \n MEACH SENBROSETH!"]
 const typedText = ref('')
 const cursorVisible = ref(true)
 let wordIndex = 0
 let charIndex = 0
 let deleting = false
-const SwiperAutoplay = Autoplay;
-const SwiperFreeMode = FreeMode;
-
-const skills = [
-  { name: 'Vue.js',     icon: 'simple-icons:vuedotjs' },
-  { name: 'Nuxt.js',    icon: 'simple-icons:nuxtdotjs' },
-  { name: 'Laravel',    icon: 'simple-icons:laravel' },
-  { name: 'Tailwind',   icon: 'simple-icons:tailwindcss' },
-  { name: 'TypeScript', icon: 'simple-icons:typescript' },
-  { name: 'PostgreSQL', icon: 'simple-icons:postgresql' },
-  { name: 'PHP',        icon: 'simple-icons:php' },
-  { name: 'Docker',     icon: 'simple-icons:docker' },
-  { name: 'Git',        icon: 'simple-icons:git' },
-  { name: 'Figma',      icon: 'simple-icons:figma' },
-  { name: 'Node.js',    icon: 'simple-icons:nodedotjs' },
-  { name: 'MongoDB',    icon: 'simple-icons:mongodb' },
-];
 
 const typeLoop = () => {
   const current = words[wordIndex]
@@ -302,7 +169,6 @@ const typeLoop = () => {
   setTimeout(typeLoop, deleting ? 40 : 80)
 }
 
-// Bio Typing Animation
 const bioPhrases = [
   "Building scalable E-commerce solutions...",
   "Integrating KHQR & ABA PayWay gateways...",
@@ -339,44 +205,17 @@ const typeBioLoop = () => {
   setTimeout(typeBioLoop, deletingBio ? 40 : 80)
 }
 
-// Swiper mouse enter/leave handlers for better UX
-const handleSwiperMouseEnter = () => {
-  // Pause autoplay on hover
-  if (swiperRef.value && swiperRef.value.autoplay) {
-    swiperRef.value.autoplay.stop()
-  }
-}
-
-const handleSwiperMouseLeave = () => {
-  // Resume autoplay when mouse leaves
-  if (swiperRef.value && swiperRef.value.autoplay) {
-    swiperRef.value.autoplay.start()
-  }
-}
-
-// Fetch data on mount
-onMounted(async () => {
-  // Start animations
+onMounted(() => {
+  // Start hero animations immediately — no API calls here
   typeLoop()
   typeBioLoop()
 
-  // Start cursor blink
   setInterval(() => {
     cursorVisible.value = !cursorVisible.value
     bioCursorVisible.value = !bioCursorVisible.value
   }, 530)
 
-  // Fetch data from API
-  try {
-    await Promise.all([
-      experienceStore.fetchExperiences(),
-      educationStore.fetchEducations()
-    ])
-  } catch (error) {
-    console.error('Failed to fetch data for about page:', error)
-  }
-
-  // Intersection Observer for Reveal Animations
+  // Intersection Observer for reveal animations
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -391,7 +230,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Force non-rounded edges for the brutalist look */
 *,
 *::before,
 *::after {
@@ -399,27 +237,8 @@ onMounted(async () => {
 }
 
 @keyframes loading {
-  0% {
-    transform: translateX(-100%);
-  }
-
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.skills-swiper :deep(.swiper-wrapper) {
-  transition-timing-function: linear !important;
-  cursor: grab;
-}
-
-.skills-swiper :deep(.swiper-wrapper:active) {
-  cursor: grabbing;
-}
-
-/* Smooth gradient fade on edges */
-.skills-swiper-container {
-  position: relative;
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .reveal-up,
@@ -429,29 +248,12 @@ onMounted(async () => {
   transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.reveal-up {
-  transform: translateY(40px);
-}
-
-.reveal-left {
-  transform: translateX(-40px);
-}
-
-.reveal-right {
-  transform: translateX(40px);
-}
+.reveal-up    { transform: translateY(40px); }
+.reveal-left  { transform: translateX(-40px); }
+.reveal-right { transform: translateX(40px); }
 
 .visible {
   opacity: 1;
   transform: translate(0);
-}
-
-/* Custom Grayscale Hover for Image */
-.grayscale {
-  filter: grayscale(100%) contrast(110%);
-}
-
-.grayscale:hover {
-  filter: grayscale(0%) contrast(100%);
 }
 </style>
