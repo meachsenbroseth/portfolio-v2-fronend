@@ -16,7 +16,9 @@
         <div class="absolute inset-0 transition-transform duration-1000 group-hover:scale-110">
           <img src="~/assets/images/homeimg.jpg"
             class="w-full h-full object-cover grayscale contrast-[1.1] brightness-75 animate-[glitch-flicker_6s_infinite]"
-            alt="Portfolio Hero" />
+            alt="Meach Senbroseth full-stack developer portfolio workspace"
+            loading="eager"
+            fetchpriority="high" />
         </div>
         <div class="absolute inset-0 p-4 md:p-6 flex flex-col justify-between pointer-events-none">
           <div class="flex justify-between items-start opacity-60">
@@ -62,10 +64,10 @@
           <div class="mb-6 md:mb-10 space-y-1">
             <span class="text-[8px] font-black uppercase text-[#aaa] tracking-[0.4em] block">Data_Origin // {{
               current.author }}</span>
-            <h2
+            <h1
               class="text-3xl sm:text-4xl lg:text-6xl font-black tracking-tighter text-[#131313] leading-[0.9] uppercase">
-              Core_Principles
-            </h2>
+              Full-Stack Developer Cambodia
+            </h1>
           </div>
           <div class="border-2 border-[#131313] bg-white shadow-[6px_6px_0px_#e0dddc] relative overflow-hidden">
             <div class="flex items-center justify-between px-3 py-1.5 bg-[#131313]">
@@ -141,9 +143,9 @@
 
     <section class="relative z-10 border-b-2 border-[#131313] bg-white py-16 overflow-hidden">
       <div class="mb-8 px-6 md:px-12">
-        <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#aaa]">
+        <h2 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#aaa]">
           // TECH_STACK_INVENTORY
-        </h3>
+        </h2>
       </div>
 
       <div class="relative">
@@ -231,11 +233,18 @@
               <Icon name="ph:fingerprint-bold" size="16" />
               Bio_Archive
             </NuxtLink>
+
+            <NuxtLink to="/projects"
+              class="flex items-center gap-4 border-2 border-[#131313] px-8 py-4 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-[#131313] hover:text-white transition-all duration-300">
+              <Icon name="ph:code-bold" size="16" />
+              Project_Repository
+            </NuxtLink>
           </div>
 
           <!-- Social Grid -->
           <div class="inline-flex items-center border-2 border-[#131313] bg-white divide-x-2 divide-[#131313]">
-            <a v-for="social in socialLinks" :key="social.name" :href="social.url" target="_blank"
+            <a v-for="social in socialLinks" :key="social.name" :href="social.url" target="_blank" rel="noopener noreferrer"
+              :aria-label="`${social.name} profile for Meach Senbroseth`"
               class="flex items-center gap-3 px-6 py-4 hover:bg-[#131313] hover:text-white transition-all group">
               <Icon :name="social.icon" size="16" class="opacity-70 group-hover:opacity-100 transition-opacity" />
               <span class="text-[10px] font-black uppercase tracking-widest hidden sm:inline">{{ social.name }}</span>
@@ -252,6 +261,13 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import { Autoplay, FreeMode } from "swiper/modules";
 import "swiper/css";
 const config = useRuntimeConfig();
+
+useSEO({
+  title: 'Meach Senbroseth - Full-Stack Developer Cambodia',
+  description: 'Hire Meach Senbroseth, a full-stack developer in Phnom Penh, Cambodia building Laravel, Nuxt.js, Vue.js, APIs, dashboards, and production web applications.',
+  path: '/',
+  jsonLd: createWebsiteSchema()
+})
 
 const swiperModules = [Autoplay, FreeMode];
 
