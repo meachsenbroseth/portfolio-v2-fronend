@@ -3,7 +3,7 @@
     class="min-h-screen bg-[#fafafa] text-[#131313] font-mono overflow-x-hidden selection:bg-[#131313] selection:text-white">
     <!-- Subtle CRT/Grain Overlay -->
     <div
-      class="fixed inset-0 pointer-events-none opacity-[0.03] z-50 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+      class="fixed inset-0 pointer-events-none opacity-[0.03] z-50 bg-[radial-gradient(circle,#131313_1px,transparent_1px)] bg-[length:18px_18px]">
     </div>
 
     <!-- Hero Section -->
@@ -106,7 +106,9 @@
           <div class="relative border-2 border-[#131313] overflow-hidden bg-[#f5f3f2]">
             <img src="~/assets/images/profile.webp"
               class="w-full aspect-[4/5] object-cover transition-all duration-700 group-hover:scale-105"
-              alt="Meach Senbroseth" />
+              alt="Meach Senbroseth, full-stack developer in Phnom Penh, Cambodia"
+              loading="eager"
+              fetchpriority="high" />
 
             <!-- Tech Overlays -->
             <div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -251,12 +253,22 @@ const educationStore = useEducationStore()
 const { experiences } = storeToRefs(experienceStore)
 const { educations } = storeToRefs(educationStore)
 
+useSEO({
+  title: 'About Meach Senbroseth - Laravel and Nuxt.js Developer in Cambodia',
+  description: 'Learn about Meach Senbroseth, a full-stack developer in Phnom Penh focused on Laravel, Nuxt.js, Vue.js, payment integrations, APIs, and scalable web systems.',
+  path: '/about',
+  breadcrumbs: [
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' }
+  ]
+})
+
 // Swiper ref for controlling autoplay
 const swiperRef = ref(null)
 
 // Header Typing Animation
 const words = ['HELLO WORLD!', "I'M \n MEACH SENBROSETH!"]
-const typedText = ref('')
+const typedText = ref(words[1])
 const cursorVisible = ref(true)
 let wordIndex = 0
 let charIndex = 0

@@ -3,7 +3,7 @@
     class="min-h-screen bg-[#fafafa] py-24 px-4 sm:px-8 md:px-12 font-mono selection:bg-[#131313] selection:text-white">
     <!-- Subtle Grain Overlay -->
     <div
-      class="fixed inset-0 pointer-events-none opacity-[0.02] z-50 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+      class="fixed inset-0 pointer-events-none opacity-[0.02] z-50 bg-[radial-gradient(circle,#131313_1px,transparent_1px)] bg-[length:18px_18px]">
     </div>
 
     <div class="max-w-6xl mx-auto relative z-10">
@@ -73,8 +73,10 @@
                   class="absolute inset-0 bg-[#131313] translate-x-2 translate-y-2 group-hover/img:translate-x-1 group-hover/img:translate-y-1 transition-transform duration-300">
                 </div>
                 <div class="relative aspect-video lg:aspect-[4/5] border-2 border-[#131313] overflow-hidden bg-white">
-                  <img :src="getImageUrl(item.image)" :alt="item.title"
+                  <img :src="getImageUrl(item.image)" :alt="`${item.title} project by Meach Senbroseth`"
                     class="w-full h-full object-cover grayscale group-hover/img:grayscale-0 group-hover/img:scale-110 transition-all duration-700"
+                    loading="lazy"
+                    decoding="async"
                     @error="handleImageError" />
                   <!-- Overlay Category -->
                   <div
@@ -117,11 +119,11 @@
 
                 <!-- Action Links -->
                 <div class="flex flex-wrap items-center gap-4 pt-4">
-                  <a v-if="item.live_demo" :href="item.live_demo" target="_blank"
+                  <a v-if="item.live_demo" :href="item.live_demo" target="_blank" rel="noopener noreferrer"
                     class="bg-[#131313] text-white px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 hover:invert transition-all">
                     <ExternalLink class="h-3 w-3" /> Execute_Live
                   </a>
-                  <a v-if="item.github_link" :href="item.github_link" target="_blank"
+                  <a v-if="item.github_link" :href="item.github_link" target="_blank" rel="noopener noreferrer"
                     class="border-2 border-[#131313] px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-[#131313] hover:text-white transition-all">
                     <Github class="h-4 w-4" /> View_Source
                   </a>
@@ -163,8 +165,10 @@
             </div>
           </div>
           <div class="bg-[#fafafa] p-12 overflow-hidden flex items-center justify-center relative">
-            <img src="https://media.tenor.com/DdpSGDqGTGwAAAAd/cat-typing.gif"
-              class="w-full grayscale mix-blend-multiply opacity-50" />
+            <img src="/placeholder-project.svg"
+              class="w-full grayscale mix-blend-multiply opacity-50"
+              alt="Project repository loading animation"
+              loading="lazy" />
             <div class="absolute inset-0 flex items-center justify-center">
               <span
                 class="text-[10px] font-black bg-white border border-[#131313] px-4 py-2 uppercase animate-bounce">System_Busy</span>
@@ -178,7 +182,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { ExternalLink, Github } from 'lucide-vue-next'
 
@@ -190,9 +193,28 @@ definePageMeta({
 const projectStore = useProjectStore()
 const { projects, loading } = storeToRefs(projectStore)
 
+useSEO({
+  title: 'Projects - Laravel, Nuxt.js and Vue Portfolio by Meach Senbroseth',
+  description: 'Explore full-stack web projects by Meach Senbroseth, including Laravel applications, Nuxt.js frontends, Vue dashboards, APIs, and production systems built in Cambodia.',
+  path: '/projects',
+  breadcrumbs: [
+    { name: 'Home', path: '/' },
+    { name: 'Projects', path: '/projects' }
+  ],
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Full-stack developer projects',
+    description: 'Laravel, Nuxt.js, Vue.js, and full-stack web development portfolio projects.',
+    url: useSiteUrl('/projects')
+  }
+})
+
+await useAsyncData('projects-index', () => projectStore.fetchProjects())
+
 // Helper to get full image URL
 const getImageUrl = (path) => {
-  if (!path) return 'https://via.placeholder.com/400x300?text=No+Image'
+  if (!path) return '/placeholder-project.svg'
 
   // If it's already a full URL
   if (path.startsWith('http://') || path.startsWith('https://')) {
@@ -206,7 +228,9 @@ const getImageUrl = (path) => {
 
   // Otherwise, construct the full URL from API
   const config = useRuntimeConfig()
-  const baseUrl = config.public.apiBase || 'http://127.0.0.1:8000/api'
+  if (!config.public.apiBase) return '/placeholder-project.svg'
+
+  const baseUrl = config.public.apiBase
   const apiBase = baseUrl.replace('/api', '')
 
   // Remove leading slash if present
@@ -217,17 +241,9 @@ const getImageUrl = (path) => {
 
 // Handle image loading errors
 const handleImageError = (event) => {
-  event.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'
+  event.target.src = '/placeholder-project.svg'
 }
 
-// Fetch projects on mount
-onMounted(async () => {
-  try {
-    await projectStore.fetchProjects()
-  } catch (error) {
-    console.error('Failed to fetch projects:', error)
-  }
-})
 </script>
 
 <style scoped>

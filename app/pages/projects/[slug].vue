@@ -61,11 +61,11 @@
 
           <!-- Actions -->
           <div class="pt-8 space-y-3">
-            <a v-if="project.live_url" :href="project.live_url" target="_blank"
+            <a v-if="project.live_demo" :href="project.live_demo" target="_blank" rel="noopener noreferrer"
               class="block w-full bg-[#131313] text-white text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-[#28c840] hover:text-black transition-all">
               Execute_Live_Preview
             </a>
-            <a v-if="project.github_url" :href="project.github_url" target="_blank"
+            <a v-if="project.github_link" :href="project.github_link" target="_blank" rel="noopener noreferrer"
               class="block w-full border-2 border-[#131313] text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-[#f0f0f0] transition-all">
               View_Source_Tree
             </a>
@@ -105,6 +105,9 @@
               <div class="overflow-hidden p-2">
                 <img :src="getImageUrl(project.image)"
                   class="w-full grayscale hover:grayscale-0 transition-all duration-1000 cursor-zoom-in"
+                  :alt="`${project.title} full-stack web project screenshot`"
+                  loading="eager"
+                  fetchpriority="high"
                   @click="openLightbox(0)">
               </div>
             </div>
@@ -134,7 +137,10 @@
                 <div v-for="(img, idx) in project.gallery?.slice(0, 3)" :key="idx"
                   class="aspect-square border border-[#e0dddc] overflow-hidden grayscale hover:grayscale-0 transition-all cursor-pointer"
                   @click="openLightbox(idx)">
-                  <img :src="getImageUrl(img)" class="w-full h-full object-cover">
+                  <img :src="getImageUrl(img)" class="w-full h-full object-cover"
+                    :alt="`${project.title} gallery screenshot ${idx + 1}`"
+                    loading="lazy"
+                    decoding="async">
                 </div>
               </div>
             </div>
@@ -165,10 +171,13 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
+const siteUrl = useSiteUrl('/')
 
 // Use project store
 const projectStore = useProjectStore()
 const { projects, loading } = storeToRefs(projectStore)
+
+await useAsyncData(`project-${route.params.slug}`, () => projectStore.fetchProjects())
 
 // Current project
 const project = computed(() => {
@@ -185,7 +194,7 @@ const nextProject = computed(() => {
 
 // Helper to get full image URL
 const getImageUrl = (path) => {
-  if (!path) return null
+  if (!path) return '/placeholder-project.svg'
 
   // If it's already a full URL
   if (path.startsWith('http://') || path.startsWith('https://')) {
@@ -199,7 +208,9 @@ const getImageUrl = (path) => {
 
   // Otherwise, construct the full URL from API
   const config = useRuntimeConfig()
-  const baseUrl = config.public.apiBase || 'http://127.0.0.1:8000/api'
+  if (!config.public.apiBase) return '/placeholder-project.svg'
+
+  const baseUrl = config.public.apiBase
   const apiBase = baseUrl.replace('/api', '')
 
   // Remove leading slash if present
@@ -210,7 +221,7 @@ const getImageUrl = (path) => {
 
 // Handle image loading errors
 const handleImageError = (event) => {
-  event.target.src = 'https://via.placeholder.com/800x600?text=Image+Not+Found'
+  event.target.src = '/placeholder-project.svg'
 }
 
 // ── Lightbox ──────────────────────────────────────
@@ -237,15 +248,8 @@ const handleKey = (e) => {
   if (e.key === 'ArrowLeft') prevImage()
 }
 
-// Fetch projects on mount
 onMounted(async () => {
   window.addEventListener('keydown', handleKey)
-
-  try {
-    await projectStore.fetchProjects()
-  } catch (error) {
-    console.error('Failed to fetch projects:', error)
-  }
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -266,11 +270,23 @@ onUnmounted(() => {
 })
 
 // ── SEO ───────────────────────────────────────────
-useHead({
-  title: computed(() => project.value ? `${project.value.title} — MSB Seth` : 'Project — MSB Seth'),
-  meta: computed(() => project.value ? [
-    { name: 'description', content: project.value.description || project.value.desc || 'Project details' }
-  ] : [])
+useSEO({
+  title: computed(() => project.value
+    ? `${project.value.title} - Laravel, Nuxt.js and Full-Stack Project`
+    : 'Project - Full-Stack Developer Portfolio by Meach Senbroseth'
+  ),
+  description: computed(() => project.value
+    ? `${project.value.description || project.value.desc || 'Full-stack web development project by Meach Senbroseth.'}`.slice(0, 155)
+    : 'Full-stack portfolio project by Meach Senbroseth, Laravel and Nuxt.js developer in Phnom Penh, Cambodia.'
+  ),
+  path: computed(() => `/projects/${route.params.slug}`),
+  image: computed(() => project.value?.image),
+  breadcrumbs: computed(() => [
+    { name: 'Home', path: '/' },
+    { name: 'Projects', path: '/projects' },
+    { name: project.value?.title || 'Project', path: `/projects/${route.params.slug}` }
+  ]),
+  jsonLd: computed(() => project.value ? createProjectSchema(project.value, siteUrl) : null)
 })
 </script>
 

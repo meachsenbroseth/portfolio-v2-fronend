@@ -1,4 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const siteUrl = (process.env.NUXT_PUBLIC_SITE_URL || 'https://msbseth.com').replace(/\/$/, '')
+const apiBase = process.env.NUXT_PUBLIC_API_BASE || ''
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -8,7 +11,8 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     'shadcn-nuxt',
     '@pinia/nuxt',
-    '@nuxtjs/sitemap'
+    '@nuxtjs/sitemap',
+    '@nuxtjs/robots'
   ],
   css: ['~/assets/css/main.css'],
   tailwindcss: {
@@ -28,6 +32,10 @@ export default defineNuxtConfig({
      */
     componentDir: '@/components/ui'
   },
+  site: {
+    url: siteUrl,
+    name: 'MSB Seth Portfolio'
+  },
   fonts: {
     families: [
       {
@@ -39,7 +47,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE,
+      siteUrl,
+      apiBase,
       githubUrl: process.env.PUBLIC_GITHUB_URL,
       linkedinUrl: process.env.PUBLIC_LINKEDIN_URL,
       telegramUrl: process.env.PUBLIC_TELEGRAM_URL,
@@ -49,11 +58,11 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: 'MSB Seth - Portfolio',
+      titleTemplate: '%s',
       meta: [
         // Basic SEO
-        { name: 'description', content: 'Professional full-stack developer specializing in TALL Stack, Nuxt.js, and Laravel. Building enterprise systems and high-performance web applications.' },
-        { name: 'keywords', content: 'full-stack developer, web developer, TALL stack, Nuxt.js, Laravel, Vue.js, portfolio, Cambodia developer' },
+        { name: 'description', content: 'Hire Meach Senbroseth, a full-stack developer in Phnom Penh, Cambodia building Laravel, Nuxt.js, Vue, and high-performance web applications.' },
+        { name: 'keywords', content: 'full-stack developer Cambodia, Nuxt.js developer, Laravel developer freelance, Vue.js developer Phnom Penh, web developer Cambodia' },
         { name: 'author', content: 'Meach Senbroseth (Seth)' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' },
         { name: 'theme-color', content: '#131313' },
@@ -62,10 +71,10 @@ export default defineNuxtConfig({
 
         // Open Graph / Facebook
         { property: 'og:type', content: 'website' },
-        { property: 'og:url', content: 'https://msbseth.com/' },
-        { property: 'og:title', content: 'MSB Seth - Full-Stack Developer Portfolio' },
-        { property: 'og:description', content: 'Professional full-stack developer specializing in TALL Stack, Nuxt.js, and Laravel. Building enterprise systems and high-performance web applications.' },
-        { property: 'og:image', content: 'https://msbseth.com/og-image.jpg' },
+        { property: 'og:url', content: `${siteUrl}/` },
+        { property: 'og:title', content: 'Meach Senbroseth - Full-Stack Developer Cambodia' },
+        { property: 'og:description', content: 'Laravel, Nuxt.js, and Vue developer based in Phnom Penh, Cambodia for freelance and client web application work.' },
+        { property: 'og:image', content: `${siteUrl}/og-image.jpg` },
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
         { property: 'og:site_name', content: 'MSB Seth Portfolio' },
@@ -73,10 +82,10 @@ export default defineNuxtConfig({
 
         // Twitter
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:url', content: 'https://msbseth.com/' },
-        { name: 'twitter:title', content: 'MSB Seth - Full-Stack Developer Portfolio' },
-        { name: 'twitter:description', content: 'Professional full-stack developer specializing in TALL Stack, Nuxt.js, and Laravel.' },
-        { name: 'twitter:image', content: 'https://msbseth.com/og-image.jpg' },
+        { name: 'twitter:url', content: `${siteUrl}/` },
+        { name: 'twitter:title', content: 'Meach Senbroseth - Full-Stack Developer Cambodia' },
+        { name: 'twitter:description', content: 'Freelance Laravel, Nuxt.js, and Vue developer based in Phnom Penh, Cambodia.' },
+        { name: 'twitter:image', content: `${siteUrl}/og-image.jpg` },
         { name: 'twitter:site', content: '@msbseth' },
         { name: 'twitter:creator', content: '@msbseth' },
 
@@ -85,10 +94,6 @@ export default defineNuxtConfig({
         { name: 'googlebot', content: 'index, follow' },
         { name: 'bingbot', content: 'index, follow' },
 
-        // Verification (for search consoles)
-        { name: 'google-site-verification', content: 'your-google-verification-code' },
-        { name: 'msvalidate.01', content: 'your-bing-verification-code' },
-
         // Additional
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
@@ -96,7 +101,7 @@ export default defineNuxtConfig({
       ],
       link: [
         // Canonical URL
-        { rel: 'canonical', href: 'https://msbseth.com/' },
+        { rel: 'canonical', href: `${siteUrl}/` },
 
         // Favicon
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
@@ -110,12 +115,12 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
 
         // DNS Prefetch
-        { rel: 'dns-prefetch', href: 'https://api.msbseth.com' },
+        ...(apiBase ? [{ rel: 'dns-prefetch', href: new URL(apiBase).origin }] : []),
 
         // Fonts
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' },
 
-        // RSS Feed (if you have blog)
+        // RSS Feed (enable when a blog feed exists)
         { rel: 'alternate', type: 'application/rss+xml', title: 'MSB Seth Blog', href: '/feed.xml' }
       ],
       htmlAttrs: {
@@ -134,12 +139,12 @@ export default defineNuxtConfig({
             "@type": "Person",
             "name": "Meach Senbroseth",
             "alternateName": "Seth",
-            "url": "https://msbseth.com",
+            "url": siteUrl,
             "sameAs": [
-              "https://github.com/msbseth",
-              "https://linkedin.com/in/msbseth",
-              "https://twitter.com/msbseth"
-            ],
+              process.env.PUBLIC_GITHUB_URL,
+              process.env.PUBLIC_LINKEDIN_URL,
+              process.env.PUBLIC_TELEGRAM_URL
+            ].filter(Boolean),
             "jobTitle": "Full-Stack Developer",
             "worksFor": {
               "@type": "Organization",
@@ -151,7 +156,7 @@ export default defineNuxtConfig({
               "addressCountry": "Cambodia"
             },
             "knowsAbout": ["Laravel", "Nuxt.js", "Vue.js", "Tailwind CSS", "PostgreSQL", "PHP", "JavaScript"],
-            "description": "Professional full-stack developer specializing in TALL Stack and Nuxt.js ecosystem. Building enterprise systems and high-performance web applications."
+            "description": "Full-stack developer in Phnom Penh, Cambodia specializing in Laravel, Nuxt.js, Vue.js, and high-performance web applications."
           })
         }
       ]
@@ -160,26 +165,21 @@ export default defineNuxtConfig({
 
   // Generate sitemap
   sitemap: {
+    siteUrl,
     enabled: true,
-    urls: [
-      '/',
-      '/projects',
-      '/about',
-    ],
+    sources: ['/api/__sitemap__/urls'],
     exclude: ['/admin/**'],
     defaults: {
-      changefreq: 'daily',
-      priority: 0.8,
-      lastmod: new Date().toISOString()
+      changefreq: 'weekly',
+      priority: 0.7
     }
   },
 
   // Robots.txt configuration
   robots: {
-    UserAgent: '*',
-    Allow: '/',
-    Disallow: ['/admin/', '/api/'],
-    Sitemap: 'https://msbseth.com/sitemap.xml'
+    allow: '/',
+    disallow: ['/admin/', '/api/'],
+    sitemap: `${siteUrl}/sitemap.xml`
   },
 
   // Compression
