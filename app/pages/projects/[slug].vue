@@ -158,14 +158,14 @@
           </div>
 
           <!-- Actions -->
-          <div class="space-y-2 pt-4">
+          <div class="pt-8 space-y-3">
             <a v-if="project.live_url" :href="project.live_url" target="_blank"
-              class="block w-full bg-[#131313] text-white text-center py-3 text-[9px] font-black uppercase tracking-widest hover:bg-[#28c840] hover:text-black transition-all">
-              ↗ Execute_Live_Preview
+              class="block w-full bg-[#131313] text-white text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-[#28c840] hover:text-black transition-all">
+              Execute_Live_Preview
             </a>
             <a v-if="project.github_url" :href="project.github_url" target="_blank"
-              class="block w-full border-2 border-[#131313] text-center py-3 text-[9px] font-black uppercase tracking-widest hover:bg-[#f0f0f0] transition-all">
-              { } View_Source_Tree
+              class="block w-full border-2 border-[#131313] text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-[#f0f0f0] transition-all">
+              View_Source_Tree
             </a>
           </div>
 
@@ -206,14 +206,9 @@
                 Primary_Interface_Capture
               </div>
               <div class="overflow-hidden p-2">
-                <img :src="getImageUrl(project.image)" :alt="project.title"
-                  class="w-full transition-all duration-700 cursor-zoom-in"
-                  @error="handleImageError" @click="openLightbox(0)" />
-              </div>
-              <!-- Hover badge -->
-              <div
-                class="absolute top-4 right-4 bg-[#131313] text-white text-[8px] font-black px-2 py-1 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">
-                Zoom_In ↗
+                <img :src="getImageUrl(project.image)"
+                  class="w-full grayscale hover:grayscale-0 transition-all duration-1000 cursor-zoom-in"
+                  @click="openLightbox(0)">
               </div>
             </div>
           </section>
@@ -247,9 +242,7 @@
                 <div v-for="(img, idx) in project.gallery.slice(0, 6)" :key="idx"
                   class="aspect-square border border-[#e0dddc] overflow-hidden transition-all duration-500 cursor-pointer group relative"
                   @click="openLightbox(idx)">
-                  <img :src="getImageUrl(img)" :alt="`Gallery ${idx + 1}`"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div class="absolute inset-0 bg-[#131313] opacity-0 group-hover:opacity-10 transition-opacity" />
+                  <img :src="getImageUrl(img)" class="w-full h-full object-cover">
                 </div>
               </div>
               <div v-else class="border border-dashed border-[#e0dddc] aspect-video flex items-center justify-center">
@@ -308,9 +301,12 @@
 import { storeToRefs } from 'pinia'
 
 const route = useRoute()
+const siteUrl = useSiteUrl('/')
 
 const projectStore = useProjectStore()
 const { projects, loading } = storeToRefs(projectStore)
+
+await useAsyncData(`project-${route.params.slug}`, () => projectStore.fetchProjects())
 
 const project = computed(() =>
   projects.value?.find(p => p.slug === route.params.slug) ?? null
@@ -324,15 +320,31 @@ const nextProject = computed(() => {
 
 const getImageUrl = (path) => {
   if (!path) return null
-  if (path.startsWith('http://') || path.startsWith('https://')) return path
-  if (path.startsWith('data:')) return path
+
+  // If it's already a full URL
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path
+  }
+
+  // If it's a data URL (base64)
+  if (path.startsWith('data:')) {
+    return path
+  }
+
+  // Otherwise, construct the full URL from API
   const config = useRuntimeConfig()
-  const apiBase = (config.public.apiBase || 'http://127.0.0.1:8000/api').replace('/api', '')
-  return `${apiBase}/storage/${path.startsWith('/') ? path.substring(1) : path}`
+  const baseUrl = config.public.apiBase || 'http://127.0.0.1:8000/api'
+  const apiBase = baseUrl.replace('/api', '')
+
+  // Remove leading slash if present
+  const cleanPath = path.startsWith('/') ? path.substring(1) : path
+
+  return `${apiBase}/storage/${cleanPath}`
 }
 
-const handleImageError = (e) => {
-  e.target.src = 'https://via.placeholder.com/800x600?text=Image+Not+Found'
+// Handle image loading errors
+const handleImageError = (event) => {
+  event.target.src = 'https://via.placeholder.com/800x600?text=Image+Not+Found'
 }
 
 // Lightbox
@@ -357,11 +369,13 @@ const handleKey = (e) => {
 
 onMounted(async () => {
   window.addEventListener('keydown', handleKey)
+
   try {
-    if (!projects.value?.length) await projectStore.fetchProjects()
-  } catch (e) {
-    console.error('Failed to fetch projects:', e)
+    await projectStore.fetchProjects()
+  } catch (error) {
+    console.error('Failed to fetch projects:', error)
   }
+
   const observer = new IntersectionObserver(
     (entries) => entries.forEach(entry => {
       if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target) }
@@ -373,12 +387,12 @@ onMounted(async () => {
 
 onUnmounted(() => window.removeEventListener('keydown', handleKey))
 
+// ── SEO ───────────────────────────────────────────
 useHead({
   title: computed(() => project.value ? `${project.value.title} — MSB Seth` : 'Project — MSB Seth'),
-  meta: computed(() => project.value
-    ? [{ name: 'description', content: project.value.description || project.value.desc || '' }]
-    : []
-  ),
+  meta: computed(() => project.value ? [
+    { name: 'description', content: project.value.description || project.value.desc || 'Project details' }
+  ] : [])
 })
 </script>
 

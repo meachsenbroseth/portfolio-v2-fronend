@@ -24,6 +24,8 @@ export const useProjectStore = defineStore('project', {
     actions: {
         getToken() {
             const authStore = useAuthStore()
+            if (import.meta.server) return authStore.token
+
             return (
                 authStore.token ||
                 localStorage.getItem('auth_token') ||
@@ -57,6 +59,8 @@ export const useProjectStore = defineStore('project', {
 
             const config = useRuntimeConfig()
             const apiBase = config.public.apiBase || ''
+            if (!apiBase) return path
+
             const host = new URL(apiBase).origin
 
             if (path.startsWith('/storage/')) {
@@ -165,6 +169,11 @@ export const useProjectStore = defineStore('project', {
 
             try {
                 const config = useRuntimeConfig()
+                if (!config.public.apiBase) {
+                    this.projects = []
+                    return this.projects
+                }
+
                 const response = await $fetch(`${config.public.apiBase}/projects?page=${page}`, {
                     headers: this.getHeaders(),
                 })

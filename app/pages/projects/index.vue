@@ -3,7 +3,7 @@
     class="min-h-screen bg-[#fafafa] py-24 px-4 sm:px-8 md:px-12 font-mono selection:bg-[#131313] selection:text-white">
     <!-- Subtle Grain Overlay -->
     <div
-      class="fixed inset-0 pointer-events-none opacity-[0.02] z-50 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]">
+      class="fixed inset-0 pointer-events-none opacity-[0.02] z-50 bg-[radial-gradient(circle,#131313_1px,transparent_1px)] bg-[length:18px_18px]">
     </div>
 
     <div class="max-w-6xl mx-auto relative z-10">
@@ -133,8 +133,10 @@
                   class="absolute inset-0 bg-[#131313] translate-x-2 translate-y-2 group-hover/img:translate-x-1 group-hover/img:translate-y-1 transition-transform duration-300">
                 </div>
                 <div class="relative aspect-video lg:aspect-[4/5] border-2 border-[#131313] overflow-hidden bg-white">
-                  <img :src="getImageUrl(item.image)" :alt="item.title"
+                  <img :src="getImageUrl(item.image)" :alt="`${item.title} project by Meach Senbroseth`"
                     class="w-full h-full object-cover grayscale group-hover/img:grayscale-0 group-hover/img:scale-110 transition-all duration-700"
+                    loading="lazy"
+                    decoding="async"
                     @error="handleImageError" />
                   <div
                     class="absolute top-2 left-2 bg-[#131313] text-white text-[8px] px-2 py-1 font-black uppercase tracking-widest opacity-0 group-hover/img:opacity-100 transition-opacity">
@@ -174,11 +176,11 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-4 pt-4">
-                  <a v-if="item.live_demo" :href="item.live_demo" target="_blank"
+                  <a v-if="item.live_demo" :href="item.live_demo" target="_blank" rel="noopener noreferrer"
                     class="bg-[#131313] text-white px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 hover:invert transition-all">
                     <ExternalLink class="h-3 w-3" /> Execute_Live
                   </a>
-                  <a v-if="item.github_link" :href="item.github_link" target="_blank"
+                  <a v-if="item.github_link" :href="item.github_link" target="_blank" rel="noopener noreferrer"
                     class="border-2 border-[#131313] px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-[#131313] hover:text-white transition-all">
                     <Github class="h-4 w-4" /> View_Source
                   </a>
@@ -256,50 +258,12 @@
               ↻ Re-Scan_Repository
             </button>
           </div>
-
-          <!-- RIGHT: terminal -->
-          <div class="bg-[#fafafa] p-10 flex flex-col gap-5 relative overflow-hidden"
-            style="background-image: linear-gradient(to right, rgba(0,0,0,0.035) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.035) 1px, transparent 1px); background-size: 20px 20px;">
-
-            <div class="border border-[#e0dddc] bg-white flex-1">
-              <div class="flex items-center justify-between px-3 py-2 bg-[#f5f3f2] border-b border-[#e0dddc]">
-                <div class="flex gap-1.5">
-                  <span class="w-2.5 h-2.5 bg-[#ff5f57] inline-block"></span>
-                  <span class="w-2.5 h-2.5 bg-[#febc2e] inline-block"></span>
-                  <span class="w-2.5 h-2.5 bg-[#e0dddc] inline-block"></span>
-                </div>
-                <span class="text-[9px] text-[#aaa] tracking-[0.06em]">project_store.ts</span>
-              </div>
-
-              <div class="p-4 text-[11px] leading-[2] font-mono">
-                <p class="text-[#aaa] italic">// fetchProjects() → response</p>
-                <p><span class="text-[#7c3aed] font-bold">const</span> res = <span
-                    class="text-[#7c3aed] font-bold">await</span> $fetch(endpoint)</p>
-                <!-- Scan bar -->
-                <div class="h-0.5 bg-[#e0dddc] overflow-hidden my-1 relative">
-                  <div class="absolute inset-0 bg-[#131313] animate-[scan_2s_cubic-bezier(0.4,0,0.6,1)_infinite]"></div>
-                </div>
-                <p class="text-[#aaa] italic">// parsing payload...</p>
-                <p><span class="text-[#7c3aed] font-bold">if</span> (res.data.length === <span
-                    class="text-amber-600">0</span>) {</p>
-                <p class="pl-4"><span class="text-[#7c3aed] font-bold">throw</span> <span
-                    class="text-red-500">EmptyRepository</span></p>
-                <p>}</p>
-                <p class="mt-2">
-                  <span class="text-[#28c840] font-bold">✓</span> Request: <span
-                    class="text-[#28c840] font-bold">200</span>
-                  &nbsp;&nbsp;<span class="text-red-500">✗ Records: 0</span>
-                  <span
-                    class="inline-block w-[7px] h-[13px] bg-[#131313] ml-1 align-middle animate-[blink_1s_step-end_infinite]"></span>
-                </p>
-              </div>
-            </div>
-
-            <div class="text-[10px] text-[#aaa] font-bold tracking-[0.08em] leading-[1.9] uppercase">
-              <p>/** @diagnostic: empty_payload</p>
-              <p>&nbsp;&nbsp;* @action: rescan or seed data</p>
-              <p>&nbsp;&nbsp;* @status: awaiting_input</p>
-              <p>*/</p>
+          <div class="bg-[#fafafa] p-12 overflow-hidden flex items-center justify-center relative">
+            <img src="https://media.tenor.com/DdpSGDqGTGwAAAAd/cat-typing.gif"
+              class="w-full grayscale mix-blend-multiply opacity-50" />
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span
+                class="text-[10px] font-black bg-white border border-[#131313] px-4 py-2 uppercase animate-bounce">System_Busy</span>
             </div>
           </div>
 
@@ -317,12 +281,43 @@ import { ExternalLink, Github } from 'lucide-vue-next'
 const projectStore = useProjectStore()
 const { projects, loading } = storeToRefs(projectStore)
 
+useSEO({
+  title: 'Projects - Laravel, Nuxt.js and Vue Portfolio by Meach Senbroseth',
+  description: 'Explore full-stack web projects by Meach Senbroseth, including Laravel applications, Nuxt.js frontends, Vue dashboards, APIs, and production systems built in Cambodia.',
+  path: '/projects',
+  breadcrumbs: [
+    { name: 'Home', path: '/' },
+    { name: 'Projects', path: '/projects' }
+  ],
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Full-stack developer projects',
+    description: 'Laravel, Nuxt.js, Vue.js, and full-stack web development portfolio projects.',
+    url: useSiteUrl('/projects')
+  }
+})
+
+await useAsyncData('projects-index', () => projectStore.fetchProjects())
+
 const getImageUrl = (path) => {
   if (!path) return 'https://via.placeholder.com/400x300?text=No+Image'
-  if (path.startsWith('http://') || path.startsWith('https://')) return path
-  if (path.startsWith('data:')) return path
+
+  // If it's already a full URL
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path
+  }
+
+  // If it's a data URL (base64)
+  if (path.startsWith('data:')) {
+    return path
+  }
+
+  // Otherwise, construct the full URL from API
   const config = useRuntimeConfig()
-  const baseUrl = config.public.apiBase || 'http://127.0.0.1:8000/api'
+  if (!config.public.apiBase) return '/placeholder-project.svg'
+
+  const baseUrl = config.public.apiBase
   const apiBase = baseUrl.replace('/api', '')
   const cleanPath = path.startsWith('/') ? path.substring(1) : path
   return `${apiBase}/storage/${cleanPath}`
@@ -332,6 +327,7 @@ const handleImageError = (event) => {
   event.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'
 }
 
+// Fetch projects on mount
 onMounted(async () => {
   try {
     await projectStore.fetchProjects()
