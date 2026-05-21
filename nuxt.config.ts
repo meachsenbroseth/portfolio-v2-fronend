@@ -131,32 +131,30 @@ export default defineNuxtConfig({
         class: 'antialiased'
       },
       script: [
-        // Structured Data / JSON-LD
+        // Google Analytics
+        {
+          src: 'https://www.googletagmanager.com/gtag/js?id=G-1DNM65TRNT',
+          async: true
+        },
+        {
+          children: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-1DNM65TRNT');
+        `,
+          type: 'text/javascript'
+        },
+
+        // Existing JSON-LD
         {
           type: 'application/ld+json',
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Person",
             "name": "Meach Senbroseth",
-            "alternateName": "Seth",
-            "url": siteUrl,
-            "sameAs": [
-              process.env.PUBLIC_GITHUB_URL,
-              process.env.PUBLIC_LINKEDIN_URL,
-              process.env.PUBLIC_TELEGRAM_URL
-            ].filter(Boolean),
-            "jobTitle": "Full-Stack Developer",
-            "worksFor": {
-              "@type": "Organization",
-              "name": "Freelance"
-            },
-            "address": {
-              "@type": "PostalAddress",
-              "addressLocality": "Phnom Penh",
-              "addressCountry": "Cambodia"
-            },
-            "knowsAbout": ["Laravel", "Nuxt.js", "Vue.js", "Tailwind CSS", "PostgreSQL", "PHP", "JavaScript"],
-            "description": "Full-stack developer in Phnom Penh, Cambodia specializing in Laravel, Nuxt.js, Vue.js, and high-performance web applications."
+            // your existing schema...
           })
         }
       ]
