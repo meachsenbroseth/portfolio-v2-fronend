@@ -15,7 +15,7 @@
             class="bg-[#131313] text-white text-[10px] px-2 py-1 font-black uppercase tracking-widest">Archive_01</span>
           <div class="flex-1 h-px bg-[#e0dddc]"></div>
           <div class="flex items-center gap-2">
-            <span class="w-1.5 h-1.5 bg-[#28c840] rounded-full animate-pulse"></span>
+            <span class="w-1.5 h-1.5 bg-[#28c840] animate-pulse"></span>
             <span class="text-[9px] font-black text-[#131313] uppercase tracking-[0.2em]">Server_Active</span>
           </div>
         </div>
@@ -50,7 +50,7 @@
             <!-- Image area skeleton -->
             <div class="lg:w-80 shrink-0 p-6 lg:p-8 flex items-center justify-center bg-[#fafafa]">
               <div class="relative w-full">
-                <!-- Brutalist shadow -->
+                <!-- Static brutalist shadow -->
                 <div class="absolute inset-0 bg-[#e0dddc] translate-x-2 translate-y-2" />
                 <div
                   class="relative aspect-video lg:aspect-[4/5] border-2 border-[#e0dddc] bg-[#f5f3f2] overflow-hidden">
@@ -75,7 +75,7 @@
               <div class="space-y-3">
                 <div class="h-9 w-4/5 bg-[#e0dddc] animate-pulse" :style="`animation-delay:${i * 0.1}s`" />
                 <div class="h-9 w-2/5 bg-[#eeeceb] animate-pulse" :style="`animation-delay:${i * 0.1 + 0.05}s`" />
-                <div class="h-1.5 w-0 bg-[#e0dddc]" />
+                <div class="h-1.5 w-16 bg-[#e0dddc]" />
               </div>
 
               <!-- Description lines -->
@@ -99,47 +99,42 @@
             </div>
 
           </div>
-
-          <!-- Bottom accent bar (inactive state) -->
-          <div class="h-1 w-full bg-[#f5f3f2]" />
         </div>
       </div>
 
       <!-- ── PROJECT GRID ── -->
       <div v-else-if="projects && projects.length > 0" class="grid gap-px bg-[#e0dddc] border border-[#e0dddc]">
         <div v-for="(item, i) in projects" :key="item.id"
-          class="group relative bg-white transition-all duration-500 overflow-hidden"
+          class="relative bg-white"
           :style="`animation-delay:${i * 0.1}s`">
           <div class="flex flex-col lg:flex-row">
+            
             <!-- 1. Metadata Sidebar -->
             <div
-              class="lg:w-20 shrink-0 border-b lg:border-b-0 lg:border-r border-[#e0dddc] flex lg:flex-col justify-between items-center p-4 lg:py-8 bg-[#fcfcfc] group-hover:bg-[#131313] transition-colors duration-500">
-              <span
-                class="text-[10px] font-black text-[#131313] group-hover:text-white lg:vertical-text tracking-widest">
+              class="lg:w-20 shrink-0 border-b lg:border-b-0 lg:border-r border-[#e0dddc] flex lg:flex-col justify-between items-center p-4 lg:py-8 bg-[#fcfcfc]">
+              <span class="text-[10px] font-black text-[#131313] lg:vertical-text tracking-widest">
                 #{{ String(i + 1).padStart(3, '0') }}
               </span>
               <div class="lg:vertical-text flex items-center gap-2">
                 <span
-                  class="text-[8px] font-black text-[#aaa] group-hover:text-[#5d5f5f] uppercase tracking-widest">Release:</span>
-                <span class="text-[10px] font-bold text-[#131313] group-hover:text-white">{{ item.date || '2026'
-                }}</span>
+                  class="text-[8px] font-black text-[#aaa] uppercase tracking-widest">Release:</span>
+                <span class="text-[10px] font-bold text-[#131313]">{{ item.date || '2026' }}</span>
               </div>
             </div>
 
             <!-- 2. Project Image Area -->
             <div class="lg:w-80 shrink-0 p-6 lg:p-8 flex items-center justify-center bg-[#fafafa]">
-              <NuxtLink :to="`/projects/${item.slug}`" class="relative block w-full group/img">
-                <div
-                  class="absolute inset-0 bg-[#131313] translate-x-2 translate-y-2 group-hover/img:translate-x-1 group-hover/img:translate-y-1 transition-transform duration-300">
-                </div>
+              <NuxtLink :to="`/projects/${item.slug}`" class="relative block w-full">
+                <!-- Static Brutalist Shadow -->
+                <div class="absolute inset-0 bg-[#131313] translate-x-2 translate-y-2"></div>
                 <div class="relative aspect-video lg:aspect-[4/5] border-2 border-[#131313] overflow-hidden bg-white">
-                  <img :src="getImageUrl(item.image)" :alt="`${item.title} project by Meach Senbroseth`"
-                    class="w-full h-full object-cover grayscale group-hover/img:grayscale-0 group-hover/img:scale-110 transition-all duration-700"
+                  <img :src="projectStore.getFullImageUrl(item.image)" :alt="`${item.title} project by Meach Senbroseth`"
+                    class="w-full h-full object-cover"
                     loading="lazy"
                     decoding="async"
                     @error="handleImageError" />
                   <div
-                    class="absolute top-2 left-2 bg-[#131313] text-white text-[8px] px-2 py-1 font-black uppercase tracking-widest opacity-0 group-hover/img:opacity-100 transition-opacity">
+                    class="absolute top-2 left-2 bg-[#131313] text-white text-[8px] px-2 py-1 font-black uppercase tracking-widest">
                     {{ item.category || 'Web_App' }}
                   </div>
                 </div>
@@ -158,18 +153,13 @@
                   <h2 class="text-3xl md:text-5xl font-black text-[#131313] uppercase tracking-tighter leading-[0.85]">
                     {{ item.title }}
                   </h2>
-                  <div class="h-1.5 w-0 bg-[#131313] group-hover/title:w-full transition-all duration-500 mt-2"></div>
+                  <!-- Simple static accent line -->
+                  <div class="h-1.5 w-16 bg-[#28c840] mt-2"></div>
                 </NuxtLink>
-
-                <p
-                  class="text-sm text-[#5d5f5f] leading-relaxed max-w-2xl line-clamp-3 lg:line-clamp-2 hover:line-clamp-none transition-all cursor-help">
-                  {{ item.description || item.desc }}
-                </p>
-
                 <div class="flex flex-wrap items-center gap-y-3 gap-x-6">
                   <div class="flex gap-2">
                     <span v-for="tech in (item.technologies || []).slice(0, 5)" :key="tech"
-                      class="text-[9px] font-black text-[#131313] bg-[#f0f0f0] px-2 py-1 uppercase tracking-tighter border border-transparent hover:border-[#131313] transition-all">
+                      class="text-[9px] font-black text-[#131313] bg-[#f0f0f0] px-2 py-1 uppercase tracking-tighter border border-[#e0dddc]">
                       --{{ tech }}
                     </span>
                   </div>
@@ -177,20 +167,16 @@
 
                 <div class="flex flex-wrap items-center gap-4 pt-4">
                   <a v-if="item.live_demo" :href="item.live_demo" target="_blank" rel="noopener noreferrer"
-                    class="bg-[#131313] text-white px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 hover:invert transition-all">
+                    class="bg-[#131313] text-white px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-[#28c840] hover:text-black transition-colors">
                     <ExternalLink class="h-3 w-3" /> Execute_Live
                   </a>
                   <a v-if="item.github_link" :href="item.github_link" target="_blank" rel="noopener noreferrer"
-                    class="border-2 border-[#131313] px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-[#131313] hover:text-white transition-all">
+                    class="border-2 border-[#131313] px-5 py-3 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3 hover:bg-[#131313] hover:text-white transition-colors">
                     <Github class="h-4 w-4" /> View_Source
                   </a>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div
-            class="absolute bottom-0 left-0 w-full h-1 bg-[#131313] scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left">
           </div>
         </div>
       </div>
@@ -260,7 +246,7 @@
           </div>
           <div class="bg-[#fafafa] p-12 overflow-hidden flex items-center justify-center relative">
             <img src="https://media.tenor.com/DdpSGDqGTGwAAAAd/cat-typing.gif"
-              class="w-full grayscale mix-blend-multiply opacity-50" />
+              class="w-full mix-blend-multiply opacity-50" />
             <div class="absolute inset-0 flex items-center justify-center">
               <span
                 class="text-[10px] font-black bg-white border border-[#131313] px-4 py-2 uppercase animate-bounce">System_Busy</span>
@@ -299,29 +285,6 @@ useSEO({
 })
 
 await useAsyncData('projects-index', () => projectStore.fetchProjects())
-
-const getImageUrl = (path) => {
-  if (!path) return 'https://via.placeholder.com/400x300?text=No+Image'
-
-  // If it's already a full URL
-  if (path.startsWith('http://') || path.startsWith('https://')) {
-    return path
-  }
-
-  // If it's a data URL (base64)
-  if (path.startsWith('data:')) {
-    return path
-  }
-
-  // Otherwise, construct the full URL from API
-  const config = useRuntimeConfig()
-  if (!config.public.apiBase) return '/placeholder-project.svg'
-
-  const baseUrl = config.public.apiBase
-  const apiBase = baseUrl.replace('/api', '')
-  const cleanPath = path.startsWith('/') ? path.substring(1) : path
-  return `${apiBase}/storage/${cleanPath}`
-}
 
 const handleImageError = (event) => {
   event.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'
@@ -391,9 +354,5 @@ onMounted(async () => {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.grayscale {
-  filter: grayscale(100%) brightness(0.9) contrast(1.1);
 }
 </style>
