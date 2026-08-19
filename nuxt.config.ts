@@ -176,7 +176,7 @@ export default defineNuxtConfig({
   // Robots.txt configuration
   robots: {
     allow: '/',
-    disallow: ['/admin/', '/api/'],
+    disallow: ['/admin/'],
     sitemap: `${siteUrl}/sitemap.xml`
   },
 
