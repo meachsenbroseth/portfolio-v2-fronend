@@ -29,7 +29,7 @@
           <div class="text-right">
             <p class="text-[10px] font-bold text-[#aaa] uppercase tracking-[0.3em] mb-1">Total_Modules</p>
             <p class="text-4xl font-black text-[#131313] leading-none">
-              {{ loading ? '--' : projects?.length?.toString().padStart(2, '0') || '00' }}
+              {{ loading ? '--' : (pagination.total || projects?.length || 0).toString().padStart(2, '0') }}
             </p>
           </div>
         </div>
@@ -256,6 +256,25 @@
         </div>
       </div>
 
+      <!-- ── PAGINATION ── -->
+      <div v-if="projects?.length && pagination.last_page > 1"
+        class="flex flex-wrap items-center justify-between gap-4 border-2 border-[#e0dddc] bg-white px-4 py-4 mt-px">
+        <div class="flex items-center gap-3">
+          <button :disabled="pagination.current_page <= 1" @click="goToPage(pagination.current_page - 1)"
+            class="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] border-2 border-[#131313] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#131313] hover:text-white transition-colors">
+            ← Prev_Page
+          </button>
+          <button :disabled="pagination.current_page >= pagination.last_page"
+            @click="goToPage(pagination.current_page + 1)"
+            class="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] border-2 border-[#131313] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#131313] hover:text-white transition-colors">
+            Next_Page →
+          </button>
+        </div>
+        <p class="text-[10px] font-bold text-[#5d5f5f] uppercase tracking-[0.2em]">
+          Page {{ pagination.current_page }} / {{ pagination.last_page }} — {{ pagination.total }} Modules
+        </p>
+      </div>
+
     </div>
   </div>
 </template>
@@ -265,7 +284,7 @@ import { storeToRefs } from 'pinia'
 import { ExternalLink, Github } from 'lucide-vue-next'
 
 const projectStore = useProjectStore()
-const { projects, loading } = storeToRefs(projectStore)
+const { projects, loading, pagination } = storeToRefs(projectStore)
 
 useSEO({
   title: 'Projects - Laravel, Nuxt.js and Vue Portfolio by Meach Senbroseth',
@@ -290,14 +309,17 @@ const handleImageError = (event) => {
   event.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'
 }
 
-// Fetch projects on mount
-onMounted(async () => {
-  try {
-    await projectStore.fetchProjects()
-  } catch (error) {
-    console.error('Failed to fetch projects:', error)
+// Jump to another page of the archive. The collection endpoint is paginated,
+// so without this the projects past page 1 would be unreachable.
+const goToPage = async (page) => {
+  if (!page || page < 1 || page > pagination.value.last_page) return
+
+  await projectStore.fetchProjects(page)
+
+  if (import.meta.client) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-})
+}
 </script>
 
 <style scoped>
