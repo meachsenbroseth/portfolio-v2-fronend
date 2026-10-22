@@ -138,37 +138,6 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async uploadAvatar(file) {
-      this.loading = true
-
-      try {
-        const { apiBase } = useApiConfig()
-        const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
-
-        const formData = new FormData()
-        formData.append('avatar', file)
-
-        const response = await $fetch(`${apiBase}/user/avatar`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        })
-
-        this.user = response.user || response
-        const storage = localStorage.getItem('auth_token') ? localStorage : sessionStorage
-        storage.setItem('auth_user', JSON.stringify(this.user))
-
-        return response
-      } catch (error) {
-        this.error = error.data?.message || 'Failed to upload avatar'
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
-
     loadFromStorage() {
       if (import.meta.server) return false
 
