@@ -136,6 +136,18 @@
 </template>
 
 <script setup>
+// ── SEO ──────────────────────────────────────────────
+useSEO({
+  title: 'About Meach Senbroseth - Full-Stack Developer in Phnom Penh, Cambodia',
+  description:
+    'Meet Meach Senbroseth, a full-stack web developer in Phnom Penh, Cambodia building Laravel backends, Nuxt.js frontends, Vue dashboards and production web applications.',
+  path: '/about',
+  breadcrumbs: [
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
+  ],
+})
+
 // Header Typing Animation
 const words = ['HELLO WORLD!', "I'M \n MEACH SENBROSETH!"]
 const typedText = ref(words[1])

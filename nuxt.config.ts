@@ -65,6 +65,9 @@ export default defineNuxtConfig({
   app: {
     head: {
       titleTemplate: '%s',
+      // Fallback title so a page that sets its own SEO can never end up
+      // with an empty <title>.
+      title: 'Meach Senbroseth - Full-Stack Developer Cambodia',
       meta: [
         // Basic SEO
         { name: 'description', content: 'Hire Meach Senbroseth, a full-stack developer in Phnom Penh, Cambodia building Laravel, Nuxt.js, Vue, and high-performance web applications.' },
@@ -100,8 +103,8 @@ export default defineNuxtConfig({
         { name: 'googlebot', content: 'index, follow' },
         { name: 'bingbot', content: 'index, follow' },
 
-        // Additional
-        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        // Mobile Capability
+        { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'MSB Seth' }
       ],
@@ -109,15 +112,13 @@ export default defineNuxtConfig({
         // Canonical URL
         { rel: 'canonical', href: `${siteUrl}/` },
 
-        // Favicon
+        // Favicon & Manifest
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
-        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon-0.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
 
-        // DNS Prefetch
-        ...(apiBase ? [{ rel: 'dns-prefetch', href: new URL(apiBase).origin }] : [])
+        // Safe DNS Prefetch when apiBase is configured
+        ...(apiBase && apiBase.startsWith('http') ? [{ rel: 'dns-prefetch', href: new URL(apiBase).origin }] : [])
       ],
       htmlAttrs: {
         lang: 'en',
@@ -133,7 +134,7 @@ export default defineNuxtConfig({
           async: true
         },
         {
-          children: `
+          innerHTML: `
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
@@ -143,14 +144,13 @@ export default defineNuxtConfig({
           type: 'text/javascript'
         },
 
-        // Existing JSON-LD
+        // Schema JSON-LD
         {
           type: 'application/ld+json',
-          children: JSON.stringify({
+          innerHTML: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Person",
-            "name": "Meach Senbroseth",
-            // your existing schema...
+            "name": "Meach Senbroseth"
           })
         }
       ]

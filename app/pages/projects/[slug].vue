@@ -331,12 +331,29 @@ const handleKey = (e) => {
 onMounted(() => window.addEventListener('keydown', handleKey))
 onUnmounted(() => window.removeEventListener('keydown', handleKey))
 
-// ── SEO ──
-useHead({
-  title: computed(() => project.value ? `${project.value.title} — MSB Seth` : 'Project — MSB Seth'),
-  meta: computed(() => project.value ? [
-    { name: 'description', content: project.value.description || project.value.desc || 'Project details' }
-  ] : [])
+// ── SEO ──────────────────────────────────────────────
+const seoProject = computed(() => {
+  if (!project.value) return null
+
+  return {
+    ...project.value,
+    description: project.value.description || project.value.desc || '',
+    image: getImageUrl(project.value.image),
+  }
+})
+
+useSEO({
+  title: computed(() => (project.value ? `${project.value.title} — MSB Seth` : 'Project — MSB Seth')),
+  description: computed(() => seoProject.value?.description || 'Project details'),
+  path: computed(() => `/projects/${route.params.slug}`),
+  image: computed(() => seoProject.value?.image || undefined),
+  type: 'article',
+  breadcrumbs: computed(() => [
+    { name: 'Home', path: '/' },
+    { name: 'Projects', path: '/projects' },
+    { name: project.value?.title || 'Project', path: `/projects/${route.params.slug}` },
+  ]),
+  jsonLd: computed(() => (seoProject.value ? createProjectSchema(seoProject.value) : undefined)),
 })
 </script>
 

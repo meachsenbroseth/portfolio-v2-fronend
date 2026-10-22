@@ -124,7 +124,7 @@ export const useSEO = (options: SeoOptions) => {
       return schemas.map((schema, index) => ({
         key: `json-ld-${path.value}-${index}`,
         type: 'application/ld+json',
-        children: JSON.stringify(schema)
+        innerHTML: JSON.stringify(schema)
       }))
     })
   })
