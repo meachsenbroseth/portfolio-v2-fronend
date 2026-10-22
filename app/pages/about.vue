@@ -155,6 +155,7 @@ const cursorVisible = ref(true)
 let wordIndex = 0
 let charIndex = 0
 let deleting = false
+let typeTimeout = null
 
 const typeLoop = () => {
   const current = words[wordIndex]
@@ -163,7 +164,7 @@ const typeLoop = () => {
     charIndex++
     if (charIndex === current.length) {
       deleting = true
-      setTimeout(typeLoop, 2000)
+      typeTimeout = setTimeout(typeLoop, 2000)
       return
     }
   } else {
@@ -172,11 +173,11 @@ const typeLoop = () => {
     if (charIndex === 0) {
       deleting = false
       wordIndex = (wordIndex + 1) % words.length
-      setTimeout(typeLoop, 500)
+      typeTimeout = setTimeout(typeLoop, 500)
       return
     }
   }
-  setTimeout(typeLoop, deleting ? 40 : 80)
+  typeTimeout = setTimeout(typeLoop, deleting ? 40 : 80)
 }
 
 const bioPhrases = [
@@ -191,6 +192,7 @@ const bioCursorVisible = ref(true)
 let bioWordIndex = 0
 let bioCharIndex = 0
 let deletingBio = false
+let bioTimeout = null
 
 const typeBioLoop = () => {
   const current = bioPhrases[bioWordIndex]
@@ -199,7 +201,7 @@ const typeBioLoop = () => {
     bioCharIndex++
     if (bioCharIndex === current.length) {
       deletingBio = true
-      setTimeout(typeBioLoop, 3000)
+      bioTimeout = setTimeout(typeBioLoop, 3000)
       return
     }
   } else {
@@ -208,25 +210,28 @@ const typeBioLoop = () => {
     if (bioCharIndex === 0) {
       deletingBio = false
       bioWordIndex = (bioWordIndex + 1) % bioPhrases.length
-      setTimeout(typeBioLoop, 500)
+      bioTimeout = setTimeout(typeBioLoop, 500)
       return
     }
   }
-  setTimeout(typeBioLoop, deletingBio ? 40 : 80)
+  bioTimeout = setTimeout(typeBioLoop, deletingBio ? 40 : 80)
 }
+
+let blinkInterval = null
+let observer = null
 
 onMounted(() => {
   // Start hero animations immediately — no API calls here
   typeLoop()
   typeBioLoop()
 
-  setInterval(() => {
+  blinkInterval = setInterval(() => {
     cursorVisible.value = !cursorVisible.value
     bioCursorVisible.value = !bioCursorVisible.value
   }, 530)
 
   // Intersection Observer for reveal animations
-  const observer = new IntersectionObserver((entries) => {
+  observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible')
@@ -236,6 +241,13 @@ onMounted(() => {
   }, { threshold: 0.1 })
 
   document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right').forEach(el => observer.observe(el))
+})
+
+onUnmounted(() => {
+  clearTimeout(typeTimeout)
+  clearTimeout(bioTimeout)
+  clearInterval(blinkInterval)
+  observer?.disconnect()
 })
 </script>
 
