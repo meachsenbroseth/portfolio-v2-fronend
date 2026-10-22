@@ -305,6 +305,31 @@ useSEO({
 
 await useAsyncData('projects-index', () => projectStore.fetchProjects())
 
+// Reveal the header once it scrolls into view. The animation itself lives in
+// the global assets/css/main.css.
+let observer = null
+
+onMounted(() => {
+  if (typeof IntersectionObserver === 'undefined') return
+
+  observer = new IntersectionObserver(
+    (entries) => entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible')
+        observer.unobserve(entry.target)
+      }
+    }),
+    { threshold: 0.08, rootMargin: '60px 0px' }
+  )
+
+  document.querySelectorAll('.reveal-up').forEach((el) => observer.observe(el))
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
+  observer = null
+})
+
 const handleImageError = (event) => {
   event.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'
 }
@@ -365,16 +390,6 @@ const goToPage = async (page) => {
   }
 }
 
-.reveal-up {
-  opacity: 0;
-  transform: translateY(30px);
-  animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes reveal {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* The reveal animation is defined once in assets/css/main.css so every page
+   behaves the same way. Only the page specific bits stay scoped. */
 </style>

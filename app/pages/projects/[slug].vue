@@ -328,8 +328,27 @@ const handleKey = (e) => {
   if (e.key === 'ArrowLeft') prevImage()
 }
 
-onMounted(() => window.addEventListener('keydown', handleKey))
-onUnmounted(() => window.removeEventListener('keydown', handleKey))
+let observer = null
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKey)
+
+  if (typeof IntersectionObserver === 'undefined') return
+
+  observer = new IntersectionObserver(
+    (entries) => entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target) }
+    }),
+    { threshold: 0.08, rootMargin: '60px 0px' }
+  )
+  document.querySelectorAll('.reveal-up').forEach(el => observer.observe(el))
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKey)
+  observer?.disconnect()
+  observer = null
+})
 
 // ── SEO ──────────────────────────────────────────────
 const seoProject = computed(() => {
@@ -364,16 +383,6 @@ useSEO({
   border-radius: 0 !important;
 }
 
-.reveal-up {
-  opacity: 0;
-  transform: translateY(24px);
-  animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes reveal {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* The reveal animation itself lives in the global main.css so every page
+   behaves the same way. Only the page specific bits stay scoped. */
 </style>

@@ -263,19 +263,6 @@ onUnmounted(() => {
   100% { transform: translateX(100%); }
 }
 
-.reveal-up,
-.reveal-left,
-.reveal-right {
-  opacity: 0;
-  transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.reveal-up    { transform: translateY(40px); }
-.reveal-left  { transform: translateX(-40px); }
-.reveal-right { transform: translateX(40px); }
-
-.visible {
-  opacity: 1;
-  transform: translate(0);
-}
+/* The reveal animation is defined once in assets/css/main.css so every page
+   behaves the same way. Only the page specific bits stay scoped. */
 </style>

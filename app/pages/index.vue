@@ -380,6 +380,7 @@ const ringOffset = computed(
 
 let timer = null;
 let typeTimer = null;
+let observer = null;
 
 const typeEffect = () => {
   displayedText.value = "";
@@ -417,10 +418,22 @@ const prev = () => {
   startTimer();
 };
 
-// ── Scroll reveal ─────────────────────────────────
+// ── Progressive Scroll Reveal ─────────────────────
+const observeElements = () => {
+  if (typeof IntersectionObserver === "undefined" || !observer) return;
+  document
+    .querySelectorAll(".reveal-up, .reveal-left, .reveal-right")
+    .forEach((el) => {
+      if (!el.classList.contains("visible")) {
+        observer.observe(el);
+      }
+    });
+};
+
 onMounted(() => {
   startTimer();
-  const observer = new IntersectionObserver(
+
+  observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -429,16 +442,21 @@ onMounted(() => {
         }
       });
     },
-    { threshold: 0.08 },
+    { threshold: 0.08, rootMargin: "60px 0px" }
   );
-  document
-    .querySelectorAll(".reveal-up, .stat-item")
-    .forEach((el) => observer.observe(el));
+
+  nextTick(() => {
+    observeElements();
+  });
 });
 
 onUnmounted(() => {
   clearInterval(timer);
   clearInterval(typeTimer);
+  if (observer) {
+    observer.disconnect();
+    observer = null;
+  }
 });
 </script>
 
@@ -487,7 +505,6 @@ onUnmounted(() => {
 }
 
 @keyframes blink {
-
   0%,
   100% {
     opacity: 1;
@@ -496,33 +513,6 @@ onUnmounted(() => {
   50% {
     opacity: 0;
   }
-}
-
-.reveal-up {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.reveal-up.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.stat-item {
-  opacity: 0;
-  transform: translateY(16px);
-  transition:
-    opacity 0.45s ease,
-    transform 0.45s ease,
-    background-color 0.2s ease;
-}
-
-.stat-item.visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Swiper override — disable default transitions for infinite loop */

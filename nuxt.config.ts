@@ -128,6 +128,12 @@ export default defineNuxtConfig({
         class: 'antialiased'
       },
       script: [
+        // Progressive Enhancement: set 'js' class immediately so CSS animations activate progressively
+        {
+          innerHTML: "document.documentElement.classList.add('js');",
+          type: 'text/javascript'
+        },
+
         // Google Analytics
         {
           src: 'https://www.googletagmanager.com/gtag/js?id=G-1DNM65TRNT',
