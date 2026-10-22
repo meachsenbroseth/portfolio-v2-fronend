@@ -73,8 +73,8 @@ export const useAuthStore = defineStore('auth', {
         
         return user
       } catch (error) {
-        console.error('Failed to fetch user:', error)
-        if (error.response?.status === 401) {
+        this.error = error.data?.message || error.message || 'Failed to fetch user'
+        if (error.response?.status === 401 || error.status === 401) {
           this.clearAuth()
         }
         return null
@@ -83,11 +83,11 @@ export const useAuthStore = defineStore('auth', {
 
     async updateProfile(data) {
       this.loading = true
-      
+
       try {
         const { apiBase } = useApiConfig()
         const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
-        
+
         const response = await $fetch(`${apiBase}/user/profile`, {
           method: 'PUT',
           headers: {
@@ -96,11 +96,11 @@ export const useAuthStore = defineStore('auth', {
           },
           body: data
         })
-        
+
         this.user = response.user || response
         const storage = localStorage.getItem('auth_token') ? localStorage : sessionStorage
         storage.setItem('auth_user', JSON.stringify(this.user))
-        
+
         return response
       } catch (error) {
         this.error = error.data?.message || 'Failed to update profile'
@@ -112,11 +112,11 @@ export const useAuthStore = defineStore('auth', {
 
     async changePassword(currentPassword, newPassword) {
       this.loading = true
-      
+
       try {
         const { apiBase } = useApiConfig()
         const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
-        
+
         const response = await $fetch(`${apiBase}/change-password`, {
           method: 'POST',
           headers: {
@@ -128,7 +128,7 @@ export const useAuthStore = defineStore('auth', {
             password: newPassword
           }
         })
-        
+
         return response
       } catch (error) {
         this.error = error.data?.message || error.message || 'Failed to change password'
@@ -140,14 +140,14 @@ export const useAuthStore = defineStore('auth', {
 
     async uploadAvatar(file) {
       this.loading = true
-      
+
       try {
         const { apiBase } = useApiConfig()
         const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
-        
+
         const formData = new FormData()
         formData.append('avatar', file)
-        
+
         const response = await $fetch(`${apiBase}/user/avatar`, {
           method: 'POST',
           headers: {
@@ -155,11 +155,11 @@ export const useAuthStore = defineStore('auth', {
           },
           body: formData
         })
-        
+
         this.user = response.user || response
         const storage = localStorage.getItem('auth_token') ? localStorage : sessionStorage
         storage.setItem('auth_user', JSON.stringify(this.user))
-        
+
         return response
       } catch (error) {
         this.error = error.data?.message || 'Failed to upload avatar'
@@ -216,7 +216,7 @@ export const useAuthStore = defineStore('auth', {
         const token = this.token
         if (token) {
           await $fetch(`${apiBase}/logout`, {
-            method: 'GET',
+            method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
           }).catch(() => {})
         }
