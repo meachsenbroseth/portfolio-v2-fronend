@@ -47,7 +47,11 @@ export default defineNuxtConfig({
       {
         name: 'Inter',
         provider: 'google',
-        weights: [400, 500, 600, 700, 800, 900]
+        weights: [400, 500, 600, 700, 800, 900],
+        // The site only ever renders Inter upright in the latin subset; without
+        // these limits @nuxt/fonts ships ~380 KB of unused italic/non-latin files.
+        styles: ['normal'],
+        subsets: ['latin']
       }
     ]
   },
