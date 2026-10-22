@@ -471,7 +471,7 @@ const saveProject = async () => {
     dialogOpen.value = false
     resetForm()
   } catch (error) {
-    console.error('Failed to save project:', error)
+    projectStore.error = error.data?.message || error.message || 'Failed to save project'
   }
 }
 
@@ -489,7 +489,7 @@ const deleteProject = async () => {
     deleteDialogOpen.value = false
     projectToDelete.value = null
   } catch (error) {
-    console.error('Failed to delete project:', error)
+    projectStore.error = error.data?.message || error.message || 'Failed to delete project'
   }
 }
 

@@ -60,7 +60,6 @@ export const useExperienceStore = defineStore('experience', {
         return this.experiences
       } catch (error) {
         this.error = error.message || 'Failed to fetch experiences'
-        console.error('Fetch experiences error:', error)
         this.experiences = []
         throw error
       } finally {

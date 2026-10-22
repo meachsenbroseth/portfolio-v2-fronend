@@ -60,7 +60,6 @@ export const useEducationStore = defineStore('education', {
         return this.educations
       } catch (error) {
         this.error = error.message || 'Failed to fetch educations'
-        console.error('Fetch educations error:', error)
         this.educations = []
         throw error
       } finally {
