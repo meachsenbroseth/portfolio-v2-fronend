@@ -128,11 +128,11 @@
           </div>
 
           <div class="pt-8 space-y-3">
-            <a v-if="project.live_url" :href="project.live_url" target="_blank" rel="noopener noreferrer"
+            <a v-if="project.live_demo" :href="project.live_demo" target="_blank" rel="noopener noreferrer"
               class="block w-full bg-[#131313] text-white text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-[#28c840] hover:text-black transition-all">
               Execute_Live_Preview
             </a>
-            <a v-if="project.github_url" :href="project.github_url" target="_blank" rel="noopener noreferrer"
+            <a v-if="project.github_link" :href="project.github_link" target="_blank" rel="noopener noreferrer"
               class="block w-full border-2 border-[#131313] text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-[#f0f0f0] transition-all">
               View_Source_Tree
             </a>
@@ -266,17 +266,31 @@
 </template>
 
 <script setup>
-import { storeToRefs } from 'pinia'
-
 const route = useRoute()
+const config = useRuntimeConfig()
 const projectStore = useProjectStore()
-const { projects, loading } = storeToRefs(projectStore)
 
-await useAsyncData(`project-${route.params.slug}`, () => projectStore.fetchProjects())
-
-const project = computed(() =>
-  projects.value?.find(p => p.slug === route.params.slug) ?? null
+// Fetch a single project directly — the collection endpoint is paginated and
+// would 404 for anything past page 1.
+const { data: project, status } = await useAsyncData(
+  `project-${route.params.slug}`,
+  async () => {
+    try {
+      return await $fetch(`${config.public.apiBase}/projects/${route.params.slug}`)
+    } catch {
+      // Swallow the error so the page can render its own "not found" state.
+      return null
+    }
+  }
 )
+
+const loading = computed(() => status.value === 'pending')
+
+// A slug that does not exist has to answer with a real 404 status so search
+// engines do not index the "not found" screen. No-op on the client.
+if (!project.value) {
+  setResponseStatus(404)
+}
 
 // Main image first, then gallery — one source of truth for the lightbox
 const images = computed(() =>
