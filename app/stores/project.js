@@ -1,5 +1,6 @@
 // stores/project.js
 import { defineStore } from 'pinia'
+import { useApiConfig } from '~/composables/useApiConfig'
 
 const PROJECT_FIELDS = ['title', 'date', 'status', 'desc', 'live_demo', 'github_link']
 
@@ -16,10 +17,6 @@ export const useProjectStore = defineStore('project', {
             total: 0,
         },
     }),
-
-    getters: {
-        orderedProjects: (state) => [...state.projects].sort((a, b) => b.id - a.id),
-    },
 
     actions: {
         getToken() {
@@ -57,11 +54,15 @@ export const useProjectStore = defineStore('project', {
             if (typeof path !== 'string') return null
             if (path.startsWith('http')) return path
 
-            const config = useRuntimeConfig()
-            const apiBase = config.public.apiBase || ''
+            const { apiBase } = useApiConfig()
             if (!apiBase) return path
 
-            const host = new URL(apiBase).origin
+            let host
+            try {
+                host = new URL(apiBase).origin
+            } catch {
+                return path
+            }
 
             if (path.startsWith('/storage/')) {
                 return `${host}${path}`
@@ -103,20 +104,38 @@ export const useProjectStore = defineStore('project', {
         },
 
         extractProjectsResponse(response) {
-            const payload = response?.data ?? response
-            const paginator = payload?.data?.data ? payload.data : payload
-            const items = paginator?.data ?? (Array.isArray(payload) ? payload : [])
+            // Laravel returns a paginator: { current_page, data: [...], last_page, total }.
+            // The paginator may be the response itself or wrapped in `data`,
+            // so look for the object that actually carries the meta data
+            // instead of blindly unwrapping `data`.
+            const candidates = [response, response?.data, response?.data?.data]
+            const paginator =
+                candidates.find(
+                    (candidate) =>
+                        candidate &&
+                        !Array.isArray(candidate) &&
+                        (candidate.current_page !== undefined || candidate.last_page !== undefined)
+                ) ?? null
+
+            let items = []
+            if (Array.isArray(paginator?.data)) {
+                items = paginator.data
+            } else if (Array.isArray(response?.data)) {
+                items = response.data
+            } else if (Array.isArray(response)) {
+                items = response
+            }
 
             if (paginator?.current_page) {
                 this.pagination = {
                     current_page: paginator.current_page,
-                    last_page: paginator.last_page,
-                    per_page: paginator.per_page,
-                    total: paginator.total,
+                    last_page: paginator.last_page ?? 1,
+                    per_page: paginator.per_page ?? 10,
+                    total: paginator.total ?? items.length,
                 }
             }
 
-            return Array.isArray(items) ? items : []
+            return items
         },
 
         buildProjectFormData(project, method = 'POST') {
@@ -141,6 +160,11 @@ export const useProjectStore = defineStore('project', {
                 if (typeof File !== 'undefined' && image instanceof File) {
                     submitData.append('gallery[]', image)
                 }
+            })
+
+            // Storage paths of the gallery images that must be kept
+            this.parseArray(project.existing_gallery).forEach((path, index) => {
+                append(`existing_gallery[${index}]`, path)
             })
 
             if (method === 'PUT') {
@@ -168,13 +192,13 @@ export const useProjectStore = defineStore('project', {
             this.error = null
 
             try {
-                const config = useRuntimeConfig()
-                if (!config.public.apiBase) {
+                const { apiBase } = useApiConfig()
+                if (!apiBase) {
                     this.projects = []
                     return this.projects
                 }
 
-                const response = await $fetch(`${config.public.apiBase}/projects?page=${page}`, {
+                const response = await $fetch(`${apiBase}/projects?page=${page}`, {
                     headers: this.getHeaders(),
                 })
 
@@ -197,10 +221,10 @@ export const useProjectStore = defineStore('project', {
             this.validationErrors = null
 
             try {
-                const config = useRuntimeConfig()
+                const { apiBase } = useApiConfig()
                 const submitData = this.buildProjectFormData(project)
 
-                const response = await $fetch(`${config.public.apiBase}/projects`, {
+                const response = await $fetch(`${apiBase}/projects`, {
                     method: 'POST',
                     headers: this.getHeaders(),
                     body: submitData,
@@ -225,10 +249,10 @@ export const useProjectStore = defineStore('project', {
             this.validationErrors = null
 
             try {
-                const config = useRuntimeConfig()
+                const { apiBase } = useApiConfig()
                 const submitData = this.buildProjectFormData(project, 'PUT')
 
-                const response = await $fetch(`${config.public.apiBase}/projects/${id}`, {
+                const response = await $fetch(`${apiBase}/projects/${id}`, {
                     method: 'POST',
                     headers: this.getHeaders(),
                     body: submitData,
@@ -257,8 +281,8 @@ export const useProjectStore = defineStore('project', {
             this.error = null
 
             try {
-                const config = useRuntimeConfig()
-                const response = await $fetch(`${config.public.apiBase}/projects/${id}`, {
+                const { apiBase } = useApiConfig()
+                const response = await $fetch(`${apiBase}/projects/${id}`, {
                     method: 'DELETE',
                     headers: this.getHeaders(),
                 })

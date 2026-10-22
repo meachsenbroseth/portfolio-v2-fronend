@@ -449,6 +449,9 @@ const buildProjectPayload = () => ({
   gallery: form.value.galleryItems
     .filter((item) => item.type === 'new')
     .map((item) => item.file),
+  existing_gallery: form.value.galleryItems
+    .filter((item) => item.type === 'existing')
+    .map((item) => item.path),
   technologies: form.value.technologies,
   live_demo: form.value.live_demo,
   github_link: form.value.github_link,
@@ -468,7 +471,7 @@ const saveProject = async () => {
     dialogOpen.value = false
     resetForm()
   } catch (error) {
-    console.error('Failed to save project:', error)
+    projectStore.error = error.data?.message || error.message || 'Failed to save project'
   }
 }
 
@@ -486,7 +489,7 @@ const deleteProject = async () => {
     deleteDialogOpen.value = false
     projectToDelete.value = null
   } catch (error) {
-    console.error('Failed to delete project:', error)
+    projectStore.error = error.data?.message || error.message || 'Failed to delete project'
   }
 }
 

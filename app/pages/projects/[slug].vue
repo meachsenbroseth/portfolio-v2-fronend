@@ -128,11 +128,11 @@
           </div>
 
           <div class="pt-8 space-y-3">
-            <a v-if="project.live_url" :href="project.live_url" target="_blank" rel="noopener noreferrer"
+            <a v-if="project.live_demo" :href="project.live_demo" target="_blank" rel="noopener noreferrer"
               class="block w-full bg-[#131313] text-white text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-[#28c840] hover:text-black transition-all">
               Execute_Live_Preview
             </a>
-            <a v-if="project.github_url" :href="project.github_url" target="_blank" rel="noopener noreferrer"
+            <a v-if="project.github_link" :href="project.github_link" target="_blank" rel="noopener noreferrer"
               class="block w-full border-2 border-[#131313] text-center py-4 text-[10px] font-black uppercase tracking-widest hover:bg-[#f0f0f0] transition-all">
               View_Source_Tree
             </a>
@@ -266,17 +266,31 @@
 </template>
 
 <script setup>
-import { storeToRefs } from 'pinia'
-
 const route = useRoute()
+const config = useRuntimeConfig()
 const projectStore = useProjectStore()
-const { projects, loading } = storeToRefs(projectStore)
 
-await useAsyncData(`project-${route.params.slug}`, () => projectStore.fetchProjects())
-
-const project = computed(() =>
-  projects.value?.find(p => p.slug === route.params.slug) ?? null
+// Fetch a single project directly — the collection endpoint is paginated and
+// would 404 for anything past page 1.
+const { data: project, status } = await useAsyncData(
+  `project-${route.params.slug}`,
+  async () => {
+    try {
+      return await $fetch(`${config.public.apiBase}/projects/${route.params.slug}`)
+    } catch {
+      // Swallow the error so the page can render its own "not found" state.
+      return null
+    }
+  }
 )
+
+const loading = computed(() => status.value === 'pending')
+
+// A slug that does not exist has to answer with a real 404 status so search
+// engines do not index the "not found" screen. No-op on the client.
+if (!project.value) {
+  setResponseStatus(404)
+}
 
 // Main image first, then gallery — one source of truth for the lightbox
 const images = computed(() =>
@@ -314,15 +328,51 @@ const handleKey = (e) => {
   if (e.key === 'ArrowLeft') prevImage()
 }
 
-onMounted(() => window.addEventListener('keydown', handleKey))
-onUnmounted(() => window.removeEventListener('keydown', handleKey))
+let observer = null
 
-// ── SEO ──
-useHead({
-  title: computed(() => project.value ? `${project.value.title} — MSB Seth` : 'Project — MSB Seth'),
-  meta: computed(() => project.value ? [
-    { name: 'description', content: project.value.description || project.value.desc || 'Project details' }
-  ] : [])
+onMounted(() => {
+  window.addEventListener('keydown', handleKey)
+
+  if (typeof IntersectionObserver === 'undefined') return
+
+  observer = new IntersectionObserver(
+    (entries) => entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target) }
+    }),
+    { threshold: 0.08, rootMargin: '60px 0px' }
+  )
+  document.querySelectorAll('.reveal-up').forEach(el => observer.observe(el))
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKey)
+  observer?.disconnect()
+  observer = null
+})
+
+// ── SEO ──────────────────────────────────────────────
+const seoProject = computed(() => {
+  if (!project.value) return null
+
+  return {
+    ...project.value,
+    description: project.value.description || project.value.desc || '',
+    image: getImageUrl(project.value.image),
+  }
+})
+
+useSEO({
+  title: computed(() => (project.value ? `${project.value.title} — MSB Seth` : 'Project — MSB Seth')),
+  description: computed(() => seoProject.value?.description || 'Project details'),
+  path: computed(() => `/projects/${route.params.slug}`),
+  image: computed(() => seoProject.value?.image || undefined),
+  type: 'article',
+  breadcrumbs: computed(() => [
+    { name: 'Home', path: '/' },
+    { name: 'Projects', path: '/projects' },
+    { name: project.value?.title || 'Project', path: `/projects/${route.params.slug}` },
+  ]),
+  jsonLd: computed(() => (seoProject.value ? createProjectSchema(seoProject.value) : undefined)),
 })
 </script>
 
@@ -333,16 +383,6 @@ useHead({
   border-radius: 0 !important;
 }
 
-.reveal-up {
-  opacity: 0;
-  transform: translateY(24px);
-  animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes reveal {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* The reveal animation itself lives in the global main.css so every page
+   behaves the same way. Only the page specific bits stay scoped. */
 </style>

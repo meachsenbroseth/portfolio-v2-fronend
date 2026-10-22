@@ -186,7 +186,7 @@ onMounted(async () => {
       education: educationStore.educations?.length || 0
     }
   } catch (error) {
-    console.error('Failed to load profile data:', error)
+    authStore.error = error.data?.message || error.message || 'Failed to load profile data'
   }
 })
 </script>

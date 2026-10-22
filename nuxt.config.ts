@@ -37,11 +37,21 @@ export default defineNuxtConfig({
     name: 'MSB Seth Portfolio'
   },
   fonts: {
+    // Fonts are downloaded at build time and self-hosted, eliminating render-blocking CDN round-trips
     families: [
       {
         name: 'Google Sans Code',
         provider: 'google',
         weights: [400, 500, 700]
+      },
+      {
+        name: 'Inter',
+        provider: 'google',
+        weights: [400, 500, 600, 700, 800, 900],
+        // The site only ever renders Inter upright in the latin subset; without
+        // these limits @nuxt/fonts ships ~380 KB of unused italic/non-latin files.
+        styles: ['normal'],
+        subsets: ['latin']
       }
     ]
   },
@@ -59,6 +69,9 @@ export default defineNuxtConfig({
   app: {
     head: {
       titleTemplate: '%s',
+      // Fallback title so a page that sets its own SEO can never end up
+      // with an empty <title>.
+      title: 'Meach Senbroseth - Full-Stack Developer Cambodia',
       meta: [
         // Basic SEO
         { name: 'description', content: 'Hire Meach Senbroseth, a full-stack developer in Phnom Penh, Cambodia building Laravel, Nuxt.js, Vue, and high-performance web applications.' },
@@ -94,8 +107,8 @@ export default defineNuxtConfig({
         { name: 'googlebot', content: 'index, follow' },
         { name: 'bingbot', content: 'index, follow' },
 
-        // Additional
-        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        // Mobile Capability
+        { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
         { name: 'apple-mobile-web-app-title', content: 'MSB Seth' }
       ],
@@ -103,25 +116,13 @@ export default defineNuxtConfig({
         // Canonical URL
         { rel: 'canonical', href: `${siteUrl}/` },
 
-        // Favicon
+        // Favicon & Manifest
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
-        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon-0.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
 
-        // Preconnect to important origins
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-
-        // DNS Prefetch
-        ...(apiBase ? [{ rel: 'dns-prefetch', href: new URL(apiBase).origin }] : []),
-
-        // Fonts
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap' },
-
-        // RSS Feed (enable when a blog feed exists)
-        { rel: 'alternate', type: 'application/rss+xml', title: 'MSB Seth Blog', href: '/feed.xml' }
+        // Safe DNS Prefetch when apiBase is configured
+        ...(apiBase && apiBase.startsWith('http') ? [{ rel: 'dns-prefetch', href: new URL(apiBase).origin }] : [])
       ],
       htmlAttrs: {
         lang: 'en',
@@ -131,13 +132,19 @@ export default defineNuxtConfig({
         class: 'antialiased'
       },
       script: [
+        // Progressive Enhancement: set 'js' class immediately so CSS animations activate progressively
+        {
+          innerHTML: "document.documentElement.classList.add('js');",
+          type: 'text/javascript'
+        },
+
         // Google Analytics
         {
           src: 'https://www.googletagmanager.com/gtag/js?id=G-1DNM65TRNT',
           async: true
         },
         {
-          children: `
+          innerHTML: `
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
@@ -147,14 +154,13 @@ export default defineNuxtConfig({
           type: 'text/javascript'
         },
 
-        // Existing JSON-LD
+        // Schema JSON-LD
         {
           type: 'application/ld+json',
-          children: JSON.stringify({
+          innerHTML: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Person",
-            "name": "Meach Senbroseth",
-            // your existing schema...
+            "name": "Meach Senbroseth"
           })
         }
       ]

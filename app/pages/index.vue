@@ -42,7 +42,7 @@
               SYS_UID_{{ String(currentIndex + 1).padStart(3, "0") }}
             </div>
             <div class="text-[7px] text-white/50 font-bold uppercase tracking-widest">
-              {{ new Date().getFullYear() }} © MSB_SETH
+              {{ currentYear }} © MSB_SETH
             </div>
           </div>
         </div>
@@ -56,8 +56,7 @@
             <div class="w-1.5 h-1.5 bg-[#28c840] animate-pulse"></div>
             <span class="text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em]">Live_Environment</span>
           </div>
-          <span class="text-[8px] md:text-[9px] font-bold text-[#aaa] uppercase tracking-widest">{{ new
-            Date().toLocaleDateString() }}</span>
+          <span class="text-[8px] md:text-[9px] font-bold text-[#aaa] uppercase tracking-widest">{{ currentDate }}</span>
         </nav>
 
         <div class="flex-1 flex flex-col justify-center px-6 sm:px-10 md:px-16 lg:px-24 py-12">
@@ -165,7 +164,7 @@
               disableOnInteraction: false,
               pauseOnMouseEnter: true,
             }" class="skills-swiper !overflow-visible">
-            <SwiperSlide v-for="skill in [...skills, ...skills]" :key="`${skill.name}-${Math.random()}`"
+            <SwiperSlide v-for="(skill, index) in [...skills, ...skills]" :key="`${skill.name}-${index}`"
               class="!w-auto select-none">
               <div class="flex items-center gap-5 group cursor-default">
                 <!-- Icon box -->
@@ -184,10 +183,37 @@
               </div>
             </SwiperSlide>
           </Swiper>
+          <template #fallback>
+            <div class="skills-fallback flex items-center gap-8 overflow-hidden py-1">
+              <div
+                v-for="(skill, index) in skills.slice(0, 8)"
+                :key="`fallback-${skill.name}-${index}`"
+                class="flex items-center gap-5 flex-shrink-0 select-none opacity-90"
+              >
+                <div
+                  class="w-14 h-14 md:w-16 md:h-16 border-2 border-[#131313] bg-white flex items-center justify-center shadow-[4px_4px_0px_#131313]"
+                >
+                  <Icon
+                    :name="skill.icon"
+                    size="28"
+                    class="text-[#131313]"
+                    :style="skill.color ? { color: skill.color } : {}"
+                  />
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-xl md:text-2xl font-black uppercase tracking-tighter text-[#131313]">
+                    {{ skill.name }}
+                  </span>
+                  <span class="text-[8px] font-bold text-[#28c840] uppercase tracking-widest">
+                    Module_Active
+                  </span>
+                </div>
+              </div>
+            </div>
+          </template>
         </ClientOnly>
       </div>
     </section>
-
 
     <section
       class="relative z-10 border-t-2 border-[#131313] px-4 sm:px-8 md:px-12 py-20 md:py-28 overflow-hidden bg-white">
@@ -267,7 +293,7 @@ useSEO({
   description: 'Hire Meach Senbroseth, a full-stack developer in Phnom Penh, Cambodia building Laravel, Nuxt.js, Vue.js, APIs, dashboards, and production web applications.',
   path: '/',
   jsonLd: createWebsiteSchema()
-})
+});
 
 const swiperModules = [Autoplay, FreeMode];
 
@@ -307,6 +333,16 @@ const quotes = [
   { id: 8, quote: "What we think, we become.", author: "Buddha" },
 ];
 
+const currentYear = new Date().getFullYear();
+
+// Format date deterministically (YYYY.MM.DD) to prevent SSR/client locale mismatch
+const currentDate = computed(() => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}.${month}.${day}`;
+});
 
 const socialLinks = [
   { name: 'GitHub', icon: 'simple-icons:github', url: config.public.githubUrl },
@@ -334,15 +370,17 @@ const CIRCUMFERENCE = 2 * Math.PI * 16;
 
 const currentIndex = ref(0);
 const progress = ref(0);
-const displayedText = ref("");
+// Initialize with first quote so stdout content is visible immediately during SSR and initial load
+const displayedText = ref(quotes[0].quote);
 const isTyping = ref(false);
 const current = computed(() => quotes[currentIndex.value]);
 const ringOffset = computed(
   () => CIRCUMFERENCE - (progress.value / 100) * CIRCUMFERENCE,
 );
 
-let timer = null,
-  typeTimer = null;
+let timer = null;
+let typeTimer = null;
+let observer = null;
 
 const typeEffect = () => {
   displayedText.value = "";
@@ -362,7 +400,6 @@ const typeEffect = () => {
 const startTimer = () => {
   progress.value = 0;
   clearInterval(timer);
-  typeEffect();
   timer = setInterval(() => {
     progress.value += 100 / (INTERVAL / 100);
     if (progress.value >= 100) next();
@@ -371,17 +408,32 @@ const startTimer = () => {
 
 const next = () => {
   currentIndex.value = (currentIndex.value + 1) % quotes.length;
-  startTimer();
-};
-const prev = () => {
-  currentIndex.value = (currentIndex.value - 1 + quotes.length) % quotes.length;
+  typeEffect();
   startTimer();
 };
 
-// ── Scroll reveal ─────────────────────────────────
+const prev = () => {
+  currentIndex.value = (currentIndex.value - 1 + quotes.length) % quotes.length;
+  typeEffect();
+  startTimer();
+};
+
+// ── Progressive Scroll Reveal ─────────────────────
+const observeElements = () => {
+  if (typeof IntersectionObserver === "undefined" || !observer) return;
+  document
+    .querySelectorAll(".reveal-up, .reveal-left, .reveal-right")
+    .forEach((el) => {
+      if (!el.classList.contains("visible")) {
+        observer.observe(el);
+      }
+    });
+};
+
 onMounted(() => {
   startTimer();
-  const observer = new IntersectionObserver(
+
+  observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) {
@@ -390,16 +442,21 @@ onMounted(() => {
         }
       });
     },
-    { threshold: 0.08 },
+    { threshold: 0.08, rootMargin: "60px 0px" }
   );
-  document
-    .querySelectorAll(".reveal-up, .stat-item")
-    .forEach((el) => observer.observe(el));
+
+  nextTick(() => {
+    observeElements();
+  });
 });
 
 onUnmounted(() => {
   clearInterval(timer);
   clearInterval(typeTimer);
+  if (observer) {
+    observer.disconnect();
+    observer = null;
+  }
 });
 </script>
 
@@ -448,7 +505,6 @@ onUnmounted(() => {
 }
 
 @keyframes blink {
-
   0%,
   100% {
     opacity: 1;
@@ -457,33 +513,6 @@ onUnmounted(() => {
   50% {
     opacity: 0;
   }
-}
-
-.reveal-up {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.reveal-up.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.stat-item {
-  opacity: 0;
-  transform: translateY(16px);
-  transition:
-    opacity 0.45s ease,
-    transform 0.45s ease,
-    background-color 0.2s ease;
-}
-
-.stat-item.visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 /* Swiper override — disable default transitions for infinite loop */

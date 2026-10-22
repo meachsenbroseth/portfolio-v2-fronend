@@ -1,8 +1,78 @@
 /* Typography */
-
-
-/* Ensure your Google Sans Code font is applied globally */
 body {
   font-family: 'Google Sans Code', monospace;
   color: #000000;
+}
+
+/* Progressive Reveal Animations */
+/* By default (SSR, no-js, or before hydration completes), all content is fully visible */
+.reveal-up,
+.reveal-left,
+.reveal-right {
+  opacity: 1;
+  transform: none;
+}
+
+/* When JavaScript is active, progressively animate elements */
+.js .reveal-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  /* CSS-only fallback: ensures content never remains hidden if hydration or observer is delayed */
+  animation: revealFallback 0.4s ease 2s forwards;
+}
+
+.js .reveal-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition:
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: revealFallback 0.4s ease 2s forwards;
+}
+
+.js .reveal-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition:
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: revealFallback 0.4s ease 2s forwards;
+}
+
+/* Visible state triggered by IntersectionObserver */
+.js .reveal-up.visible,
+.js .reveal-left.visible,
+.js .reveal-right.visible {
+  opacity: 1;
+  transform: translate(0, 0);
+  animation: none;
+}
+
+/* Content above the fold must NEVER start hidden */
+.reveal-above-fold,
+.js .reveal-above-fold {
+  opacity: 1 !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+@keyframes revealFallback {
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal-up,
+  .js .reveal-left,
+  .js .reveal-right {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
 }

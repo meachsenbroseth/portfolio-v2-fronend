@@ -41,6 +41,14 @@
 
     <div v-else class="space-y-6">
 
+      <!-- ── ERROR BANNER ── -->
+      <div
+        v-if="experienceStore.error || educationStore.error"
+        class="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+      >
+        <p class="font-medium">{{ experienceStore.error || educationStore.error }}</p>
+      </div>
+
       <!-- ── EXPERIENCE TABLE ── -->
       <div class="border border-[#e0dddc]">
         <!-- Section header -->
@@ -363,7 +371,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Plus, Pencil, Trash2, Briefcase, GraduationCap } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'admin-layout',
@@ -410,7 +418,9 @@ const saveExperience = async () => {
     dialogOpen.value = false
     resetForms()
     await experienceStore.fetchExperiences()
-  } catch (e) { console.error(e) }
+  } catch (e) {
+    experienceStore.error = e?.data?.message || e?.message || 'Failed to save experience'
+  }
 }
 
 const saveEducation = async () => {
@@ -420,7 +430,9 @@ const saveEducation = async () => {
     dialogOpen.value = false
     resetForms()
     await educationStore.fetchEducations()
-  } catch (e) { console.error(e) }
+  } catch (e) {
+    educationStore.error = e?.data?.message || e?.message || 'Failed to save education'
+  }
 }
 
 const confirmDelete = (type, item) => {
@@ -440,7 +452,13 @@ const deleteEntry = async () => {
     }
     deleteDialogOpen.value = false
     deleteItem.value = null
-  } catch (e) { console.error(e) }
+  } catch (e) {
+    if (deleteType.value === 'experience') {
+      experienceStore.error = e?.data?.message || e?.message || 'Failed to delete experience'
+    } else {
+      educationStore.error = e?.data?.message || e?.message || 'Failed to delete education'
+    }
+  }
 }
 
 onMounted(async () => {

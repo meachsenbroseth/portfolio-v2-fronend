@@ -25,31 +25,16 @@
         <CardContent class="space-y-4">
           <!-- Avatar -->
           <div class="flex items-center gap-4">
-            <div class="relative">
-              <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-200">
-                <img 
-                  :src="avatarPreview || authStore.userAvatar" 
-                  class="w-full h-full object-cover"
-                />
-              </div>
-              <button
-                type="button"
-                @click="triggerAvatarUpload"
-                class="absolute -bottom-2 -right-2 bg-primary text-white p-1.5 rounded-full hover:bg-primary/90 transition-colors"
-              >
-                <Camera class="h-3 w-3" />
-              </button>
-              <input
-                ref="avatarInput"
-                type="file"
-                accept="image/*"
-                class="hidden"
-                @change="handleAvatarUpload"
+            <div class="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-200">
+              <img
+                :src="authStore.userAvatar"
+                class="w-full h-full object-cover"
+                alt="Account avatar"
               />
             </div>
             <div class="flex-1">
-              <p class="text-sm text-muted-foreground">Click the camera icon to upload a new avatar</p>
-              <p class="text-xs text-muted-foreground">PNG, JPG up to 5MB</p>
+              <p class="text-sm text-muted-foreground">Signed in as {{ authStore.userName }}</p>
+              <p class="text-xs text-muted-foreground">Your avatar is generated from your profile name</p>
             </div>
           </div>
 
@@ -61,16 +46,6 @@
           <div class="space-y-2">
             <Label for="email">Email</Label>
             <Input id="email" v-model="profile.email" type="email" placeholder="email@example.com" />
-          </div>
-
-          <div class="space-y-2">
-            <div class="flex items-center justify-between">
-              <Label>Email Verification</Label>
-              <span v-if="authStore.user?.email_verified_at" class="text-xs text-green-600">✓ Verified</span>
-              <Button v-else variant="link" size="sm" class="text-xs" @click="sendVerificationEmail">
-                Verify Email
-              </Button>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -124,28 +99,6 @@
       </Card>
     </div>
 
-    <!-- Danger Zone -->
-    <Card class="border-red-200">
-      <CardHeader class="text-red-600">
-        <CardTitle class="flex items-center gap-2">
-          <AlertTriangle class="h-5 w-5" />
-          Danger Zone
-        </CardTitle>
-        <CardDescription class="text-red-400">Irreversible actions</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div class="flex items-center justify-between">
-          <div>
-            <Label>Delete Account</Label>
-            <p class="text-xs text-muted-foreground">Permanently delete your account</p>
-          </div>
-          <Button variant="destructive" size="sm" @click="confirmDeleteAccount">
-            Delete Account
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-
     <!-- Success Toast -->
     <div v-if="showToast" class="fixed bottom-4 right-4 z-50 animate-in slide-in-from-right-5">
       <div class="bg-green-50 border border-green-200 rounded-lg p-4 shadow-lg">
@@ -158,31 +111,12 @@
         </div>
       </div>
     </div>
-
-    <!-- Delete Account Dialog -->
-    <AlertDialog v-model:open="deleteDialogOpen">
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your account
-            and remove all your data from our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction @click="deleteAccount" class="bg-red-600 hover:bg-red-700">
-            Yes, delete my account
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Save, User, Camera, Lock, AlertTriangle, CheckCircle } from "lucide-vue-next"
+import { Save, User, Lock, CheckCircle } from "lucide-vue-next"
 
 definePageMeta({
   layout: 'admin-layout',
@@ -198,15 +132,11 @@ const profile = ref({
 })
 
 const originalProfile = ref({})
-const avatarPreview = ref('')
-const avatarFile = ref(null)
 const saving = ref(false)
 const changingPassword = ref(false)
 const passwordError = ref('')
 const showToast = ref(false)
 const toastMessage = ref('')
-const deleteDialogOpen = ref(false)
-const avatarInput = ref(null)
 
 // Password Form
 const passwordForm = ref({
@@ -218,8 +148,7 @@ const passwordForm = ref({
 // Computed
 const isDirty = computed(() => {
   return profile.value.name !== originalProfile.value.name || 
-         profile.value.email !== originalProfile.value.email ||
-         avatarFile.value !== null
+         profile.value.email !== originalProfile.value.email
 })
 
 const isPasswordValid = computed(() => {
@@ -230,39 +159,14 @@ const isPasswordValid = computed(() => {
 })
 
 // Methods
-const triggerAvatarUpload = () => {
-  avatarInput.value?.click()
-}
-
-const handleAvatarUpload = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    avatarFile.value = file
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      avatarPreview.value = e.target.result
-    }
-    reader.readAsDataURL(file)
-  }
-}
-
 const saveProfile = async () => {
   saving.value = true
   try {
-    // Update profile
-    if (profile.value.name !== originalProfile.value.name || profile.value.email !== originalProfile.value.email) {
-      await authStore.updateProfile({
-        name: profile.value.name,
-        email: profile.value.email
-      })
-    }
-    
-    // Upload avatar if changed
-    if (avatarFile.value) {
-      await authStore.uploadAvatar(avatarFile.value)
-      avatarFile.value = null
-    }
-    
+    await authStore.updateProfile({
+      name: profile.value.name,
+      email: profile.value.email
+    })
+
     originalProfile.value = { ...profile.value }
     showToastMessage('Profile updated successfully!')
   } catch (error) {
@@ -275,7 +179,7 @@ const saveProfile = async () => {
 const changePassword = async () => {
   changingPassword.value = true
   passwordError.value = ''
-  
+   
   try {
     await authStore.changePassword(
       passwordForm.value.current_password,
@@ -293,47 +197,6 @@ const changePassword = async () => {
     passwordError.value = error.message || 'Failed to change password'
   } finally {
     changingPassword.value = false
-  }
-}
-
-const sendVerificationEmail = async () => {
-  try {
-    const config = useRuntimeConfig()
-    const token = authStore.token
-    
-    await $fetch(`${config.public.apiBase}/email/verification-notification`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    
-    showToastMessage('Verification email sent!')
-  } catch (error) {
-    showToastMessage('Failed to send verification email')
-  }
-}
-
-const confirmDeleteAccount = () => {
-  deleteDialogOpen.value = true
-}
-
-const deleteAccount = async () => {
-  try {
-    const config = useRuntimeConfig()
-    const token = authStore.token
-    
-    await $fetch(`${config.public.apiBase}/user`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    
-    await authStore.logout()
-    showToastMessage('Account deleted. Redirecting...')
-    setTimeout(() => {
-      navigateTo('/')
-    }, 2000)
-  } catch (error) {
-    showToastMessage('Failed to delete account')
-    deleteDialogOpen.value = false
   }
 }
 

@@ -136,19 +136,17 @@
 </template>
 
 <script setup>
-import { storeToRefs } from 'pinia'
-import { Autoplay, FreeMode } from 'swiper/modules';
-import 'swiper/css';
-
-// Use stores
-const experienceStore = useExperienceStore()
-const educationStore = useEducationStore()
-
-const { experiences } = storeToRefs(experienceStore)
-const { educations } = storeToRefs(educationStore)
-
-// Swiper ref for controlling autoplay
-const swiperRef = ref(null)
+// ── SEO ──────────────────────────────────────────────
+useSEO({
+  title: 'About Meach Senbroseth - Full-Stack Developer in Phnom Penh, Cambodia',
+  description:
+    'Meet Meach Senbroseth, a full-stack web developer in Phnom Penh, Cambodia building Laravel backends, Nuxt.js frontends, Vue dashboards and production web applications.',
+  path: '/about',
+  breadcrumbs: [
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
+  ],
+})
 
 // Header Typing Animation
 const words = ['HELLO WORLD!', "I'M \n MEACH SENBROSETH!"]
@@ -157,6 +155,7 @@ const cursorVisible = ref(true)
 let wordIndex = 0
 let charIndex = 0
 let deleting = false
+let typeTimeout = null
 
 const typeLoop = () => {
   const current = words[wordIndex]
@@ -165,7 +164,7 @@ const typeLoop = () => {
     charIndex++
     if (charIndex === current.length) {
       deleting = true
-      setTimeout(typeLoop, 2000)
+      typeTimeout = setTimeout(typeLoop, 2000)
       return
     }
   } else {
@@ -174,11 +173,11 @@ const typeLoop = () => {
     if (charIndex === 0) {
       deleting = false
       wordIndex = (wordIndex + 1) % words.length
-      setTimeout(typeLoop, 500)
+      typeTimeout = setTimeout(typeLoop, 500)
       return
     }
   }
-  setTimeout(typeLoop, deleting ? 40 : 80)
+  typeTimeout = setTimeout(typeLoop, deleting ? 40 : 80)
 }
 
 const bioPhrases = [
@@ -193,6 +192,7 @@ const bioCursorVisible = ref(true)
 let bioWordIndex = 0
 let bioCharIndex = 0
 let deletingBio = false
+let bioTimeout = null
 
 const typeBioLoop = () => {
   const current = bioPhrases[bioWordIndex]
@@ -201,7 +201,7 @@ const typeBioLoop = () => {
     bioCharIndex++
     if (bioCharIndex === current.length) {
       deletingBio = true
-      setTimeout(typeBioLoop, 3000)
+      bioTimeout = setTimeout(typeBioLoop, 3000)
       return
     }
   } else {
@@ -210,25 +210,28 @@ const typeBioLoop = () => {
     if (bioCharIndex === 0) {
       deletingBio = false
       bioWordIndex = (bioWordIndex + 1) % bioPhrases.length
-      setTimeout(typeBioLoop, 500)
+      bioTimeout = setTimeout(typeBioLoop, 500)
       return
     }
   }
-  setTimeout(typeBioLoop, deletingBio ? 40 : 80)
+  bioTimeout = setTimeout(typeBioLoop, deletingBio ? 40 : 80)
 }
+
+let blinkInterval = null
+let observer = null
 
 onMounted(() => {
   // Start hero animations immediately — no API calls here
   typeLoop()
   typeBioLoop()
 
-  setInterval(() => {
+  blinkInterval = setInterval(() => {
     cursorVisible.value = !cursorVisible.value
     bioCursorVisible.value = !bioCursorVisible.value
   }, 530)
 
   // Intersection Observer for reveal animations
-  const observer = new IntersectionObserver((entries) => {
+  observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible')
@@ -238,6 +241,13 @@ onMounted(() => {
   }, { threshold: 0.1 })
 
   document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right').forEach(el => observer.observe(el))
+})
+
+onUnmounted(() => {
+  clearTimeout(typeTimeout)
+  clearTimeout(bioTimeout)
+  clearInterval(blinkInterval)
+  observer?.disconnect()
 })
 </script>
 
@@ -253,19 +263,6 @@ onMounted(() => {
   100% { transform: translateX(100%); }
 }
 
-.reveal-up,
-.reveal-left,
-.reveal-right {
-  opacity: 0;
-  transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.reveal-up    { transform: translateY(40px); }
-.reveal-left  { transform: translateX(-40px); }
-.reveal-right { transform: translateX(40px); }
-
-.visible {
-  opacity: 1;
-  transform: translate(0);
-}
+/* The reveal animation is defined once in assets/css/main.css so every page
+   behaves the same way. Only the page specific bits stay scoped. */
 </style>

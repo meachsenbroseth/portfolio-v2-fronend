@@ -29,7 +29,7 @@
           <div class="text-right">
             <p class="text-[10px] font-bold text-[#aaa] uppercase tracking-[0.3em] mb-1">Total_Modules</p>
             <p class="text-4xl font-black text-[#131313] leading-none">
-              {{ loading ? '--' : projects?.length?.toString().padStart(2, '0') || '00' }}
+              {{ loading ? '--' : (pagination.total || projects?.length || 0).toString().padStart(2, '0') }}
             </p>
           </div>
         </div>
@@ -256,6 +256,25 @@
         </div>
       </div>
 
+      <!-- ── PAGINATION ── -->
+      <div v-if="projects?.length && pagination.last_page > 1"
+        class="flex flex-wrap items-center justify-between gap-4 border-2 border-[#e0dddc] bg-white px-4 py-4 mt-px">
+        <div class="flex items-center gap-3">
+          <button :disabled="pagination.current_page <= 1" @click="goToPage(pagination.current_page - 1)"
+            class="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] border-2 border-[#131313] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#131313] hover:text-white transition-colors">
+            ← Prev_Page
+          </button>
+          <button :disabled="pagination.current_page >= pagination.last_page"
+            @click="goToPage(pagination.current_page + 1)"
+            class="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] border-2 border-[#131313] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[#131313] hover:text-white transition-colors">
+            Next_Page →
+          </button>
+        </div>
+        <p class="text-[10px] font-bold text-[#5d5f5f] uppercase tracking-[0.2em]">
+          Page {{ pagination.current_page }} / {{ pagination.last_page }} — {{ pagination.total }} Modules
+        </p>
+      </div>
+
     </div>
   </div>
 </template>
@@ -265,7 +284,7 @@ import { storeToRefs } from 'pinia'
 import { ExternalLink, Github } from 'lucide-vue-next'
 
 const projectStore = useProjectStore()
-const { projects, loading } = storeToRefs(projectStore)
+const { projects, loading, pagination } = storeToRefs(projectStore)
 
 useSEO({
   title: 'Projects - Laravel, Nuxt.js and Vue Portfolio by Meach Senbroseth',
@@ -286,18 +305,46 @@ useSEO({
 
 await useAsyncData('projects-index', () => projectStore.fetchProjects())
 
+// Reveal the header once it scrolls into view. The animation itself lives in
+// the global assets/css/main.css.
+let observer = null
+
+onMounted(() => {
+  if (typeof IntersectionObserver === 'undefined') return
+
+  observer = new IntersectionObserver(
+    (entries) => entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible')
+        observer.unobserve(entry.target)
+      }
+    }),
+    { threshold: 0.08, rootMargin: '60px 0px' }
+  )
+
+  document.querySelectorAll('.reveal-up').forEach((el) => observer.observe(el))
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
+  observer = null
+})
+
 const handleImageError = (event) => {
   event.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'
 }
 
-// Fetch projects on mount
-onMounted(async () => {
-  try {
-    await projectStore.fetchProjects()
-  } catch (error) {
-    console.error('Failed to fetch projects:', error)
+// Jump to another page of the archive. The collection endpoint is paginated,
+// so without this the projects past page 1 would be unreachable.
+const goToPage = async (page) => {
+  if (!page || page < 1 || page > pagination.value.last_page) return
+
+  await projectStore.fetchProjects(page)
+
+  if (import.meta.client) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
-})
+}
 </script>
 
 <style scoped>
@@ -343,16 +390,6 @@ onMounted(async () => {
   }
 }
 
-.reveal-up {
-  opacity: 0;
-  transform: translateY(30px);
-  animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes reveal {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* The reveal animation is defined once in assets/css/main.css so every page
+   behaves the same way. Only the page specific bits stay scoped. */
 </style>

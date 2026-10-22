@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useApiConfig } from '~/composables/useApiConfig'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -23,9 +24,8 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       
       try {
-        const config = useRuntimeConfig()
-        
-        const res = await $fetch(`${config.public.apiBase}/login`, {
+        const { apiBase } = useApiConfig()
+        const res = await $fetch(`${apiBase}/login`, {
           method: 'POST',
           body: { email, password }
         })
@@ -49,7 +49,7 @@ export const useAuthStore = defineStore('auth', {
     // Fetch user from /me endpoint
     async fetchUser() {
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
 
         if (!token) {
@@ -57,7 +57,7 @@ export const useAuthStore = defineStore('auth', {
           return null
         }
 
-        const user = await $fetch(`${config.public.apiBase}/me`, {
+        const user = await $fetch(`${apiBase}/me`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
@@ -73,8 +73,8 @@ export const useAuthStore = defineStore('auth', {
         
         return user
       } catch (error) {
-        console.error('Failed to fetch user:', error)
-        if (error.response?.status === 401) {
+        this.error = error.data?.message || error.message || 'Failed to fetch user'
+        if (error.response?.status === 401 || error.status === 401) {
           this.clearAuth()
         }
         return null
@@ -83,12 +83,12 @@ export const useAuthStore = defineStore('auth', {
 
     async updateProfile(data) {
       this.loading = true
-      
+
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
-        
-        const response = await $fetch(`${config.public.apiBase}/user/profile`, {
+
+        const response = await $fetch(`${apiBase}/user/profile`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -96,11 +96,11 @@ export const useAuthStore = defineStore('auth', {
           },
           body: data
         })
-        
+
         this.user = response.user || response
         const storage = localStorage.getItem('auth_token') ? localStorage : sessionStorage
         storage.setItem('auth_user', JSON.stringify(this.user))
-        
+
         return response
       } catch (error) {
         this.error = error.data?.message || 'Failed to update profile'
@@ -112,12 +112,12 @@ export const useAuthStore = defineStore('auth', {
 
     async changePassword(currentPassword, newPassword) {
       this.loading = true
-      
+
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
-        
-        const response = await $fetch(`${config.public.apiBase}/change-password`, {
+
+        const response = await $fetch(`${apiBase}/change-password`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -128,41 +128,10 @@ export const useAuthStore = defineStore('auth', {
             password: newPassword
           }
         })
-        
+
         return response
       } catch (error) {
         this.error = error.data?.message || error.message || 'Failed to change password'
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async uploadAvatar(file) {
-      this.loading = true
-      
-      try {
-        const config = useRuntimeConfig()
-        const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
-        
-        const formData = new FormData()
-        formData.append('avatar', file)
-        
-        const response = await $fetch(`${config.public.apiBase}/user/avatar`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        })
-        
-        this.user = response.user || response
-        const storage = localStorage.getItem('auth_token') ? localStorage : sessionStorage
-        storage.setItem('auth_user', JSON.stringify(this.user))
-        
-        return response
-      } catch (error) {
-        this.error = error.data?.message || 'Failed to upload avatar'
         throw error
       } finally {
         this.loading = false
@@ -212,11 +181,11 @@ export const useAuthStore = defineStore('auth', {
 
     async logout() {
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const token = this.token
         if (token) {
-          await $fetch(`${config.public.apiBase}/logout`, {
-            method: 'GET',
+          await $fetch(`${apiBase}/logout`, {
+            method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
           }).catch(() => {})
         }
