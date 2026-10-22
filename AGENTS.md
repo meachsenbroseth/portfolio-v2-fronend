@@ -16,7 +16,7 @@ Live site: https://msbseth.com
 - **Pinia** for state (stores in `app/stores/`, plain `.js`)
 - **Tailwind CSS v4** via `@nuxtjs/tailwindcss` (CSS-first config in `app/assets/css/tailwind.css`)
 - **shadcn-vue** (`shadcn-nuxt`) — components in `app/components/ui/`, prefix `''`, new-york style, lucide icons
-- **Reka UI** (Radix foundation), **@radix-ui/themes**
+- **Reka UI** (Radix foundation)
 - **lucide-vue-next** + **@nuxt/icon** (icon sets: `simple-icons:*`, `ph:*`, `mdi:*`, `lucide:*`)
 - **Swiper** for the infinite tech-stack marquee on the home page
 - **@nuxtjs/sitemap**, **@nuxtjs/robots**, **@nuxt/fonts**, Google Analytics (hardcoded gtag id `G-1DNM65TRNT` in `nuxt.config.ts`)
@@ -60,21 +60,17 @@ app/
 │   ├── AdminSidebar.vue       # admin sidebar (shadcn sidebar + dropdown)
 │   ├── BackgroundLogsSection.vue  # experience + education timelines (about page)
 │   ├── Backgroundlogsskeleton.vue # skeleton fallback
-│   ├── TypewriterQuote.vue    # unused? typewriter demo
 │   └── ui/                    # shadcn-vue components (button, dialog, table, sidebar, ...)
 ├── composables/
-│   ├── useApi.js              # fetchWithAuth + getAuthHeaders (Bearer token)
 │   └── useSEO.ts              # useSEO(), useSiteUrl(), createBreadcrumbSchema(), createWebsiteSchema(), createProjectSchema()
 ├── layouts/
 │   ├── default.vue            # Navbar + Footer + page transitions
-│   ├── admin-layout.vue       # SidebarProvider + AdminSidebar, requires auth
-│   └── auth-layout.vue        # legacy/unused? admin sidebar layout
+│   └── admin-layout.vue       # SidebarProvider + AdminSidebar, requires auth
 ├── lib/
 │   └── utils.ts               # cn() (clsx + tailwind-merge)
 ├── middleware/
 │   ├── admin.js               # /admin routes → require auth + is_admin
-│   ├── auth.js                # /admin auth guard (used by admin pages)
-│   └── global-auth.js         # global /admin guard
+│   └── auth.js                # /admin auth guard (used by admin pages)
 ├── pages/
 │   ├── index.vue              # home: split hero + quote typewriter + tech marquee + contact
 │   ├── about.vue              # bio hero + BackgroundLogsSection (experience/education)
@@ -86,7 +82,7 @@ app/
 │       ├── login.vue          # login form (blank layout)
 │       ├── projects/index.vue # CRUD: table + dialog form + delete alert
 │       ├── status/index.vue   # experience + education CRUD tables
-│       ├── settings/index.vue # profile/password/avatar/danger zone
+│       ├── settings/index.vue # profile + password
 │       └── profile/index.vue  # read-only profile + stats
 ├── plugins/
 │   ├── auth.client.js         # runs authStore.initAuth() on client boot
@@ -105,18 +101,17 @@ server/api/__sitemap__/urls.ts   # sitemap sources (static routes + projects fro
 ### State management (Pinia)
 Stores are auto-imported (`useAuthStore`, `useProjectStore`, `useExperienceStore`, `useEducationStore`). They hold state + do all API calls via `$fetch` against `useRuntimeConfig().public.apiBase`.
 
-- **Auth store** (`app/stores/auth.js`): `login()` POST `/login`; stores token in `localStorage` (if "remember me") or `sessionStorage` under `auth_token`; `fetchUser()` GET `/me`; `updateProfile` PUT `/user/profile`; `changePassword` POST `/change-password`; `uploadAvatar` POST `/user/avatar`; `logout` GET `/logout`. Getters: `isAuthenticated`, `isAdmin` (checks `user.is_admin === true`), `userAvatar` (ui-avatars.com fallback).
+- **Auth store** (`app/stores/auth.js`): `login()` POST `/login` (response includes `user`); stores token in `localStorage` (if "remember me") or `sessionStorage` under `auth_token`; `fetchUser()` GET `/me`; `updateProfile` PUT `/user/profile`; `changePassword` POST `/change-password`; `logout` POST `/logout` with the Bearer token (revokes the Sanctum token server-side). Getters: `isAuthenticated`, `isAdmin` (checks `user.is_admin === true`), `userAvatar` (ui-avatars.com fallback — display only, there is no avatar upload API).
 - **Project store** (`app/stores/project.js`): the most complex. Handles Laravel pagination responses (`response.data.data`), `technologies[]` and `gallery[]` array fields (stored as JSON strings server-side), full image URL resolution via `getFullImageUrl()` (prefixes `/storage/` with API origin), FormData multipart upload for images with `_method: PUT` for updates, and 401 handling (`handle401()` → clear auth + redirect to login). Validation errors (422) stored in `validationErrors`.
 - **Experience / Education stores**: nearly identical shape. `fetchX(page, requireAuth=false)` — public fetch by default; pass `requireAuth=true` for admin. CRUD actions require a token.
 
 ### Image URL resolution
-Two different helpers exist and behave slightly differently — **be aware when editing**:
-- `projectStore.getFullImageUrl(path)` (`app/stores/project.js:55`) — uses `new URL(apiBase).origin`, expects `/storage/...` paths.
-- `getImageUrl()` local helper in `app/pages/projects/index.vue:303` and `[slug].vue:321` — strips `/api` from apiBase then appends `/storage/`. Use the store helper where possible; do not rely on local duplicated helpers for new features.
+- `projectStore.getFullImageUrl(path)` (`app/stores/project.js:52`) — uses `new URL(apiBase).origin`, expects `/storage/...` paths. **Prefer this helper.**
+- `getImageUrl()` local helper in `app/pages/projects/[slug].vue:301` — thin wrapper that passes absolute/`data:` URLs through and otherwise delegates to `projectStore.getFullImageUrl`. `projects/index.vue` calls the store helper directly.
 
 ### Auth flow
 1. `app/plugins/auth.client.js` calls `initAuth()` on client boot → `loadFromStorage()` reads token from localStorage/sessionStorage → if token exists but no user, `fetchUser()`.
-2. Route guards: `global-auth.js` (global middleware on `/admin`), `auth.js` (on admin pages), `admin.js` (dashboard, requires `isAdmin`).
+2. Route guards: `auth.js` (on admin pages), `admin.js` (dashboard, requires `isAdmin`).
 3. Admin pages use `definePageMeta({ layout: 'admin-layout', middleware: 'auth' })`. `admin-layout.vue` shows a loading screen until `authStore.initialized`.
 4. Login page uses `layout: 'blank'` (there is no `blank.vue` layout file — Nuxt falls back to no layout via the name; verify before changing).
 
@@ -133,10 +128,10 @@ Two different helpers exist and behave slightly differently — **be aware when 
 ## Gotchas / Notes
 
 - `.env.example` has `NUXT_PUBLIC_API_BASE` empty — public pages are designed to gracefully render empty/skeleton states when no API is configured.
-- `useApi.js` composable exists but most stores re-implement token/header logic inline; follow the store-local pattern when adding new API calls.
-- `projects/index.vue` and `[slug].vue` duplicate `getImageUrl` logic; prefer `projectStore.getFullImageUrl` for new code.
+- Stores re-implement token/header logic inline; follow the store-local pattern when adding new API calls. There is no shared `useApi` composable.
+- `projects/index.vue` and `[slug].vue` resolve image URLs through `projectStore.getFullImageUrl` — prefer it for new code.
 - `admin/index.vue` is a placeholder ("admin dashbord") — dashboard not yet built.
-- `auth-layout.vue` appears unused (pages use `admin-layout`); login uses `layout: 'blank'`.
-- `TypewriterQuote.vue` is currently not referenced by any page.
+- Login uses `layout: 'blank'` and there is no `blank.vue` layout file; verify before changing.
+- **Fonts are self-hosted.** `@nuxt/fonts` downloads them at build time into `/_fonts` via `fonts.families` in `nuxt.config.ts` (Inter, Google Sans Code). Do **not** re-add `fonts.googleapis.com` `<link>` tags or `@import url(...)` to the CSS — that reintroduces a render-blocking third-party request.
 - The sitemap server route (`server/api/__sitemap__/urls.ts`) fetches `/projects` from the API at request time and gracefully degrades to static routes.
 - Git workflow: `main` is the stable branch; there are also `origin/dev` and `origin/testing` branches. Commit message style: conventional (`feat:`, `fix:`, `refactor:`), single line, imperative.
