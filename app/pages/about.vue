@@ -136,20 +136,6 @@
 </template>
 
 <script setup>
-import { storeToRefs } from 'pinia'
-import { Autoplay, FreeMode } from 'swiper/modules';
-import 'swiper/css';
-
-// Use stores
-const experienceStore = useExperienceStore()
-const educationStore = useEducationStore()
-
-const { experiences } = storeToRefs(experienceStore)
-const { educations } = storeToRefs(educationStore)
-
-// Swiper ref for controlling autoplay
-const swiperRef = ref(null)
-
 // Header Typing Animation
 const words = ['HELLO WORLD!', "I'M \n MEACH SENBROSETH!"]
 const typedText = ref(words[1])

@@ -18,10 +18,6 @@ export const useProjectStore = defineStore('project', {
         },
     }),
 
-    getters: {
-        orderedProjects: (state) => [...state.projects].sort((a, b) => b.id - a.id),
-    },
-
     actions: {
         getToken() {
             const authStore = useAuthStore()
