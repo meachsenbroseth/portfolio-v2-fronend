@@ -6,8 +6,8 @@
     <!-- Navbar - outside transition to prevent re-mounting -->
     <Navbar />
 
-    <!-- Page content with transition -->
-    <Transition name="page" mode="out-in" appear>
+    <!-- Page content with transition without initial appear flash -->
+    <Transition name="page" mode="out-in">
       <main :key="route.path" class="flex-1 focus:outline-none focus:ring-2 focus:ring-[#131313] focus:ring-offset-2">
         <slot />
       </main>
