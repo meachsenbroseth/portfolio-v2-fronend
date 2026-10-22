@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useApiConfig } from '~/composables/useApiConfig'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -23,9 +24,8 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       
       try {
-        const config = useRuntimeConfig()
-        
-        const res = await $fetch(`${config.public.apiBase}/login`, {
+        const { apiBase } = useApiConfig()
+        const res = await $fetch(`${apiBase}/login`, {
           method: 'POST',
           body: { email, password }
         })
@@ -49,7 +49,7 @@ export const useAuthStore = defineStore('auth', {
     // Fetch user from /me endpoint
     async fetchUser() {
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
 
         if (!token) {
@@ -57,7 +57,7 @@ export const useAuthStore = defineStore('auth', {
           return null
         }
 
-        const user = await $fetch(`${config.public.apiBase}/me`, {
+        const user = await $fetch(`${apiBase}/me`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json'
@@ -85,10 +85,10 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
         
-        const response = await $fetch(`${config.public.apiBase}/user/profile`, {
+        const response = await $fetch(`${apiBase}/user/profile`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -114,10 +114,10 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
         
-        const response = await $fetch(`${config.public.apiBase}/change-password`, {
+        const response = await $fetch(`${apiBase}/change-password`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -142,13 +142,13 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const token = this.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
         
         const formData = new FormData()
         formData.append('avatar', file)
         
-        const response = await $fetch(`${config.public.apiBase}/user/avatar`, {
+        const response = await $fetch(`${apiBase}/user/avatar`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -212,10 +212,10 @@ export const useAuthStore = defineStore('auth', {
 
     async logout() {
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const token = this.token
         if (token) {
-          await $fetch(`${config.public.apiBase}/logout`, {
+          await $fetch(`${apiBase}/logout`, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
           }).catch(() => {})

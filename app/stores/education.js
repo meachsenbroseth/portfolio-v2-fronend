@@ -1,5 +1,6 @@
 // stores/education.js
 import { defineStore } from 'pinia'
+import { useApiConfig } from '~/composables/useApiConfig'
 
 export const useEducationStore = defineStore('education', {
   state: () => ({
@@ -21,7 +22,7 @@ export const useEducationStore = defineStore('education', {
       this.error = null
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const headers = {
           'Accept': 'application/json'
         }
@@ -38,7 +39,7 @@ export const useEducationStore = defineStore('education', {
           headers['Authorization'] = `Bearer ${token}`
         }
         
-        const response = await $fetch(`${config.public.apiBase}/education?page=${page}`, {
+        const response = await $fetch(`${apiBase}/education?page=${page}`, {
           headers
         })
         
@@ -72,7 +73,7 @@ export const useEducationStore = defineStore('education', {
       this.loading = true
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const authStore = useAuthStore()
         
         let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
@@ -81,7 +82,7 @@ export const useEducationStore = defineStore('education', {
           throw new Error('Authentication required')
         }
         
-        const response = await $fetch(`${config.public.apiBase}/education`, {
+        const response = await $fetch(`${apiBase}/education`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -103,7 +104,7 @@ export const useEducationStore = defineStore('education', {
       this.loading = true
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const authStore = useAuthStore()
         
         let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
@@ -112,7 +113,7 @@ export const useEducationStore = defineStore('education', {
           throw new Error('Authentication required')
         }
         
-        const response = await $fetch(`${config.public.apiBase}/education/${id}`, {
+        const response = await $fetch(`${apiBase}/education/${id}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -134,7 +135,7 @@ export const useEducationStore = defineStore('education', {
       this.loading = true
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const authStore = useAuthStore()
         
         let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
@@ -143,7 +144,7 @@ export const useEducationStore = defineStore('education', {
           throw new Error('Authentication required')
         }
         
-        await $fetch(`${config.public.apiBase}/education/${id}`, {
+        await $fetch(`${apiBase}/education/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

@@ -1,5 +1,6 @@
 // stores/experience.js
 import { defineStore } from 'pinia'
+import { useApiConfig } from '~/composables/useApiConfig'
 
 export const useExperienceStore = defineStore('experience', {
   state: () => ({
@@ -21,7 +22,7 @@ export const useExperienceStore = defineStore('experience', {
       this.error = null
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const headers = {
           'Accept': 'application/json'
         }
@@ -38,7 +39,7 @@ export const useExperienceStore = defineStore('experience', {
           headers['Authorization'] = `Bearer ${token}`
         }
         
-        const response = await $fetch(`${config.public.apiBase}/experience?page=${page}`, {
+        const response = await $fetch(`${apiBase}/experience?page=${page}`, {
           headers
         })
         
@@ -72,7 +73,7 @@ export const useExperienceStore = defineStore('experience', {
       this.loading = true
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const authStore = useAuthStore()
         
         let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
@@ -81,7 +82,7 @@ export const useExperienceStore = defineStore('experience', {
           throw new Error('Authentication required')
         }
         
-        const response = await $fetch(`${config.public.apiBase}/experience`, {
+        const response = await $fetch(`${apiBase}/experience`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -103,7 +104,7 @@ export const useExperienceStore = defineStore('experience', {
       this.loading = true
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const authStore = useAuthStore()
         
         let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
@@ -112,7 +113,7 @@ export const useExperienceStore = defineStore('experience', {
           throw new Error('Authentication required')
         }
         
-        const response = await $fetch(`${config.public.apiBase}/experience/${id}`, {
+        const response = await $fetch(`${apiBase}/experience/${id}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -134,7 +135,7 @@ export const useExperienceStore = defineStore('experience', {
       this.loading = true
       
       try {
-        const config = useRuntimeConfig()
+        const { apiBase } = useApiConfig()
         const authStore = useAuthStore()
         
         let token = authStore.token || localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token')
@@ -143,7 +144,7 @@ export const useExperienceStore = defineStore('experience', {
           throw new Error('Authentication required')
         }
         
-        await $fetch(`${config.public.apiBase}/experience/${id}`, {
+        await $fetch(`${apiBase}/experience/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

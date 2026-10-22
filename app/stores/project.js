@@ -1,5 +1,6 @@
 // stores/project.js
 import { defineStore } from 'pinia'
+import { useApiConfig } from '~/composables/useApiConfig'
 
 const PROJECT_FIELDS = ['title', 'date', 'status', 'desc', 'live_demo', 'github_link']
 
@@ -57,11 +58,15 @@ export const useProjectStore = defineStore('project', {
             if (typeof path !== 'string') return null
             if (path.startsWith('http')) return path
 
-            const config = useRuntimeConfig()
-            const apiBase = config.public.apiBase || ''
+            const { apiBase } = useApiConfig()
             if (!apiBase) return path
 
-            const host = new URL(apiBase).origin
+            let host
+            try {
+                host = new URL(apiBase).origin
+            } catch {
+                return path
+            }
 
             if (path.startsWith('/storage/')) {
                 return `${host}${path}`
@@ -168,13 +173,13 @@ export const useProjectStore = defineStore('project', {
             this.error = null
 
             try {
-                const config = useRuntimeConfig()
-                if (!config.public.apiBase) {
+                const { apiBase } = useApiConfig()
+                if (!apiBase) {
                     this.projects = []
                     return this.projects
                 }
 
-                const response = await $fetch(`${config.public.apiBase}/projects?page=${page}`, {
+                const response = await $fetch(`${apiBase}/projects?page=${page}`, {
                     headers: this.getHeaders(),
                 })
 
@@ -197,10 +202,10 @@ export const useProjectStore = defineStore('project', {
             this.validationErrors = null
 
             try {
-                const config = useRuntimeConfig()
+                const { apiBase } = useApiConfig()
                 const submitData = this.buildProjectFormData(project)
 
-                const response = await $fetch(`${config.public.apiBase}/projects`, {
+                const response = await $fetch(`${apiBase}/projects`, {
                     method: 'POST',
                     headers: this.getHeaders(),
                     body: submitData,
@@ -225,10 +230,10 @@ export const useProjectStore = defineStore('project', {
             this.validationErrors = null
 
             try {
-                const config = useRuntimeConfig()
+                const { apiBase } = useApiConfig()
                 const submitData = this.buildProjectFormData(project, 'PUT')
 
-                const response = await $fetch(`${config.public.apiBase}/projects/${id}`, {
+                const response = await $fetch(`${apiBase}/projects/${id}`, {
                     method: 'POST',
                     headers: this.getHeaders(),
                     body: submitData,
@@ -257,8 +262,8 @@ export const useProjectStore = defineStore('project', {
             this.error = null
 
             try {
-                const config = useRuntimeConfig()
-                const response = await $fetch(`${config.public.apiBase}/projects/${id}`, {
+                const { apiBase } = useApiConfig()
+                const response = await $fetch(`${apiBase}/projects/${id}`, {
                     method: 'DELETE',
                     headers: this.getHeaders(),
                 })
