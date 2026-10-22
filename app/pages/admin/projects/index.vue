@@ -449,6 +449,9 @@ const buildProjectPayload = () => ({
   gallery: form.value.galleryItems
     .filter((item) => item.type === 'new')
     .map((item) => item.file),
+  existing_gallery: form.value.galleryItems
+    .filter((item) => item.type === 'existing')
+    .map((item) => item.path),
   technologies: form.value.technologies,
   live_demo: form.value.live_demo,
   github_link: form.value.github_link,

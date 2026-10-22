@@ -162,6 +162,11 @@ export const useProjectStore = defineStore('project', {
                 }
             })
 
+            // Storage paths of the gallery images that must be kept
+            this.parseArray(project.existing_gallery).forEach((path, index) => {
+                append(`existing_gallery[${index}]`, path)
+            })
+
             if (method === 'PUT') {
                 submitData.append('_method', 'PUT')
             }
