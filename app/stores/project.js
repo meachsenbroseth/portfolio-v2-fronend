@@ -108,20 +108,38 @@ export const useProjectStore = defineStore('project', {
         },
 
         extractProjectsResponse(response) {
-            const payload = response?.data ?? response
-            const paginator = payload?.data?.data ? payload.data : payload
-            const items = paginator?.data ?? (Array.isArray(payload) ? payload : [])
+            // Laravel returns a paginator: { current_page, data: [...], last_page, total }.
+            // The paginator may be the response itself or wrapped in `data`,
+            // so look for the object that actually carries the meta data
+            // instead of blindly unwrapping `data`.
+            const candidates = [response, response?.data, response?.data?.data]
+            const paginator =
+                candidates.find(
+                    (candidate) =>
+                        candidate &&
+                        !Array.isArray(candidate) &&
+                        (candidate.current_page !== undefined || candidate.last_page !== undefined)
+                ) ?? null
+
+            let items = []
+            if (Array.isArray(paginator?.data)) {
+                items = paginator.data
+            } else if (Array.isArray(response?.data)) {
+                items = response.data
+            } else if (Array.isArray(response)) {
+                items = response
+            }
 
             if (paginator?.current_page) {
                 this.pagination = {
                     current_page: paginator.current_page,
-                    last_page: paginator.last_page,
-                    per_page: paginator.per_page,
-                    total: paginator.total,
+                    last_page: paginator.last_page ?? 1,
+                    per_page: paginator.per_page ?? 10,
+                    total: paginator.total ?? items.length,
                 }
             }
 
-            return Array.isArray(items) ? items : []
+            return items
         },
 
         buildProjectFormData(project, method = 'POST') {
