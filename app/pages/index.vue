@@ -14,7 +14,7 @@
       <section
         class="relative w-full h-[40svh] md:w-[45%] md:h-svh flex-shrink-0 overflow-hidden group border-b md:border-b-0 md:border-r border-[#e0dddc]">
         <div class="absolute inset-0 transition-transform duration-1000 group-hover:scale-110">
-          <img src="~/assets/images/homeimg.jpg"
+          <img src="~/assets/images/homeimg.webp"
             class="w-full h-full object-cover grayscale contrast-[1.1] brightness-75 animate-[glitch-flicker_6s_infinite]"
             alt="Meach Senbroseth full-stack developer portfolio workspace"
             loading="eager"
