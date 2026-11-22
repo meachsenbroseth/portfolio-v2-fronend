@@ -1,291 +1,85 @@
 <template>
-  <div
-    class="min-h-svh bg-[#fafafa] font-mono text-[#131313] overflow-x-hidden selection:bg-[#131313] selection:text-white">
+  <div ref="root"
+    class="relative min-h-svh bg-[#fafafa] font-mono text-[#131313] overflow-x-hidden selection:bg-[#131313] selection:text-white"
+    @pointermove="onPointerMove" @pointerdown="onPointerMove" @pointerleave="onPointerLeave">
+
+    <!-- Cursor glow + grid revealed around the cursor -->
+    <div class="glow pointer-events-none fixed inset-0 z-0" aria-hidden="true"></div>
+    <div class="grid-reveal pointer-events-none fixed inset-0 z-0" aria-hidden="true"></div>
+
+    <!-- Scanline texture -->
     <div
       class="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]">
     </div>
 
-    <div class="fixed inset-0 pointer-events-none z-0 opacity-30" style="
-        background-size: 24px 24px;
-        background-image: radial-gradient(circle, #000 1px, transparent 1px);
-      " aria-hidden="true"></div>
-    <main
-      class="relative w-full min-h-svh flex flex-col md:flex-row overflow-x-hidden z-10 border-b-2 border-[#131313]">
-      <section
-        class="relative w-full h-[40svh] md:w-[45%] md:h-svh flex-shrink-0 overflow-hidden group border-b md:border-b-0 md:border-r border-[#e0dddc]">
-        <div class="absolute inset-0 transition-transform duration-1000 group-hover:scale-110">
-          <img src="~/assets/images/homeimg.webp"
-            class="w-full h-full object-cover grayscale contrast-[1.1] brightness-75 animate-[glitch-flicker_6s_infinite]"
-            alt="Meach Senbroseth full-stack developer portfolio workspace"
-            loading="eager"
-            fetchpriority="high" />
-        </div>
-        <div class="absolute inset-0 p-4 md:p-6 flex flex-col justify-between pointer-events-none">
-          <div class="flex justify-between items-start opacity-60">
-            <div class="text-[7px] md:text-[8px] font-black leading-none uppercase space-y-1">
-              <p class="bg-[#131313] text-white px-1 py-0.5 inline-block">
-                MODE: {{ isTyping ? "BUFFERING" : "READY" }}
-              </p>
-              <p>SENS: 800_ISO</p>
-            </div>
-            <div class="text-[7px] md:text-[8px] font-black text-right uppercase leading-none">
-              <p>COORD_LAT: 11.55°N</p>
-              <p>COORD_LNG: 104.92°E</p>
-            </div>
-          </div>
-          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 md:w-12 md:h-12 opacity-30">
-            <div class="absolute top-1/2 w-full h-px bg-white"></div>
-            <div class="absolute left-1/2 h-full w-px bg-white"></div>
-          </div>
-          <div class="flex justify-between items-end">
-            <div class="bg-white/90 text-[#131313] px-2 py-1 text-[9px] font-black uppercase tracking-tighter">
-              SYS_UID_{{ String(currentIndex + 1).padStart(3, "0") }}
-            </div>
-            <div class="text-[7px] text-white/50 font-bold uppercase tracking-widest">
-              {{ currentYear }} © MSB_SETH
-            </div>
-          </div>
-        </div>
-      </section>
+    <!-- HERO -->
+    <main class="relative z-10 flex min-h-[calc(100svh-45px)] flex-col overflow-hidden">
+      <div class="relative min-h-[520px] flex-1">
+        <h1
+          class="absolute inset-x-0 top-[5%] z-0 px-6 text-center font-sans text-[13vw] font-black uppercase leading-[0.9] tracking-tighter md:top-[10%] md:px-0 md:text-[8.6vw] md:whitespace-nowrap">
+          <span class="sr-only">Full-Stack Developer Cambodia: </span>
+          <span class="outline-text block md:inline">Meach</span>
+          <span class="block md:ml-[0.25em] md:inline">Senbroseth</span>
+        </h1>
 
-      <!-- RIGHT: Content Panel -->
-      <section class="relative w-full min-h-[60svh] md:w-[55%] md:h-svh flex flex-col bg-[#fafafa]">
-        <nav
-          class="h-12 md:h-14 border-b border-[#e0dddc] flex items-center justify-between px-6 md:px-12 bg-white/50 backdrop-blur-sm">
-          <div class="flex items-center gap-3">
-            <div class="w-1.5 h-1.5 bg-[#28c840] animate-pulse"></div>
-            <span class="text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em]">Live_Environment</span>
-          </div>
-          <span class="text-[8px] md:text-[9px] font-bold text-[#aaa] uppercase tracking-widest">{{ currentDate }}</span>
-        </nav>
-
-        <div class="flex-1 flex flex-col justify-center px-6 sm:px-10 md:px-16 lg:px-24 py-12">
-          <div class="mb-6 md:mb-10 space-y-1">
-            <span class="text-[8px] font-black uppercase text-[#aaa] tracking-[0.4em] block">Data_Origin // {{
-              current.author }}</span>
-            <h1
-              class="text-3xl sm:text-4xl lg:text-6xl font-black tracking-tighter text-[#131313] leading-[0.9] uppercase">
-              Full-Stack Developer Cambodia
-            </h1>
-          </div>
-          <div class="border-2 border-[#131313] bg-white shadow-[6px_6px_0px_#e0dddc] relative overflow-hidden">
-            <div class="flex items-center justify-between px-3 py-1.5 bg-[#131313]">
-              <div class="flex items-center gap-2">
-                <div class="flex gap-1">
-                  <div class="w-1.5 h-1.5 bg-[#ff5f56]"></div>
-                  <div class="w-1.5 h-1.5 bg-[#ffbd2e]"></div>
+        <!-- Tech stack popups (behind the portrait) -->
+        <div class="pointer-events-none absolute inset-0 z-[5]" aria-hidden="true">
+          <div v-for="(tech, i) in techStack" :key="tech.name" class="tech-chip absolute"
+            :class="[tech.pos, tech.mobile ? '' : 'hidden md:block']" :style="{ '--d': tech.depth }">
+            <div class="tech-pop" :style="{ '--r': tech.rotate + 'deg', animationDelay: 500 + i * 110 + 'ms' }">
+              <div class="tech-float" :style="{ animationDelay: i * 0.45 + 's', animationDuration: 4.5 + (i % 4) * 0.7 + 's' }">
+                <div
+                  class="pointer-events-auto flex cursor-default items-center gap-2 border-2 border-[#131313] bg-white px-2 py-1.5 shadow-[3px_3px_0_#131313] transition-colors duration-200 hover:bg-[#131313] hover:text-white md:gap-3 md:px-4 md:py-2.5 md:shadow-[5px_5px_0_#131313]">
+                  <Icon :name="tech.icon" class="h-3.5 w-3.5 md:h-6 md:w-6" :style="{ color: tech.color }" />
+                  <span class="text-[9px] font-black uppercase tracking-widest md:text-xs">{{ tech.name }}</span>
                 </div>
-                <span class="text-[8px] text-white/50 font-black uppercase tracking-[0.2em]">stdout.log</span>
               </div>
-            </div>
-            <div class="p-5 md:p-8 min-h-[180px] md:min-h-[220px] font-mono">
-              <p class="text-[#28c840] font-black mb-1 text-[10px] uppercase opacity-70 tracking-widest">
-                >> Executing_Output
-              </p>
-              <p class="font-bold text-[#131313] text-[13px] sm:text-[15px] md:text-[17px] leading-relaxed">
-                <span class="text-[#aaa] font-normal mr-2">val:</span>
-                <span class="italic">"</span>{{ displayedText
-                }}<span class="italic">"</span>
-                <span class="inline-block w-1.5 h-[1.1em] bg-[#131313] align-middle ml-1 shadow-[2px_2px_0px_#28c840]"
-                  :class="isTyping ? '' : 'animate-[blink_1s_step-start_infinite]'
-                    "></span>
-              </p>
-            </div>
-            <div class="border-t border-[#e0dddc] px-3 py-1 flex justify-between items-center bg-[#fafafa]">
-              <span class="text-[7px] font-bold text-[#aaa] uppercase">Enc: UTF-8 | Status: 200_OK</span>
-              <span class="text-[7px] font-black uppercase text-[#131313]">0x8FD2_SECURE</span>
             </div>
           </div>
         </div>
 
-        <footer class="h-20 border-t border-[#e0dddc] flex items-center justify-between px-6 md:px-12 bg-white">
-          <div class="hidden lg:block">
-            <p class="text-[8px] font-black uppercase tracking-widest leading-none">
-              Access_Point: Secondary
-            </p>
-            <p class="text-[7px] text-[#aaa] font-bold uppercase mt-1">
-              Status: Monitoring_Active
-            </p>
-          </div>
-          <div class="flex items-center gap-4 md:gap-8 w-full lg:w-auto justify-between lg:justify-end">
-            <div class="flex border-2 border-[#131313]">
-              <button @click="prev"
-                class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-[#131313] hover:text-white transition-all border-r-2 border-[#131313]">
-                <span class="text-xs font-black">PREV</span>
-              </button>
-              <button @click="next"
-                class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-[#131313] hover:text-white transition-all">
-                <span class="text-xs font-black">NEXT</span>
-              </button>
-            </div>
-            <div
-              class="relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center border-2 border-[#131313] bg-[#fdfdfd]">
-              <svg class="absolute inset-0 -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="16" fill="none" stroke="#f0f0f0" stroke-width="2" />
-                <circle cx="18" cy="18" r="16" fill="none" stroke="#131313" stroke-width="2" stroke-dasharray="100.5"
-                  :stroke-dashoffset="ringOffset" class="transition-[stroke-dashoffset] duration-100 ease-linear" />
-              </svg>
-              <div class="text-center z-10">
-                <span class="block text-[10px] font-black leading-none">{{
-                  currentIndex + 1
-                }}</span>
-                <div class="w-4 h-px bg-[#e0dddc] mx-auto my-0.5"></div>
-                <span class="block text-[7px] font-bold text-[#aaa]">{{
-                  quotes.length
-                }}</span>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </section>
+        <img src="~/assets/images/hero-cutout.webp" width="900" height="1145"
+          alt="Meach Senbroseth, full-stack developer in Phnom Penh"
+          class="reveal-up absolute bottom-0 left-1/2 z-10 h-[74%] w-auto max-w-none -translate-x-1/2 object-contain object-bottom transition-transform duration-500 hover:scale-[1.02] md:h-[80%]"
+          loading="eager" fetchpriority="high" />
+      </div>
+
+      <!-- Role / Telegram CTA / socials -->
+      <div
+        class="relative z-20 flex shrink-0 flex-col gap-5 border-y-2 border-[#131313] bg-white px-5 py-5 sm:flex-row sm:items-end sm:justify-between sm:gap-6 md:pointer-events-none md:absolute md:inset-x-0 md:bottom-0 md:border-y-0 md:bg-transparent md:px-12 md:pb-12 md:pt-0">
+
+        <div class="reveal-left flex max-w-sm flex-col gap-4 md:pointer-events-auto">
+
+          <p class="text-xs leading-relaxed text-[#131313]/70">
+            Full-stack developer in Phnom Penh. I build Laravel and Nuxt apps, APIs and dashboards that ship to production.
+          </p>
+          <a :href="config.public.telegramUrl" target="_blank" rel="noopener noreferrer"
+            aria-label="Message Meach Senbroseth on Telegram"
+            class="group inline-flex w-full items-center justify-between gap-6 border-2 border-[#131313] bg-[#229ED9] px-5 py-3.5 text-white shadow-[6px_6px_0_#131313] transition-all duration-150 hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0_#131313] active:translate-x-[6px] active:translate-y-[6px] active:shadow-none sm:w-auto">
+            <span class="text-xs font-black uppercase tracking-widest">Message me on Telegram</span>
+            <Icon name="simple-icons:telegram" size="20" class="transition-transform duration-200 group-hover:-rotate-12 group-hover:scale-110" />
+          </a>
+        </div>
+
+        <div class="reveal-right flex gap-2 sm:flex-col md:pointer-events-auto">
+          <a v-for="social in socialLinks" :key="social.name" :href="social.url" target="_blank"
+            rel="noopener noreferrer" :aria-label="`${social.name} profile for Meach Senbroseth`"
+            class="group flex flex-1 items-center justify-between gap-6 border-2 border-[#131313] bg-white px-3 py-2.5 transition-all hover:bg-[#131313] hover:text-white sm:flex-none md:px-4">
+            <span class="text-[10px] font-black uppercase tracking-widest">{{ social.name }}</span>
+            <Icon :name="social.icon" size="14" class="opacity-70 transition-opacity group-hover:opacity-100" />
+          </a>
+        </div>
+      </div>
     </main>
 
-    <section class="relative z-10 border-b-2 border-[#131313] bg-white py-16 overflow-hidden">
-      <div class="mb-8 px-6 md:px-12">
-        <h2 class="text-[10px] font-black uppercase tracking-[0.4em] text-[#aaa]">
-          // TECH_STACK_INVENTORY
-        </h2>
-      </div>
-
-      <div class="relative">
-        <!-- Fade overlays -->
-        <div
-          class="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none">
-        </div>
-        <div
-          class="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none">
-        </div>
-
-        <ClientOnly>
-          <Swiper :modules="swiperModules" :slides-per-view="'auto'" :space-between="32" :loop="true"
-            :allow-touch-move="true" :grab-cursor="true" :speed="6000" :free-mode="{ enabled: true, momentum: false }"
-            :autoplay="{
-              delay: 0,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true,
-            }" class="skills-swiper !overflow-visible">
-            <SwiperSlide v-for="(skill, index) in [...skills, ...skills]" :key="`${skill.name}-${index}`"
-              class="!w-auto select-none">
-              <div class="flex items-center gap-5 group cursor-default">
-                <!-- Icon box -->
-                <div
-                  class="w-14 h-14 md:w-16 md:h-16 border-2 border-[#131313] bg-white flex items-center justify-center shadow-[4px_4px_0px_#131313] group-hover:shadow-none group-hover:translate-x-1 group-hover:translate-y-1 transition-all duration-300">
-                  <Icon :name="skill.icon" size="28"
-                    class="text-[#131313] group-hover:scale-110 transition-transform duration-300"
-                    :style="skill.color ? { color: skill.color } : {}" />
-                </div>
-                <!-- Label -->
-                <div class="flex flex-col">
-                  <span class="text-xl md:text-2xl font-black uppercase tracking-tighter text-[#131313]">{{ skill.name
-                  }}</span>
-                  <span class="text-[8px] font-bold text-[#28c840] uppercase tracking-widest">Module_Active</span>
-                </div>
-              </div>
-            </SwiperSlide>
-          </Swiper>
-          <template #fallback>
-            <div class="skills-fallback flex items-center gap-8 overflow-hidden py-1">
-              <div
-                v-for="(skill, index) in skills.slice(0, 8)"
-                :key="`fallback-${skill.name}-${index}`"
-                class="flex items-center gap-5 flex-shrink-0 select-none opacity-90"
-              >
-                <div
-                  class="w-14 h-14 md:w-16 md:h-16 border-2 border-[#131313] bg-white flex items-center justify-center shadow-[4px_4px_0px_#131313]"
-                >
-                  <Icon
-                    :name="skill.icon"
-                    size="28"
-                    class="text-[#131313]"
-                    :style="skill.color ? { color: skill.color } : {}"
-                  />
-                </div>
-                <div class="flex flex-col">
-                  <span class="text-xl md:text-2xl font-black uppercase tracking-tighter text-[#131313]">
-                    {{ skill.name }}
-                  </span>
-                  <span class="text-[8px] font-bold text-[#28c840] uppercase tracking-widest">
-                    Module_Active
-                  </span>
-                </div>
-              </div>
-            </div>
-          </template>
-        </ClientOnly>
-      </div>
-    </section>
-
-    <section
-      class="relative z-10 border-t-2 border-[#131313] px-4 sm:px-8 md:px-12 py-20 md:py-28 overflow-hidden bg-white">
-      <!-- Decorative Ghost Text -->
-      <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
-        aria-hidden="true">
-        <span class="text-[20vw] font-black leading-none tracking-tighter text-[#131313]/[0.025]">CONNECT</span>
-      </div>
-
-      <div class="max-w-6xl mx-auto relative z-10">
-        <div class="reveal-up max-w-2xl space-y-10">
-          <!-- Header -->
-          <div class="space-y-4">
-            <p class="text-[9px] tracking-[0.4em] uppercase text-[#aaa] font-black italic">
-              // uplink.handshake_request
-            </p>
-            <h2 class="text-5xl sm:text-6xl md:text-8xl font-black tracking-tight leading-[0.85] uppercase">
-              Get_In<br />
-              <span class="text-white bg-[#131313] px-2">Touch</span>
-            </h2>
-          </div>
-
-          <!-- Bio / Status -->
-          <div class="space-y-6">
-            <p
-              class="text-[#5d5f5f] text-sm md:text-base leading-relaxed max-w-md border-l-4 border-[#131313] pl-6 py-2 bg-[#fafafa]">
-              Open for specialized web architecture, full-stack engineering, and high-performance collaborations.
-              Currently synchronized in <span class="text-[#131313] font-bold">Phnom Penh</span> — operating on a global
-              scale.
-            </p>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex flex-wrap gap-4">
-            <a :href="`mailto:${config.public.contactEmail}`"
-              class="group flex items-center gap-4 bg-[#131313] text-white px-8 py-4 text-[11px] font-black tracking-[0.2em] uppercase border-2 border-[#131313] hover:bg-white hover:text-[#131313] transition-all duration-300 shadow-[4px_4px_0px_#28c840]">
-              <Icon name="ph:terminal-window-bold" size="16" class="group-hover:rotate-12 transition-transform" />
-              Establish_Connection
-            </a>
-
-            <NuxtLink to="/about"
-              class="flex items-center gap-4 border-2 border-[#131313] px-8 py-4 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-[#131313] hover:text-white transition-all duration-300">
-              <Icon name="ph:fingerprint-bold" size="16" />
-              Bio_Archive
-            </NuxtLink>
-
-            <NuxtLink to="/projects"
-              class="flex items-center gap-4 border-2 border-[#131313] px-8 py-4 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-[#131313] hover:text-white transition-all duration-300">
-              <Icon name="ph:code-bold" size="16" />
-              Project_Repository
-            </NuxtLink>
-          </div>
-
-          <!-- Social Grid -->
-          <div class="inline-flex items-center border-2 border-[#131313] bg-white divide-x-2 divide-[#131313]">
-            <a v-for="social in socialLinks" :key="social.name" :href="social.url" target="_blank" rel="noopener noreferrer"
-              :aria-label="`${social.name} profile for Meach Senbroseth`"
-              class="flex items-center gap-3 px-6 py-4 hover:bg-[#131313] hover:text-white transition-all group">
-              <Icon :name="social.icon" size="16" class="opacity-70 group-hover:opacity-100 transition-opacity" />
-              <span class="text-[10px] font-black uppercase tracking-widest hidden sm:inline">{{ social.name }}</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- Tech stack for screen readers and crawlers -->
+    <ul class="sr-only" aria-label="Tech stack">
+      <li v-for="tech in techStack" :key="tech.name">{{ tech.name }}</li>
+    </ul>
   </div>
 </template>
 
 <script setup>
-import { Swiper, SwiperSlide } from "swiper/vue";
-import { Autoplay, FreeMode } from "swiper/modules";
-import "swiper/css";
 const config = useRuntimeConfig();
 
 useSEO({
@@ -295,130 +89,57 @@ useSEO({
   jsonLd: createWebsiteSchema()
 });
 
-const swiperModules = [Autoplay, FreeMode];
-
-const quotes = [
-  {
-    id: 1,
-    quote:
-      "One must imagine Sisyphus happy, for the struggle itself is enough to fill a man's heart.",
-    author: "Albert Camus",
-  },
-  { id: 2, quote: "Stay hungry, stay foolish.", author: "Steve Jobs" },
-  {
-    id: 3,
-    quote: "Simplicity is the ultimate sophistication.",
-    author: "Leonardo da Vinci",
-  },
-  {
-    id: 4,
-    quote: "Act as if what you do makes a difference. It does.",
-    author: "William James",
-  },
-  {
-    id: 5,
-    quote: "Quality is not an act, it is a habit.",
-    author: "Aristotle",
-  },
-  {
-    id: 6,
-    quote: "Well done is better than well said.",
-    author: "Benjamin Franklin",
-  },
-  {
-    id: 7,
-    quote: "The best revenge is massive success.",
-    author: "Frank Sinatra",
-  },
-  { id: 8, quote: "What we think, we become.", author: "Buddha" },
-];
-
-const currentYear = new Date().getFullYear();
-
-// Format date deterministically (YYYY.MM.DD) to prevent SSR/client locale mismatch
-const currentDate = computed(() => {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}.${month}.${day}`;
-});
-
 const socialLinks = [
   { name: 'GitHub', icon: 'simple-icons:github', url: config.public.githubUrl },
   { name: 'LinkedIn', icon: 'simple-icons:linkedin', url: config.public.linkedinUrl },
-  { name: 'Telegram', icon: 'simple-icons:telegram', url: config.public.telegramUrl },
+
 ];
 
-const skills = [
-  { name: "Vue.js", icon: "simple-icons:vuedotjs", color: "#42b883" },
-  { name: "Nuxt.js", icon: "simple-icons:nuxtdotjs", color: "#00dc82" },
-  { name: "Laravel", icon: "simple-icons:laravel", color: "#FF2D20" },
-  { name: "Tailwind", icon: "simple-icons:tailwindcss", color: "#38bdf8" },
-  { name: "TypeScript", icon: "simple-icons:typescript", color: "#3178c6" },
-  { name: "PostgreSQL", icon: "simple-icons:postgresql", color: "#336791" },
-  { name: "PHP", icon: "simple-icons:php", color: "#777BB4" },
-  { name: "Docker", icon: "simple-icons:docker", color: "#2496ED" },
-  { name: "Git", icon: "simple-icons:git", color: "#F05032" },
-  { name: "Figma", icon: "simple-icons:figma", color: "#F24E1E" },
-  { name: "Node.js", icon: "simple-icons:nodedotjs", color: "#339933" },
-  { name: "MongoDB", icon: "simple-icons:mongodb", color: "#47A248" },
+// pos = tailwind position classes (mobile first), depth = parallax strength in px, mobile = shown below md
+const techStack = [
+  { name: "Vue.js", icon: "simple-icons:vuedotjs", color: "#42b883", pos: "left-[2%] top-[30%] md:left-[6%] md:top-[30%]", depth: 22, rotate: -4, mobile: true },
+  { name: "Laravel", icon: "simple-icons:laravel", color: "#FF2D20", pos: "left-[4%] top-[48%] md:left-[3%] md:top-[46%]", depth: 34, rotate: 3, mobile: true },
+  { name: "TypeScript", icon: "simple-icons:typescript", color: "#3178c6", pos: "left-[1%] top-[66%] md:left-[19%] md:top-[37%]", depth: 16, rotate: -2, mobile: true },
+  { name: "Docker", icon: "simple-icons:docker", color: "#2496ED", pos: "left-[5%] top-[82%] md:left-[11%] md:top-[60%]", depth: 28, rotate: 4, mobile: true },
+  { name: "Nuxt.js", icon: "simple-icons:nuxtdotjs", color: "#00dc82", pos: "hidden md:block md:left-[22%] md:top-[52%]", depth: 40, rotate: -3, mobile: false },
+  { name: "Figma", icon: "simple-icons:figma", color: "#F24E1E", pos: "hidden md:block md:left-[24%] md:top-[68%]", depth: 18, rotate: 5, mobile: false },
+
+  { name: "Tailwind", icon: "simple-icons:tailwindcss", color: "#38bdf8", pos: "right-[2%] top-[34%] md:right-[7%] md:top-[31%]", depth: 26, rotate: 4, mobile: true },
+  { name: "PostgreSQL", icon: "simple-icons:postgresql", color: "#336791", pos: "right-[3%] top-[52%] md:right-[3%] md:top-[47%]", depth: 36, rotate: -3, mobile: true },
+  { name: "PHP", icon: "simple-icons:php", color: "#777BB4", pos: "right-[1%] top-[70%] md:right-[19%] md:top-[38%]", depth: 20, rotate: 2, mobile: true },
+  { name: "Git", icon: "simple-icons:git", color: "#F05032", pos: "right-[6%] top-[86%] md:right-[12%] md:top-[61%]", depth: 30, rotate: -5, mobile: true },
+  { name: "Node.js", icon: "simple-icons:nodedotjs", color: "#339933", pos: "hidden md:block md:right-[22%] md:top-[53%]", depth: 42, rotate: 3, mobile: false },
+  { name: "MongoDB", icon: "simple-icons:mongodb", color: "#47A248", pos: "hidden md:block md:right-[24%] md:top-[69%]", depth: 14, rotate: -4, mobile: false },
 ];
 
-const INTERVAL = 10000;
-const CIRCUMFERENCE = 2 * Math.PI * 16;
+// ── Cursor glow + parallax ────────────────────────
+const root = ref(null);
+let frame = 0;
 
-const currentIndex = ref(0);
-const progress = ref(0);
-// Initialize with first quote so stdout content is visible immediately during SSR and initial load
-const displayedText = ref(quotes[0].quote);
-const isTyping = ref(false);
-const current = computed(() => quotes[currentIndex.value]);
-const ringOffset = computed(
-  () => CIRCUMFERENCE - (progress.value / 100) * CIRCUMFERENCE,
-);
-
-let timer = null;
-let typeTimer = null;
-let observer = null;
-
-const typeEffect = () => {
-  displayedText.value = "";
-  isTyping.value = true;
-  let i = 0;
-  clearInterval(typeTimer);
-  typeTimer = setInterval(() => {
-    if (i < current.value.quote.length) {
-      displayedText.value += current.value.quote.charAt(i++);
-    } else {
-      clearInterval(typeTimer);
-      isTyping.value = false;
-    }
-  }, 35);
+const onPointerMove = (e) => {
+  if (!root.value || frame) return;
+  const { clientX, clientY } = e;
+  frame = requestAnimationFrame(() => {
+    frame = 0;
+    const el = root.value;
+    if (!el) return;
+    el.style.setProperty("--mx", `${clientX}px`);
+    el.style.setProperty("--my", `${clientY}px`);
+    el.style.setProperty("--px", ((clientX / window.innerWidth - 0.5) * 2).toFixed(3));
+    el.style.setProperty("--py", ((clientY / window.innerHeight - 0.5) * 2).toFixed(3));
+  });
 };
 
-const startTimer = () => {
-  progress.value = 0;
-  clearInterval(timer);
-  timer = setInterval(() => {
-    progress.value += 100 / (INTERVAL / 100);
-    if (progress.value >= 100) next();
-  }, 100);
-};
-
-const next = () => {
-  currentIndex.value = (currentIndex.value + 1) % quotes.length;
-  typeEffect();
-  startTimer();
-};
-
-const prev = () => {
-  currentIndex.value = (currentIndex.value - 1 + quotes.length) % quotes.length;
-  typeEffect();
-  startTimer();
+const onPointerLeave = () => {
+  const el = root.value;
+  if (!el) return;
+  el.style.setProperty("--px", "0");
+  el.style.setProperty("--py", "0");
 };
 
 // ── Progressive Scroll Reveal ─────────────────────
+let observer = null;
+
 const observeElements = () => {
   if (typeof IntersectionObserver === "undefined" || !observer) return;
   document
@@ -431,8 +152,6 @@ const observeElements = () => {
 };
 
 onMounted(() => {
-  startTimer();
-
   observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
@@ -451,8 +170,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  clearInterval(timer);
-  clearInterval(typeTimer);
+  if (frame) cancelAnimationFrame(frame);
   if (observer) {
     observer.disconnect();
     observer = null;
@@ -467,56 +185,130 @@ onUnmounted(() => {
   border-radius: 0 !important;
 }
 
-@keyframes glitch-flicker {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* Hollow first name — page background shows through the letters */
+.outline-text {
+  color: transparent;
+  -webkit-text-stroke: 2px #131313;
+}
 
-  2% {
-    opacity: 0.8;
-    transform: skewX(1deg);
-    filter: hue-rotate(90deg);
-  }
-
-  4% {
-    opacity: 1;
-    transform: scale(1);
-    filter: none;
-  }
-
-  40% {
-    opacity: 1;
-  }
-
-  41% {
-    opacity: 0.9;
-    transform: translateX(2px);
-  }
-
-  42% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  100% {
-    opacity: 1;
+@media (min-width: 768px) {
+  .outline-text {
+    -webkit-text-stroke-width: 3px;
   }
 }
 
-@keyframes blink {
+/* ── Cursor glow ── */
+.glow {
+  background: radial-gradient(520px circle at var(--mx, 50%) var(--my, 35%),
+      rgba(34, 158, 217, 0.2),
+      rgba(91, 91, 255, 0.08) 45%,
+      transparent 72%);
+}
+
+.grid-reveal {
+  background-image:
+    linear-gradient(rgba(19, 19, 19, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(19, 19, 19, 0.14) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-mask-image: radial-gradient(260px circle at var(--mx, 50%) var(--my, 35%), #000, transparent 100%);
+  mask-image: radial-gradient(260px circle at var(--mx, 50%) var(--my, 35%), #000, transparent 100%);
+}
+
+/* ── Tech popups: parallax (outer) > pop-in (middle) > float (inner) ── */
+.tech-chip {
+  transform: translate3d(calc(var(--px, 0) * var(--d) * 1px),
+      calc(var(--py, 0) * var(--d) * 1px),
+      0);
+  transition: transform 0.35s ease-out;
+  will-change: transform;
+}
+
+.tech-pop {
+  opacity: 0;
+  animation: tech-pop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.tech-float {
+  animation: tech-float 5s ease-in-out infinite;
+}
+
+@keyframes tech-pop {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.3) rotate(0deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(var(--r, 0deg));
+  }
+}
+
+@keyframes tech-float {
+
   0%,
   100% {
-    opacity: 1;
+    transform: translateY(0);
   }
 
   50% {
-    opacity: 0;
+    transform: translateY(-9px);
   }
 }
 
-/* Swiper override — disable default transitions for infinite loop */
-:deep(.skills-swiper .swiper-wrapper) {
-  transition-timing-function: linear !important;
+/* ── Scroll reveals ── */
+.reveal-up,
+.reveal-left,
+.reveal-right {
+  opacity: 0;
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal-up {
+  transform: translateY(24px);
+}
+
+.reveal-left {
+  transform: translateX(-16px);
+}
+
+.reveal-right {
+  transform: translateX(16px);
+}
+
+.reveal-up.visible,
+.reveal-left.visible,
+.reveal-right.visible {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  img {
+    transition: none !important;
+  }
+
+  .reveal-up,
+  .reveal-left,
+  .reveal-right {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .tech-chip {
+    transform: none;
+    transition: none;
+  }
+
+  .tech-pop {
+    animation: none;
+    opacity: 1;
+    transform: rotate(var(--r, 0deg));
+  }
+
+  .tech-float {
+    animation: none;
+  }
 }
 </style>
