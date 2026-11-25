@@ -76,3 +76,29 @@ body {
     animation: none !important;
   }
 }
+
+/* Indeterminate top progress bar */
+.fetch-bar {
+  animation: fetch-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes fetch-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+/* Skeleton shimmer sweep (must stay global so Tailwind's unhashed animate-[shimmer_...] matches) */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(200%);
+  }
+}
