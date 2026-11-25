@@ -169,7 +169,6 @@ export default defineNuxtConfig({
 
   // Generate sitemap
   sitemap: {
-    siteUrl,
     enabled: true,
     sources: ['/api/__sitemap__/urls'],
     exclude: ['/admin/**'],
